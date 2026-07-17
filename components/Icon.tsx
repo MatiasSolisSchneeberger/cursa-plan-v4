@@ -35,6 +35,15 @@ import {
 	IconTrophy,
 } from "@tabler/icons-react"
 
+/**
+ * Retorna un icono de la libreria @tabler/icons-react a partir del nombre del icono.
+ * 
+ * @param icon - Nombre del icono
+ * @param className - Clase CSS para el icono
+ * @param size - Tamaño del icono
+ * 
+ * @returns Componente Icon
+ */
 export default function Icon({icon, className, size}: {icon: string; className?: string; size?: number}) {
 	switch (icon) {
 		/* Carreras */
@@ -113,7 +122,7 @@ export default function Icon({icon, className, size}: {icon: string; className?:
 		case "planet":
 			return <IconPlanet className={className} size={size} />
 
-        /* default */
+		/* default */
 		default:
 			return <IconIcons size={size} className={className} />
 	}
