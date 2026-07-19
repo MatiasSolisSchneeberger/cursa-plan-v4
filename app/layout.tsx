@@ -1,19 +1,17 @@
-import type {Metadata} from "next"
 import "./globals.css"
 import {cn} from "@/lib/utils"
 import {TooltipProvider} from "@/components/ui/tooltip"
 
-import {Poppins, Montserrat, JetBrains_Mono} from "next/font/google"
+import {/*Poppins, */ Montserrat, JetBrains_Mono} from "next/font/google"
 import {ThemeProvider} from "@/components/theme-provider"
 
-const poppins = Poppins({
-	weight: "400",
+/*const poppins = Poppins({
+	weight: ["100,200,300,400,500,600,700,800,900"],
 	subsets: ["latin"],
 	variable: "--font-poppins",
-})
+})*/
 
 const montserrat = Montserrat({
-	weight: "600",
 	subsets: ["latin"],
 	variable: "--font-montserrat",
 })
@@ -35,7 +33,7 @@ export default function RootLayout({
 			className={cn(
 				"h-full",
 				"antialiased",
-				poppins.variable,
+				/*poppins.variable,*/
 				montserrat.variable,
 				jetbrainsMono.variable,
 				"font-sans",
