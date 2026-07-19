@@ -1,9 +1,9 @@
-import Image from "next/image"
+import HeroSection from "@/sections/HeroSection"
 
 export default function IndexPage() {
 	return (
 		<section>
-			<h1>Index Page</h1>
+			<HeroSection />
 		</section>
 	)
 }

@@ -25,11 +25,13 @@ export default async function CarreraPage() {
 	]
 
 	return (
-		<section className="relative flex w-full shrink-0 flex-col flex-wrap content-start items-center justify-center gap-6 self-stretch">
-			<h2 className="typeset">Carreras</h2>
+		<section className="typeset relative flex w-full shrink-0 flex-col flex-wrap content-start items-center justify-center gap-6 self-stretch">
+			<header>
+				<h2>Carreras</h2>
+			</header>
 
 			<Tabs defaultValue="todos" className="w-full">
-				<TabsList>
+				<TabsList className="mx-auto">
 					{filtros.map(({filtro, label}) => {
 						return (
 							<TabsTrigger key={label} value={filtro}>
