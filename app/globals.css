@@ -214,11 +214,9 @@
 	--sidebar-border: var(--background-400);
 	--sidebar-ring: var(--primary-800);
 
-	--font-sans: "", sans-serif;
-	--font-serif: "Geist", "Geist Fallback", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-	--font-mono:
-		"Geist Mono", "Geist Mono Fallback", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
-		"Courier New", monospace;
+	--font-body: var(--font-montserrat);
+	--font-heading: var(--font-montserrat);
+	--font-mono: var(--font-jetbrains-mono);
 
 	--radius: 0.75rem;
 }
