@@ -22,7 +22,7 @@ import {
 } from "../components/ui/dropdown-menu"
 import {Button, buttonVariants} from "../components/ui/button"
 import {ModeToggle} from "../components/toggle-theme"
-import {cn} from "@/lib/utils"
+import {cn, acortarNombreCarrera} from "@/lib/utils"
 import {getNavbarLinks} from "@/lib/navigation"
 import {Suspense} from "react"
 
@@ -152,10 +152,7 @@ export default async function Navbar() {
 													<DropdownMenuSubContent className="scrollbar-none max-h-[70vh] scroll-fade overflow-y-auto w-48">
 														<Suspense fallback={<div>Loading...</div>}>
 															{link.subtabs.map(({href, label, icon, variant, slug}) => {
-																const labelShort = label
-																	.replace("Ingeniería ", "Ing. ")
-																	.replace("Licenciatura ", "Lic. ")
-																	.replace("Profesorado ", "Prof. ")
+																const labelShort = acortarNombreCarrera(label)
 
 																return (
 																	<DropdownMenuItem
