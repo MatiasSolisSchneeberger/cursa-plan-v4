@@ -1,4 +1,4 @@
-import type { CarreraJSON, Condicion, Requisito } from '../types/db';
+import type { CarreraJSON, Condicion, Requisito } from '../types/carrera';
 
 // --- FUNCIÓN AUXILIAR PARA AGRUPAR CORRELATIVAS ---
 export interface CorrelativaRaw {

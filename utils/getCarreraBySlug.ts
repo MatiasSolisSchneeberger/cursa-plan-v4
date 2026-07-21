@@ -1,4 +1,6 @@
-import supabase from '../utils/supabase'; // Tu configuración de supabase
+import { createClient } from './supabase/client';
+
+const supabase = createClient();
 
 export const getCarreraBySlug = async (slug: string) => {
     const { data, error } = await supabase

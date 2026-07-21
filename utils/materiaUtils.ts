@@ -1,15 +1,15 @@
 
-import { type GrupoCorrelativa } from "@/types/db";
+import { type GrupoCorrelativa, type Condicion, type Requisito } from "@/types/carrera";
 
 export const isGroupSatisfied = (
     grupo: GrupoCorrelativa,
     getEstado: (id: number) => string | undefined
 ) => {
     // Verificamos cada condición del grupo
-    return grupo.condiciones.every((cond) => {
+    return grupo.condiciones.every((cond: Condicion) => {
         if (cond.tipo === "materia") {
             // Verificamos cada requisito dentro de la condición
-            return cond.requisitos.every((req) => {
+            return cond.requisitos.every((req: Requisito) => {
                 if ("id" in req && req.id) {
                     const est = getEstado(req.id);
                     if (!est || est === "Sin cursar") return false;

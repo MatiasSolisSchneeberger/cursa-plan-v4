@@ -110,3 +110,6 @@ export interface CarreraType {
     icon: string;
     planes?: { anio_inicio: number; materia_plan?: { id: number }[] }[];
 }
+
+export type carreras = CarreraType[];
+export type CarreraConPlanes = CarreraType;
