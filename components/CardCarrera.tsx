@@ -5,6 +5,7 @@ import {IconArrowRight, IconHeartFilled} from "@tabler/icons-react"
 import {Button} from "./ui/button"
 import {cn} from "@/lib/utils"
 import Link from "next/link"
+import { Skeleton } from "./ui/skeleton"
 
 /**
  * Plan de Estudio
@@ -95,6 +96,26 @@ export default function CardCarrera({
 					)}
 				</CardFooter>
 			)}
+		</Card>
+	)
+}
+
+export function CardCarreraSkeleton() {
+	return (
+		<Card className="shadow-xs animate-pulse">
+			<CardHeader>
+				<CardTitle className="flex items-center gap-3 overflow-hidden">
+					<Skeleton className="size-9 rounded-md bg-muted-foreground/10" />
+					<Skeleton className="h-6 w-32 bg-muted-foreground/10" />
+				</CardTitle>
+				<CardAction>
+					<Skeleton className="h-5 w-16 rounded-full bg-muted-foreground/10" />
+				</CardAction>
+			</CardHeader>
+			<CardFooter className="flex gap-2">
+				<Skeleton className="h-9 w-28 rounded-md bg-muted-foreground/10" />
+				<Skeleton className="h-9 w-28 rounded-md bg-muted-foreground/10" />
+			</CardFooter>
 		</Card>
 	)
 }

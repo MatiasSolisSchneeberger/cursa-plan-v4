@@ -6,8 +6,33 @@ import {Button} from "@/components/ui/button"
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu"
 import {IconMoon, IconSun} from "@tabler/icons-react"
 
+import {useEffect} from "react"
+
 export function ModeToggle() {
-	const {setTheme} = useTheme()
+	const {setTheme, resolvedTheme} = useTheme()
+
+	const changeThemeWithTransition = (newTheme: string) => {
+		if (typeof document !== "undefined" && "startViewTransition" in document) {
+			;(document as Document & {startViewTransition: (cb: () => void) => void}).startViewTransition(() => {
+				setTheme(newTheme)
+			})
+		} else {
+			setTheme(newTheme)
+		}
+	}
+
+	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "d") {
+				e.preventDefault()
+				const targetTheme = resolvedTheme === "dark" ? "light" : "dark"
+				changeThemeWithTransition(targetTheme)
+			}
+		}
+
+		window.addEventListener("keydown", handleKeyDown)
+		return () => window.removeEventListener("keydown", handleKeyDown)
+	}, [resolvedTheme, setTheme])
 
 	return (
 		<DropdownMenu>
@@ -21,9 +46,9 @@ export function ModeToggle() {
 				}
 			/>
 			<DropdownMenuContent align="end">
-				<DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
-				<DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
-				<DropdownMenuItem onClick={() => setTheme("system")}>System</DropdownMenuItem>
+				<DropdownMenuItem onClick={() => changeThemeWithTransition("light")}>Light</DropdownMenuItem>
+				<DropdownMenuItem onClick={() => changeThemeWithTransition("dark")}>Dark</DropdownMenuItem>
+				<DropdownMenuItem onClick={() => changeThemeWithTransition("system")}>System</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
 	)

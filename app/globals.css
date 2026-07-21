@@ -362,6 +362,7 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, border-color 0.3s ease-in-out;
 	}
 
 	h1,
@@ -396,3 +397,11 @@
 .animate-scroll {
 	animation: scroll 60s linear infinite;
 }
+
+/* Transición suave (fade-in-out) al cambiar de tema */
+::view-transition-old(root),
+::view-transition-new(root) {
+	animation-duration: 0.15s;
+	animation-timing-function: ease-in-out;
+}
+

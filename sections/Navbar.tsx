@@ -45,7 +45,7 @@ export default async function Navbar() {
 												{label}
 											</NavigationMenuTrigger>
 											<NavigationMenuContent>
-												<ul className="grid w-[400px] gap-2 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+												<ul className="grid w-100 gap-2 md:w-125 md:grid-cols-2 lg:w-150">
 													<Suspense fallback={<div>Loading...</div>}>
 														{subtabs.map(({href, label, icon, slug}) => (
 															<NavigationMenuLink

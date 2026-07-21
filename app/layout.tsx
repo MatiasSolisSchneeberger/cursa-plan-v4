@@ -46,7 +46,7 @@ export default function RootLayout({
 			)}>
 			<body suppressHydrationWarning className="min-h-full flex flex-col">
 				<TooltipProvider>
-					<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+					<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
 						{children}
 					</ThemeProvider>
 				</TooltipProvider>

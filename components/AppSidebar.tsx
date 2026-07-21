@@ -13,6 +13,7 @@ import {
 	SidebarMenuSubItem,
 	SidebarMenuButton,
 } from "./ui/sidebar"
+import { Skeleton } from "./ui/skeleton"
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -183,6 +184,92 @@ export default async function AppSidebar({carreraSlug, plan}: AppSidebarProps) {
 					<div className="flex-1 min-w-0">
 						<p className="text-sm font-semibold truncate text-sidebar-foreground">Matias Solis</p>
 						<p className="text-xs text-muted-foreground truncate">@matias.solis</p>
+					</div>
+				</div>
+			</SidebarFooter>
+		</Sidebar>
+	)
+}
+
+export function AppSidebarSkeleton() {
+	return (
+		<Sidebar className="animate-pulse">
+			{/* HEADER Skeleton */}
+			<SidebarHeader className="border-b border-sidebar-border/50 p-4">
+				<SidebarMenu>
+					<SidebarMenuItem>
+						<SidebarMenuButton size="lg" className="justify-start pointer-events-none">
+							<Skeleton className="size-8 rounded-md bg-sidebar-border" />
+							<div className="flex flex-col gap-1.5 flex-1 text-left">
+								<Skeleton className="h-4 w-28 bg-sidebar-border" />
+								<Skeleton className="h-3 w-16 bg-sidebar-border" />
+							</div>
+						</SidebarMenuButton>
+					</SidebarMenuItem>
+				</SidebarMenu>
+			</SidebarHeader>
+
+			{/* CONTENT Skeleton */}
+			<SidebarContent className="p-2 gap-4">
+				{/* 1. Item Inicio */}
+				<SidebarGroup>
+					<SidebarMenu>
+						<SidebarMenuItem>
+							<div className="flex items-center gap-2 px-3 py-2">
+								<Skeleton className="size-4 rounded-md bg-sidebar-border" />
+								<Skeleton className="h-4 w-28 bg-sidebar-border" />
+							</div>
+						</SidebarMenuItem>
+					</SidebarMenu>
+				</SidebarGroup>
+
+				{/* 2. Grupo Información */}
+				<SidebarGroup>
+					<SidebarGroupLabel>
+						<Skeleton className="h-3 w-20 bg-sidebar-border" />
+					</SidebarGroupLabel>
+					<SidebarGroupContent>
+						<SidebarMenu>
+							<SidebarMenuItem>
+								<div className="flex items-center gap-2 px-3 py-2">
+									<Skeleton className="size-4 rounded-md bg-sidebar-border" />
+									<Skeleton className="h-4 w-24 bg-sidebar-border" />
+								</div>
+							</SidebarMenuItem>
+						</SidebarMenu>
+					</SidebarGroupContent>
+				</SidebarGroup>
+
+				{/* 3. Grupo Plan de Estudios */}
+				<SidebarGroup>
+					<SidebarGroupLabel>
+						<Skeleton className="h-3 w-24 bg-sidebar-border" />
+					</SidebarGroupLabel>
+					<SidebarGroupContent>
+						<SidebarMenu className="gap-1">
+							{Array.from({ length: 5 }).map((_, i) => (
+								<SidebarMenuItem key={i}>
+									<div className="flex items-center justify-between px-3 py-2">
+										<div className="flex items-center gap-2">
+											<Skeleton className="size-4 rounded-md bg-sidebar-border" />
+											<Skeleton className="h-4 w-20 bg-sidebar-border" />
+										</div>
+										<Skeleton className="size-4 rounded-md bg-sidebar-border" />
+									</div>
+								</SidebarMenuItem>
+							))}
+						</SidebarMenu>
+					</SidebarGroupContent>
+				</SidebarGroup>
+			</SidebarContent>
+
+			{/* FOOTER Skeleton */}
+			<SidebarFooter className="border-t border-sidebar-border/50 p-4">
+				<div className="flex items-center gap-3 w-full p-1">
+					<Skeleton className="size-10 rounded-full bg-sidebar-border" />
+					<div className="flex-1 flex flex-col gap-1.5">
+						<Skeleton className="h-4 w-24 bg-sidebar-border" />
+						<Skeleton className="h-3 w-20 bg-sidebar-border" />
 					</div>
 				</div>
 			</SidebarFooter>

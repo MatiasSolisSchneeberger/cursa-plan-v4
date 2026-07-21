@@ -1,4 +1,4 @@
-import AppSidebar from "@/components/AppSidebar"
+import AppSidebar, { AppSidebarSkeleton } from "@/components/AppSidebar"
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -7,9 +7,10 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import {Kbd} from "@/components/ui/kbd"
+import KbdMacShortcut from "@/components/KbdMacShortcut"
 import {SidebarProvider, SidebarTrigger} from "@/components/ui/sidebar"
 import {Tooltip, TooltipContent, TooltipTrigger} from "@/components/ui/tooltip"
+import { Suspense } from "react"
 
 interface LayoutProps {
 	children: React.ReactNode
@@ -25,7 +26,9 @@ export default async function CarreraPlanLayout({children, params}: LayoutProps)
 
 	return (
 		<SidebarProvider>
-			<AppSidebar carreraSlug={carreraSlug} plan={plan} />
+			<Suspense fallback={<AppSidebarSkeleton />}>
+				<AppSidebar carreraSlug={carreraSlug} plan={plan} />
+			</Suspense>
 			<main className="relative w-full">
 				<header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
 					<Tooltip delay={2000}>
@@ -33,7 +36,7 @@ export default async function CarreraPlanLayout({children, params}: LayoutProps)
 						<TooltipContent>
 							<p className="text-sm">Panel de Navegación</p>
 
-							<Kbd>{navigator.userAgent.includes("Mac") ? "⌘" : "Ctrl"} + B</Kbd>
+							<KbdMacShortcut />
 						</TooltipContent>
 					</Tooltip>
 					<Breadcrumb>

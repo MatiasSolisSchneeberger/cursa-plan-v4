@@ -1,7 +1,7 @@
 import {createClient} from "@/utils/supabase/server"
 import {cookies} from "next/headers"
 import {formatearCorrelativas} from "@/utils/transformData"
-import type { AnioJSON, PeriodoJSON } from "@/types/carrera"
+import type {AnioJSON, PeriodoJSON} from "@/types/carrera"
 import type {
 	Carrera,
 	CarreraWithPlanes,
@@ -13,7 +13,7 @@ import type {
 	DBInscripcion,
 	DBFeriado,
 	DBCalendarioClase,
-	AnioSeguimientoJSON
+	AnioSeguimientoJSON,
 } from "@/types/queries"
 import type {EstadoMateria} from "@/types/materiaTypes"
 
@@ -28,7 +28,8 @@ export async function getPageCarrerasData(): Promise<Carrera[]> {
 
 	const {data, error} = await supabase
 		.from("carreras")
-		.select(`
+		.select(
+			`
 			id,
 			nombre,
 			slug,
@@ -41,7 +42,8 @@ export async function getPageCarrerasData(): Promise<Carrera[]> {
 					id
 				)
 			)
-		`)
+		`,
+		)
 		.order("nombre", {ascending: true})
 
 	if (error) {
@@ -58,8 +60,8 @@ export async function getPageCarrerasData(): Promise<Carrera[]> {
 			id: Number(p.id),
 			anio_inicio: Number(p.anio_inicio),
 			anio_fin: p.anio_fin ? Number(p.anio_fin) : null,
-			materia_plan: p.materia_plan || []
-		}))
+			materia_plan: p.materia_plan || [],
+		})),
 	})) as Carrera[]
 }
 
@@ -75,7 +77,8 @@ export async function getPageCarreraDetalleData(carreraSlug: string): Promise<Ca
 
 	const {data, error} = await supabase
 		.from("carreras")
-		.select(`
+		.select(
+			`
 			id,
 			nombre,
 			slug,
@@ -85,7 +88,8 @@ export async function getPageCarreraDetalleData(carreraSlug: string): Promise<Ca
 				anio_inicio,
 				anio_fin
 			)
-		`)
+		`,
+		)
 		.eq("slug", carreraSlug)
 		.single()
 
@@ -102,8 +106,8 @@ export async function getPageCarreraDetalleData(carreraSlug: string): Promise<Ca
 		planes: (data.planes || []).map((p: any) => ({
 			id: Number(p.id),
 			anio_inicio: Number(p.anio_inicio),
-			anio_fin: p.anio_fin ? Number(p.anio_fin) : null
-		}))
+			anio_fin: p.anio_fin ? Number(p.anio_fin) : null,
+		})),
 	}
 }
 
@@ -115,14 +119,12 @@ export async function getPageCarreraDetalleData(carreraSlug: string): Promise<Ca
  */
 export async function getPagePlanData(
 	planIdOrYear: number | string,
-	carreraSlug?: string
+	carreraSlug?: string,
 ): Promise<PlanCurricularData> {
 	const cookieStore = await cookies()
 	const supabase = createClient(cookieStore)
 
-	let query = supabase
-		.from("plan_estudio")
-		.select(`
+	let query = supabase.from("plan_estudio").select(`
 			id,
 			anio_inicio,
 			anio_fin,
@@ -195,7 +197,7 @@ export async function getPagePlanData(
 		// B. Años
 		const anioKey = Number(item.anio)
 		if (!aniosMap.has(anioKey)) {
-			aniosMap.set(anioKey, { anio: anioKey, periodosMap: new Map() })
+			aniosMap.set(anioKey, {anio: anioKey, periodosMap: new Map()})
 		}
 		const anioObj = aniosMap.get(anioKey)
 
@@ -207,13 +209,14 @@ export async function getPagePlanData(
 			anioObj.periodosMap.set(periodoKey, {
 				id: Number(item.nro_periodo),
 				nroPeriodo: Number(item.nro_periodo),
-				tipoPeriodo: item.periodo
-					? {
+				tipoPeriodo:
+					item.periodo ?
+						{
 							id: Number(item.periodo.id),
 							slug: item.periodo.slug,
 							nombre: item.periodo.nombre,
 						}
-					: {
+					:	{
 							id: 0,
 							slug: "no-definido",
 							nombre: "No definido",
@@ -235,12 +238,13 @@ export async function getPagePlanData(
 				slug: item.materia.slug,
 				esOptativa: !!item.nro_optativa,
 				nroOptativa: item.nro_optativa ? Number(item.nro_optativa) : null,
-				orientacion: item.orientacion
-					? {
+				orientacion:
+					item.orientacion ?
+						{
 							nombre: item.orientacion.nombre,
 							slug: item.orientacion.slug,
 						}
-					: null,
+					:	null,
 				correlativas: formatearCorrelativas(item.correlativas || []),
 			})
 		}
@@ -252,8 +256,9 @@ export async function getPagePlanData(
 		.sort((a: any, b: any) => a.anio - b.anio)
 		.map((a: any) => ({
 			anio: a.anio,
-			periodos: Array.from(a.periodosMap.values())
-				.sort((p1: any, p2: any) => p1.nroPeriodo - p2.nroPeriodo) as PeriodoJSON[],
+			periodos: Array.from(a.periodosMap.values()).sort(
+				(p1: any, p2: any) => p1.nroPeriodo - p2.nroPeriodo,
+			) as PeriodoJSON[],
 		}))
 
 	return {
@@ -280,7 +285,7 @@ export async function getPagePlanData(
  */
 export async function getPageCalendarioData(
 	fechaInicio: Date | string,
-	fechaFin: Date | string
+	fechaFin: Date | string,
 ): Promise<CalendarioCompletoData> {
 	const cookieStore = await cookies()
 	const supabase = createClient(cookieStore)
@@ -308,7 +313,7 @@ export async function getPageCalendarioData(
 			.from("calendario_clases")
 			.select("id, nro_periodo, fecha_inicio, fecha_fin, nota, periodo:tipos_periodo (id, nombre, slug)")
 			.gte("fecha_fin", startStr)
-			.lte("fecha_inicio", endStr)
+			.lte("fecha_inicio", endStr),
 	])
 
 	if (examenesRes.error) throw examenesRes.error
@@ -320,7 +325,7 @@ export async function getPageCalendarioData(
 		turnosExamenes: (examenesRes.data || []) as unknown as DBTurnoExamen[],
 		inscripciones: (inscripcionesRes.data || []) as unknown as DBInscripcion[],
 		feriados: (feriadosRes.data || []) as unknown as DBFeriado[],
-		calendarioClases: (clasesRes.data || []) as unknown as DBCalendarioClase[]
+		calendarioClases: (clasesRes.data || []) as unknown as DBCalendarioClase[],
 	}
 }
 
@@ -335,14 +340,11 @@ export async function getPageDashboardData(userId: string): Promise<DashboardUse
 	const supabase = createClient(cookieStore)
 
 	const [userRes, favsRes] = await Promise.all([
-		supabase
-			.from("usuarios")
-			.select("id, username, full_name, avatar_url, role, icon")
-			.eq("id", userId)
-			.maybeSingle(),
+		supabase.from("usuarios").select("id, username, full_name, avatar_url, role, icon").eq("id", userId).maybeSingle(),
 		supabase
 			.from("carreras_fav")
-			.select(`
+			.select(
+				`
 				id,
 				plan_id,
 				plan:plan_estudio (
@@ -356,16 +358,18 @@ export async function getPageDashboardData(userId: string): Promise<DashboardUse
 						icon
 					)
 				)
-			`)
-			.eq("user_id", userId)
+			`,
+			)
+			.eq("user_id", userId),
 	])
 
 	if (userRes.error) throw userRes.error
 	if (favsRes.error) throw favsRes.error
 
 	const userRaw = userRes.data
-	const user = userRaw
-		? {
+	const user =
+		userRaw ?
+			{
 				id: userRaw.id,
 				username: userRaw.username,
 				fullName: userRaw.full_name,
@@ -373,7 +377,7 @@ export async function getPageDashboardData(userId: string): Promise<DashboardUse
 				role: userRaw.role,
 				icon: userRaw.icon,
 			}
-		: {
+		:	{
 				id: userId,
 				username: null,
 				fullName: null,
@@ -410,19 +414,13 @@ export async function getPageDashboardData(userId: string): Promise<DashboardUse
  * @param planId - ID del plan de estudio
  * @returns Malla curricular con avances del usuario
  */
-export async function getPageMiCarreraData(
-	userId: string,
-	planId: number | string
-): Promise<SeguimientoPlanData> {
+export async function getPageMiCarreraData(userId: string, planId: number | string): Promise<SeguimientoPlanData> {
 	const cookieStore = await cookies()
 	const supabase = createClient(cookieStore)
 
 	const [planData, advancesRes] = await Promise.all([
 		getPagePlanData(planId),
-		supabase
-			.from("avances")
-			.select("materia_plan_id, estado")
-			.eq("user_id", userId)
+		supabase.from("avances").select("materia_plan_id, estado").eq("user_id", userId),
 	])
 
 	if (advancesRes.error) {
@@ -467,6 +465,7 @@ export async function getCarreras(): Promise<Carrera[]> {
 }
 
 export async function getCarrerasConPlanes(): Promise<Carrera[]> {
+	// await new Promise((resolve) => setTimeout(resolve, 20000))
 	return getPageCarrerasData()
 }
 
