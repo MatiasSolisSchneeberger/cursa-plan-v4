@@ -1,9 +1,15 @@
+import type { Metadata } from "next"
 import "./globals.css"
 import {cn} from "@/lib/utils"
 import {TooltipProvider} from "@/components/ui/tooltip"
 
 import {/*Poppins, */ Montserrat, JetBrains_Mono} from "next/font/google"
 import {ThemeProvider} from "@/components/theme-provider"
+
+export const metadata: Metadata = {
+	title: "CursaPlan",
+	description: "Plan de estudios interactivo para carreras universitarias",
+}
 
 /*const poppins = Poppins({
 	weight: ["100,200,300,400,500,600,700,800,900"],
@@ -26,7 +32,7 @@ export default function RootLayout({
 }: Readonly<{
 	children: React.ReactNode
 }>) {
-    return (
+	return (
 		<html
 			suppressHydrationWarning
 			lang="es"
@@ -38,8 +44,7 @@ export default function RootLayout({
 				jetbrainsMono.variable,
 				"font-sans",
 			)}>
-			<title>CursaPlan</title>
-			<body className="min-h-full flex flex-col">
+			<body suppressHydrationWarning className="min-h-full flex flex-col">
 				<TooltipProvider>
 					<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
 						{children}
@@ -49,3 +54,4 @@ export default function RootLayout({
 		</html>
 	)
 }
+
