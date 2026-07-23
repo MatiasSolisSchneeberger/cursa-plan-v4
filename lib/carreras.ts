@@ -1,35 +1,269 @@
 import {createClient} from "@/utils/supabase/server"
 import {cookies} from "next/headers"
 import {formatearCorrelativas} from "@/utils/transformData"
-import type {AnioJSON, PeriodoJSON} from "@/types/carrera"
+import type {GrupoCorrelativa, MateriaJSON} from "@/types/carrera"
+import type {EstadoMateria} from "@/types/materiaTypes"
+import {unstable_cacheLife as cacheLife} from "next/cache"
+import {cache} from "react"
+import {createClient as createSupabaseClient} from "@supabase/supabase-js"
 import type {
 	Carrera,
-	CarreraWithPlanes,
-	PlanCurricularData,
-	CalendarioCompletoData,
-	DashboardUserData,
-	SeguimientoPlanData,
-	DBTurnoExamen,
-	DBInscripcion,
-	DBFeriado,
-	DBCalendarioClase,
+	CarreraConPlanes,
+	DatosPlanCurricular,
+	DatosCalendarioCompleto,
+	DatosDashboardUsuario,
+	DatosSeguimientoPlan,
+	DatosMateriaDetalle,
+	ResultadosBusquedaGeneral,
+	PerfilUsuario,
+	TurnoExamenBD,
+	InscripcionBD,
+	FeriadoBD,
+	CalendarioClaseBD,
 	AnioSeguimientoJSON,
-} from "@/types/queries"
-import type {EstadoMateria} from "@/types/materiaTypes"
+	PlanCarreraFavorito,
+	OrientacionBasica,
+	ResultadoBusquedaCarrera,
+	ResultadoBusquedaMateria,
+	AnioJSON,
+	PeriodoJSON,
+	GrupoOrientacion,
+	GrupoOrientacionSeguimiento,
+	MateriaSeguimientoJSON
+} from "@/types/consultas"
+
+// Client estático de Supabase para consultas públicas cacheables.
+// No accede a cookies() ni headers, evitando errores de dynamic data en "use cache".
+const staticSupabase = createSupabaseClient(
+	process.env.NEXT_PUBLIC_SUPABASE_URL!,
+	process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
+
+// --- INTERFACES INTERNAS PARA CONSULTAS DE BASE DE DATOS ---
+
+interface CorrelativaDBRow {
+	tipo_requisito: string;
+	condicion: string;
+	porcentaje: number;
+	notas: string | null;
+	requisito_plan: {
+		id: number;
+		materia: { nombre: string; slug: string } | null;
+	} | null;
+}
+
+interface MateriaPlanQueryRow {
+	id: number;
+	anio: number;
+	nro_periodo: number;
+	nro_optativa: number | null;
+	periodo: { id: number; slug: string; nombre: string } | null;
+	orientacion: { id: number; nombre: string; slug: string } | null;
+	materia: { id: number; nombre: string; slug: string } | null;
+	correlativas: CorrelativaDBRow[];
+}
+
+interface PlanEstudioQueryResponse {
+	id: number;
+	anio_inicio: number;
+	anio_fin: number | null;
+	carreras: {
+		id: number;
+		nombre: string;
+		slug: string;
+		icon: string;
+	} | null;
+	materias_plan: MateriaPlanQueryRow[];
+}
+
+interface UsuarioQueryRow {
+	id: string;
+	username: string | null;
+	full_name: string | null;
+	avatar_url: string | null;
+	role: string;
+	icon: string | null;
+}
+
+interface CarreraFavQueryRow {
+	id: number;
+	plan_id: number;
+	plan: {
+		id: number;
+		anio_inicio: number;
+		anio_fin: number | null;
+		carrera: {
+			id: number;
+			nombre: string;
+			slug: string;
+			icon: string;
+		} | null;
+	} | null;
+}
+
+interface AvanceQueryRow {
+	materia_plan_id: number;
+	estado: string;
+}
+
+interface MateriaDetalleQueryRow {
+	id: number;
+	anio: number;
+	nro_periodo: number;
+	nro_optativa: number | null;
+	periodo: { id: number; slug: string; nombre: string } | null;
+	orientacion: { id: number; nombre: string; slug: string } | null;
+	materia: { id: number; nombre: string; slug: string } | null;
+	plan: {
+		id: number;
+		anio_inicio: number;
+		carreras: {
+			nombre: string;
+			slug: string;
+		} | null;
+	} | null;
+	correlativas: CorrelativaDBRow[];
+}
+
+interface CarreraSearchRow {
+	id: number;
+	nombre: string;
+	slug: string;
+	icon: string;
+}
+
+interface MateriaPlanSearchRow {
+	id: number;
+	materia: {
+		id: number;
+		nombre: string;
+		slug: string;
+	} | null;
+	plan: {
+		anio_inicio: number;
+		carreras: {
+			nombre: string;
+			slug: string;
+		} | null;
+	} | null;
+}
+
+// --- HELPER PARA PROCESAR CORRELATIVAS ---
+
+import type { CorrelativaRaw } from "@/utils/transformData"
+
+function procesarCorrelativas(correlativasRaw: CorrelativaDBRow[]): GrupoCorrelativa[] {
+	const formateadas: CorrelativaRaw[] = (correlativasRaw || []).map((corr) => ({
+		tipo_requisito: corr.tipo_requisito,
+		condicion: corr.condicion,
+		porcentaje: corr.porcentaje || undefined,
+		notas: corr.notas || undefined,
+		requisito_plan: corr.requisito_plan ? {
+			id: Number(corr.requisito_plan.id),
+			materia: corr.requisito_plan.materia ? {
+				nombre: corr.requisito_plan.materia.nombre,
+				slug: corr.requisito_plan.materia.slug,
+			} : { nombre: "", slug: "" }
+		} : undefined
+	}))
+
+	return formatearCorrelativas(formateadas) as unknown as GrupoCorrelativa[]
+}
+
+// --- HELPERS PARA AGRUPAR MATERIAS POR ORIENTACIÓN ---
+
+function agruparMateriasPorOrientacion(materias: MateriaJSON[]): GrupoOrientacion[] {
+	const gruposMap = new Map<string, GrupoOrientacion>()
+
+	gruposMap.set("comun", {
+		orientacion: null,
+		materias: []
+	})
+
+	materias.forEach((materia) => {
+		if (materia.orientacion && materia.orientacion.id !== undefined) {
+			const oId = materia.orientacion.id
+			const key = `orientacion-${oId}`
+
+			if (!gruposMap.has(key)) {
+				gruposMap.set(key, {
+					orientacion: {
+						id: oId,
+						nombre: materia.orientacion.nombre,
+						slug: materia.orientacion.slug
+					},
+					materias: []
+				})
+			}
+
+			gruposMap.get(key)!.materias.push(materia)
+		} else {
+			gruposMap.get("comun")!.materias.push(materia)
+		}
+	})
+
+	return Array.from(gruposMap.values())
+		.filter((g) => g.materias.length > 0)
+		.sort((a, b) => {
+			if (a.orientacion === null) return -1
+			if (b.orientacion === null) return 1
+			return a.orientacion.nombre.localeCompare(b.orientacion.nombre)
+		})
+}
+
+function agruparMateriasSeguimientoPorOrientacion(materias: MateriaSeguimientoJSON[]): GrupoOrientacionSeguimiento[] {
+	const gruposMap = new Map<string, GrupoOrientacionSeguimiento>()
+
+	gruposMap.set("comun", {
+		orientacion: null,
+		materias: []
+	})
+
+	materias.forEach((materia) => {
+		if (materia.orientacion && materia.orientacion.id !== undefined) {
+			const oId = materia.orientacion.id
+			const key = `orientacion-${oId}`
+
+			if (!gruposMap.has(key)) {
+				gruposMap.set(key, {
+					orientacion: {
+						id: oId,
+						nombre: materia.orientacion.nombre,
+						slug: materia.orientacion.slug
+					},
+					materias: []
+				})
+			}
+
+			gruposMap.get(key)!.materias.push(materia)
+		} else {
+			gruposMap.get("comun")!.materias.push(materia)
+		}
+	})
+
+	return Array.from(gruposMap.values())
+		.filter((g) => g.materias.length > 0)
+		.sort((a, b) => {
+			if (a.orientacion === null) return -1
+			if (b.orientacion === null) return 1
+			return a.orientacion.nombre.localeCompare(b.orientacion.nombre)
+		})
+}
+
+// --- FUNCIONES DE CONSULTA PÚBLICAS (CON "USE CACHE") ---
 
 /**
- * Retorna la lista de carreras con sus planes básicos para la página /carreras.
+ * Obtiene la lista de carreras con sus planes básicos para la grilla de /carreras.
  *
- * @returns Array de carreras con sus planes
+ * @returns Array de carreras con sus planes correspondientes
  */
-export async function getPageCarrerasData(): Promise<Carrera[]> {
-	const cookieStore = await cookies()
-	const supabase = createClient(cookieStore)
+export async function getCarreras(): Promise<Carrera[]> {
+	"use cache"
+	cacheLife("hours")
 
-	const {data, error} = await supabase
+	const {data, error} = await staticSupabase
 		.from("carreras")
-		.select(
-			`
+		.select(`
 			id,
 			nombre,
 			slug,
@@ -42,21 +276,20 @@ export async function getPageCarrerasData(): Promise<Carrera[]> {
 					id
 				)
 			)
-		`,
-		)
+		`)
 		.order("nombre", {ascending: true})
 
 	if (error) {
-		console.error("Error fetching careers:", error)
+		console.error("Error al obtener carreras:", error)
 		throw new Error(error.message)
 	}
 
-	return (data || []).map((c: any) => ({
+	return (data || []).map((c) => ({
 		id: Number(c.id),
-		nombre: c.nombre,
-		slug: c.slug,
-		icon: c.icon,
-		planes: (c.planes || []).map((p: any) => ({
+		nombre: c.nombre as string,
+		slug: c.slug as string,
+		icon: c.icon as string,
+		planes: ((c.planes as unknown as { id: number | string; anio_inicio: number | string; anio_fin: number | string | null; materia_plan: { id: number }[] }[]) || []).map((p) => ({
 			id: Number(p.id),
 			anio_inicio: Number(p.anio_inicio),
 			anio_fin: p.anio_fin ? Number(p.anio_fin) : null,
@@ -66,19 +299,18 @@ export async function getPageCarrerasData(): Promise<Carrera[]> {
 }
 
 /**
- * Retorna los datos de una carrera haciendo JOIN con sus planes de estudio.
+ * Obtiene los detalles de una carrera haciendo JOIN con sus planes de estudio.
  *
  * @param carreraSlug - Slug de la carrera a consultar
  * @returns Datos de la carrera y sus planes
  */
-export async function getPageCarreraDetalleData(carreraSlug: string): Promise<CarreraWithPlanes> {
-	const cookieStore = await cookies()
-	const supabase = createClient(cookieStore)
+export async function getCarreraDetalle(carreraSlug: string): Promise<CarreraConPlanes> {
+	"use cache"
+	cacheLife("hours")
 
-	const {data, error} = await supabase
+	const {data, error} = await staticSupabase
 		.from("carreras")
-		.select(
-			`
+		.select(`
 			id,
 			nombre,
 			slug,
@@ -88,22 +320,21 @@ export async function getPageCarreraDetalleData(carreraSlug: string): Promise<Ca
 				anio_inicio,
 				anio_fin
 			)
-		`,
-		)
+		`)
 		.eq("slug", carreraSlug)
 		.single()
 
 	if (error) {
-		console.error(`Error fetching career detail for ${carreraSlug}:`, error)
+		console.error(`Error al obtener detalles de la carrera ${carreraSlug}:`, error)
 		throw new Error(error.message)
 	}
 
 	return {
 		id: Number(data.id),
-		nombre: data.nombre,
-		slug: data.slug,
-		icon: data.icon,
-		planes: (data.planes || []).map((p: any) => ({
+		nombre: data.nombre as string,
+		slug: data.slug as string,
+		icon: data.icon as string,
+		planes: ((data.planes as unknown as { id: number | string; anio_inicio: number | string; anio_fin: number | string | null }[]) || []).map((p) => ({
 			id: Number(p.id),
 			anio_inicio: Number(p.anio_inicio),
 			anio_fin: p.anio_fin ? Number(p.anio_fin) : null,
@@ -112,19 +343,20 @@ export async function getPageCarreraDetalleData(carreraSlug: string): Promise<Ca
 }
 
 /**
- * Retorna un plan de estudio y su malla curricular (materias, periodos, orientaciones y correlativas).
+ * Obtiene un plan de estudio y su malla curricular (materias, periodos, orientaciones y correlativas).
  *
- * @param planId - ID del plan de estudio
- * @returns Malla curricular del plan
+ * @param planIdOrYear - ID o año de inicio del plan de estudio
+ * @param carreraSlug - (Opcional) Slug de la carrera para filtrar de manera unívoca
+ * @returns Estructura completa de la malla curricular
  */
-export async function getPagePlanData(
+export async function getPlanEstudio(
 	planIdOrYear: number | string,
 	carreraSlug?: string,
-): Promise<PlanCurricularData> {
-	const cookieStore = await cookies()
-	const supabase = createClient(cookieStore)
+): Promise<DatosPlanCurricular> {
+	"use cache"
+	cacheLife("hours")
 
-	let query = supabase.from("plan_estudio").select(`
+	let query = staticSupabase.from("plan_estudio").select(`
 			id,
 			anio_inicio,
 			anio_fin,
@@ -173,23 +405,26 @@ export async function getPagePlanData(
 	const {data, error} = await query.single()
 
 	if (error) {
-		console.error(`Error fetching plan ${planIdOrYear} (slug: ${carreraSlug}):`, error)
+		console.error(`Error al obtener plan de estudio ${planIdOrYear} (carreraSlug: ${carreraSlug}):`, error)
 		throw new Error(error.message)
 	}
 
-	const aniosMap = new Map()
-	const orientacionesSet = new Map()
+	const typedData = data as unknown as PlanEstudioQueryResponse;
 
-	const materiasPlan = data.materias_plan || []
+	const aniosMap = new Map<number, { anio: number; periodosMap: Map<string, PeriodoJSON> }>()
+	const orientacionesSet = new Map<number, OrientacionBasica>()
 
-	materiasPlan.forEach((item: any) => {
+	const materiasPlan = typedData.materias_plan || []
+
+	materiasPlan.forEach((item) => {
 		// A. Orientaciones
 		if (item.orientacion) {
-			if (!orientacionesSet.has(item.orientacion.id)) {
-				orientacionesSet.set(item.orientacion.id, {
-					nombre: item.orientacion.nombre,
-					slug: item.orientacion.slug,
-					id: Number(item.orientacion.id),
+			const oId = Number(item.orientacion.id)
+			if (!orientacionesSet.has(oId)) {
+				orientacionesSet.set(oId, {
+					nombre: item.orientacion.nombre || "",
+					slug: item.orientacion.slug || "",
+					id: oId,
 				})
 			}
 		}
@@ -197,9 +432,9 @@ export async function getPagePlanData(
 		// B. Años
 		const anioKey = Number(item.anio)
 		if (!aniosMap.has(anioKey)) {
-			aniosMap.set(anioKey, {anio: anioKey, periodosMap: new Map()})
+			aniosMap.set(anioKey, {anio: anioKey, periodosMap: new Map<string, PeriodoJSON>()})
 		}
-		const anioObj = aniosMap.get(anioKey)
+		const anioObj = aniosMap.get(anioKey)!
 
 		// C. Periodos
 		const periodoId = item.periodo?.id || 0
@@ -213,8 +448,8 @@ export async function getPagePlanData(
 					item.periodo ?
 						{
 							id: Number(item.periodo.id),
-							slug: item.periodo.slug,
-							nombre: item.periodo.nombre,
+							slug: item.periodo.slug || "",
+							nombre: item.periodo.nombre || "",
 						}
 					:	{
 							id: 0,
@@ -222,13 +457,14 @@ export async function getPagePlanData(
 							nombre: "No definido",
 						},
 				materias: [],
+				materiasPorOrientacion: [],
 			})
 		}
 
-		const periodoActual = anioObj.periodosMap.get(periodoKey)
+		const periodoActual = anioObj.periodosMap.get(periodoKey)!
 
 		// Evitar duplicados
-		const materiaYaExiste = periodoActual.materias.some((m: any) => m.idMateriaPlan === item.id)
+		const materiaYaExiste = periodoActual.materias.some((m) => m.idMateriaPlan === item.id)
 
 		if (!materiaYaExiste && item.materia) {
 			periodoActual.materias.push({
@@ -236,80 +472,253 @@ export async function getPagePlanData(
 				idMateriaPlan: Number(item.id),
 				nombre: item.materia.nombre,
 				slug: item.materia.slug,
+				creditos: 0,
 				esOptativa: !!item.nro_optativa,
 				nroOptativa: item.nro_optativa ? Number(item.nro_optativa) : null,
 				orientacion:
 					item.orientacion ?
 						{
-							nombre: item.orientacion.nombre,
-							slug: item.orientacion.slug,
+							id: Number(item.orientacion.id),
+							nombre: item.orientacion.nombre || "",
+							slug: item.orientacion.slug || "",
 						}
 					:	null,
-				correlativas: formatearCorrelativas(item.correlativas || []),
+				correlativas: procesarCorrelativas(item.correlativas || []),
 			})
 		}
 	})
 
-	const rawData = data as any
-
 	const anios: AnioJSON[] = Array.from(aniosMap.values())
-		.sort((a: any, b: any) => a.anio - b.anio)
-		.map((a: any) => ({
-			anio: a.anio,
-			periodos: Array.from(a.periodosMap.values()).sort(
-				(p1: any, p2: any) => p1.nroPeriodo - p2.nroPeriodo,
-			) as PeriodoJSON[],
+		.sort(({ anio: aAnio }, { anio: bAnio }) => aAnio - bAnio)
+		.map(({ anio, periodosMap }) => ({
+			anio,
+			periodos: Array.from(periodosMap.values())
+				.sort(({ nroPeriodo: p1 }, { nroPeriodo: p2 }) => p1 - p2)
+				.map((periodoObj) => ({
+					...periodoObj,
+					materiasPorOrientacion: agruparMateriasPorOrientacion(periodoObj.materias),
+				})) as PeriodoJSON[],
 		}))
 
 	return {
-		id: Number(rawData.id),
-		anioInicio: Number(rawData.anio_inicio),
-		anioFin: rawData.anio_fin ? Number(rawData.anio_fin) : null,
+		id: Number(typedData.id),
+		anioInicio: Number(typedData.anio_inicio),
+		anioFin: typedData.anio_fin ? Number(typedData.anio_fin) : null,
 		carrera: {
-			id: Number(rawData.carreras?.id),
-			nombre: rawData.carreras?.nombre,
-			slug: rawData.carreras?.slug,
-			icon: rawData.carreras?.icon,
+			id: Number(typedData.carreras?.id || 0),
+			nombre: typedData.carreras?.nombre || "",
+			slug: typedData.carreras?.slug || "",
+			icon: typedData.carreras?.icon || "",
 		},
 		listaOrientaciones: Array.from(orientacionesSet.values()),
 		anios: anios,
 	}
 }
 
+// --- TIPOS Y FUNCIONES DE AYUDA PARA AGRUPACIÓN DE PLANES CURRICULARES ---
+
+export interface MateriaConPeriodo extends MateriaJSON {
+	periodoId: number
+	periodoNombre: string
+	nroPeriodo: number
+}
+
+export interface GroupedPeriodo {
+	periodoId: number
+	nombre: string
+	nroPeriodo: number
+	materias: MateriaConPeriodo[]
+}
+
+export interface GroupedOptativa {
+	nro: number
+	materias: MateriaConPeriodo[]
+}
+
+export interface GroupedOrientation {
+	id: string
+	nombre: string
+	periodos: GroupedPeriodo[]
+	optativas: GroupedOptativa[]
+}
+
 /**
- * Retorna datos del calendario académico agrupados por exámenes, inscripciones, feriados y clases.
- *
- * @param fechaInicio - Fecha de inicio del intervalo
- * @param fechaFin - Fecha de fin del intervalo
- * @returns Datos completos del calendario
+ * Formatea el nombre del periodo con su correspondiente número ordinal.
+ * Ejemplo: nroPeriodo=1, tipoNombre="Cuatrimestre" -> "1er Cuatrimestre"
+ * Ejemplo: nroPeriodo=2, tipoNombre="Cuatrimestre" -> "2do Cuatrimestre"
+ * Ejemplo: tipoSlug="anual" -> "Anual"
  */
-export async function getPageCalendarioData(
+export function formatearNombrePeriodo(nroPeriodo: number, tipoNombre: string, tipoSlug?: string): string {
+	if (tipoSlug === "anual" || tipoNombre.toLowerCase() === "anual") {
+		return tipoNombre
+	}
+
+	const ordinales: Record<number, string> = {
+		1: "1er",
+		2: "2do",
+		3: "3er",
+		4: "4to",
+		5: "5to",
+		6: "6to",
+	}
+
+	const prefix = ordinales[nroPeriodo] || `${nroPeriodo}º`
+	return `${prefix} ${tipoNombre}`
+}
+
+/**
+ * Aplana todas las materias de un año incluyendo la información del periodo formateado.
+ */
+export function flattenYearMaterias(periodos: PeriodoJSON[]): MateriaConPeriodo[] {
+	return periodos.flatMap(({ id: pId, tipoPeriodo: { nombre: tNombre, slug: tSlug }, nroPeriodo: nroP, materias }) =>
+		materias.map((materia) => ({
+			...materia,
+			periodoId: pId,
+			periodoNombre: formatearNombrePeriodo(nroP, tNombre, tSlug),
+			nroPeriodo: nroP,
+		}))
+	)
+}
+
+/**
+ * Agrupa las materias obligatorias por periodo.
+ */
+export function groupRequiredByPeriod(materias: MateriaConPeriodo[]): GroupedPeriodo[] {
+	const req = materias.filter(({ esOptativa }) => !esOptativa)
+	const periodMap = new Map<number, GroupedPeriodo>()
+
+	req.forEach((materia) => {
+		const { periodoId, periodoNombre, nroPeriodo } = materia
+		if (!periodMap.has(periodoId)) {
+			periodMap.set(periodoId, {
+				periodoId,
+				nombre: periodoNombre,
+				nroPeriodo,
+				materias: [],
+			})
+		}
+		periodMap.get(periodoId)!.materias.push(materia)
+	})
+
+	return Array.from(periodMap.values()).sort(
+		({ nroPeriodo: aNro }, { nroPeriodo: bNro }) => aNro - bNro
+	)
+}
+
+/**
+ * Agrupa las materias optativas por número de slot (nroOptativa).
+ */
+export function groupElectivesBySlot(materias: MateriaConPeriodo[]): GroupedOptativa[] {
+	const opts = materias.filter(({ esOptativa }) => esOptativa)
+	const optMap = new Map<number, GroupedOptativa>()
+
+	opts.forEach((materia) => {
+		const { nroOptativa } = materia
+		const nro = nroOptativa || 1
+		if (!optMap.has(nro)) {
+			optMap.set(nro, {
+				nro,
+				materias: [],
+			})
+		}
+		optMap.get(nro)!.materias.push(materia)
+	})
+
+	return Array.from(optMap.values()).sort(
+		({ nro: aNro }, { nro: bNro }) => aNro - bNro
+	)
+}
+
+/**
+ * Determina si un conjunto de materias optativas consiste únicamente en una materia
+ * cuyo nombre ya es genérico (ej. "Optativa II", "Optativa 1") para evitar envolverla en una carpeta redundante.
+ */
+export function esOptativaGenericaUnica(materias: MateriaConPeriodo[]): boolean {
+	if (materias.length !== 1) return false
+	const [{ nombre }] = materias
+	return nombre.toLowerCase().trim().startsWith("optativa")
+}
+
+/**
+ * Agrupa las materias de un año que contiene orientaciones en Tronco Común y Orientaciones específicas.
+ */
+export function processYearWithOrientations(yearMaterias: MateriaConPeriodo[]): GroupedOrientation[] {
+	const groups: GroupedOrientation[] = []
+
+	// 1. Tronco Común
+	const commonMaterias = yearMaterias.filter(({ orientacion }) => orientacion === null)
+	if (commonMaterias.length > 0) {
+		groups.push({
+			id: "comun",
+			nombre: "Tronco Común",
+			periodos: groupRequiredByPeriod(commonMaterias),
+			optativas: groupElectivesBySlot(commonMaterias),
+		})
+	}
+
+	// 2. Orientaciones específicas
+	const orientationsMap = new Map<number, OrientacionBasica>()
+	yearMaterias.forEach(({ orientacion }) => {
+		if (orientacion && orientacion.id !== undefined) {
+			orientationsMap.set(orientacion.id, {
+				id: orientacion.id,
+				nombre: orientacion.nombre,
+				slug: orientacion.slug,
+			})
+		}
+	})
+	const uniqueOrientations = Array.from(orientationsMap.values()).sort(
+		({ nombre: aNombre }, { nombre: bNombre }) => aNombre.localeCompare(bNombre)
+	)
+
+	uniqueOrientations.forEach(({ id: orientId, nombre: orientNombre }) => {
+		const orientMaterias = yearMaterias.filter(({ orientacion }) => orientacion?.id === orientId)
+		groups.push({
+			id: `orientacion-${orientId}`,
+			nombre: orientNombre,
+			periodos: groupRequiredByPeriod(orientMaterias),
+			optativas: groupElectivesBySlot(orientMaterias),
+		})
+	})
+
+	return groups
+}
+
+/**
+ * Obtiene los datos del calendario académico (exámenes, inscripciones, feriados y clases).
+ * Las consultas se realizan en paralelo utilizando Promise.all para optimizar el rendimiento.
+ *
+ * @param fechaInicio - Fecha de inicio del filtro
+ * @param fechaFin - Fecha de fin del filtro
+ * @returns Listados de eventos académicos
+ */
+export async function getCalendario(
 	fechaInicio: Date | string,
 	fechaFin: Date | string,
-): Promise<CalendarioCompletoData> {
-	const cookieStore = await cookies()
-	const supabase = createClient(cookieStore)
+): Promise<DatosCalendarioCompleto> {
+	"use cache"
+	cacheLife("hours")
 
 	const startStr = typeof fechaInicio === "string" ? fechaInicio : fechaInicio.toISOString().split("T")[0]
 	const endStr = typeof fechaFin === "string" ? fechaFin : fechaFin.toISOString().split("T")[0]
 
 	const [examenesRes, inscripcionesRes, feriadosRes, clasesRes] = await Promise.all([
-		supabase
+		staticSupabase
 			.from("turnos_examenes")
 			.select("id, fecha_inicio, fecha_fin, is_suspencion, nota, tipo_mesa_id:tipos_mesa (id, nombre, slug)")
 			.gte("fecha_fin", startStr)
 			.lte("fecha_inicio", endStr),
-		supabase
+		staticSupabase
 			.from("inscripciones")
 			.select("id, nro_periodo, fecha_inicio, fecha_fin, periodo:tipos_periodo (id, nombre, slug)")
 			.gte("fecha_fin", startStr)
 			.lte("fecha_inicio", endStr),
-		supabase
+		staticSupabase
 			.from("feriados")
 			.select("id, fecha, nombre, slug, nota, tipo:tipos_feriado (id, nombre, slug)")
 			.gte("fecha", startStr)
 			.lte("fecha", endStr),
-		supabase
+		staticSupabase
 			.from("calendario_clases")
 			.select("id, nro_periodo, fecha_inicio, fecha_fin, nota, periodo:tipos_periodo (id, nombre, slug)")
 			.gte("fecha_fin", startStr)
@@ -322,20 +731,187 @@ export async function getPageCalendarioData(
 	if (clasesRes.error) throw clasesRes.error
 
 	return {
-		turnosExamenes: (examenesRes.data || []) as unknown as DBTurnoExamen[],
-		inscripciones: (inscripcionesRes.data || []) as unknown as DBInscripcion[],
-		feriados: (feriadosRes.data || []) as unknown as DBFeriado[],
-		calendarioClases: (clasesRes.data || []) as unknown as DBCalendarioClase[],
+		turnosExamenes: (examenesRes.data || []) as unknown as TurnoExamenBD[],
+		inscripciones: (inscripcionesRes.data || []) as unknown as InscripcionBD[],
+		feriados: (feriadosRes.data || []) as unknown as FeriadoBD[],
+		calendarioClases: (clasesRes.data || []) as unknown as CalendarioClaseBD[],
 	}
 }
 
 /**
- * Retorna datos de un usuario y sus planes guardados como favoritos.
+ * Obtiene el detalle de una materia dentro de un plan específico, incluyendo sus correlativas estructuradas.
  *
- * @param userId - ID del usuario
- * @returns Perfil de usuario y favoritos
+ * @param carreraSlug - Slug de la carrera
+ * @param planIdOrYear - ID o año de inicio del plan de estudio
+ * @param materiaSlug - Slug de la materia
+ * @returns Datos detallados de la materia
  */
-export async function getPageDashboardData(userId: string): Promise<DashboardUserData> {
+export async function getMateriaDetalle(
+	carreraSlug: string,
+	planIdOrYear: number | string,
+	materiaSlug: string
+): Promise<DatosMateriaDetalle> {
+	"use cache"
+	cacheLife("hours")
+
+	let query = staticSupabase
+		.from("materia_plan")
+		.select(`
+			id,
+			anio,
+			nro_periodo,
+			nro_optativa,
+			periodo:tipos_periodo ( id, slug, nombre ),
+			orientacion:tipos_orientaciones ( id, nombre, slug ),
+			materia:materias!inner ( id, nombre, slug ),
+			plan:plan_estudio!inner (
+				id,
+				anio_inicio,
+				carreras:carrera_id!inner (
+					nombre,
+					slug
+				)
+			),
+			correlativas:correlativas!materia_id (
+				tipo_requisito,
+				condicion,
+				porcentaje,
+				notas,
+				requisito_plan:materia_plan!requisito (
+					id,
+					materia:materias ( nombre, slug )
+				)
+			)
+		`)
+		.eq("materia.slug", materiaSlug)
+		.eq("plan.carreras.slug", carreraSlug)
+
+	const val = Number(planIdOrYear)
+	if (!isNaN(val)) {
+		if (val > 1900) {
+			query = query.eq("plan.anio_inicio", val)
+		} else {
+			query = query.eq("plan.id", val)
+		}
+	} else {
+		query = query.eq("plan.id", planIdOrYear)
+	}
+
+	const {data, error} = await query.maybeSingle()
+
+	if (error) {
+		console.error(`Error al obtener detalle de materia ${materiaSlug}:`, error)
+		throw new Error(error.message)
+	}
+
+	if (!data) {
+		throw new Error(`Materia no encontrada en el plan especificado: ${materiaSlug}`)
+	}
+
+	const typedRow = data as unknown as MateriaDetalleQueryRow;
+
+	return {
+		id: Number(typedRow.materia?.id || 0),
+		idMateriaPlan: Number(typedRow.id),
+		nombre: typedRow.materia?.nombre || "",
+		slug: typedRow.materia?.slug || "",
+		esOptativa: !!typedRow.nro_optativa,
+		nroOptativa: typedRow.nro_optativa ? Number(typedRow.nro_optativa) : null,
+		orientacion: typedRow.orientacion ? {
+			nombre: typedRow.orientacion.nombre || "",
+			slug: typedRow.orientacion.slug || ""
+		} : null,
+		plan: {
+			id: Number(typedRow.plan?.id || 0),
+			anioInicio: Number(typedRow.plan?.anio_inicio || 0),
+			carrera: {
+				nombre: typedRow.plan?.carreras?.nombre || "",
+				slug: typedRow.plan?.carreras?.slug || ""
+			}
+		},
+		correlativas: procesarCorrelativas(typedRow.correlativas || [])
+	}
+}
+
+/**
+ * Realiza una búsqueda general de carreras y materias.
+ * Para las materias, provee su correspondiente carrera y año de inicio del plan de estudio.
+ * Ejecuta ambas búsquedas en paralelo con Promise.all para optimizar la respuesta.
+ *
+ * @param termino - Término de búsqueda
+ * @returns Resultados coincidentes de carreras y materias
+ */
+export async function getBusquedaGeneral(termino: string): Promise<ResultadosBusquedaGeneral> {
+	"use cache"
+	cacheLife("hours")
+
+	const [carrerasRes, materiasRes] = await Promise.all([
+		staticSupabase
+			.from("carreras")
+			.select("id, nombre, slug, icon")
+			.or(`nombre.ilike.%${termino}%,slug.ilike.%${termino}%`)
+			.limit(10),
+		staticSupabase
+			.from("materia_plan")
+			.select(`
+				id,
+				materia:materias!inner (
+					id,
+					nombre,
+					slug
+				),
+				plan:plan_estudio!inner (
+					anio_inicio,
+					carreras:carrera_id!inner (
+						nombre,
+						slug
+					)
+				)
+			`)
+			.or(`materia.nombre.ilike.%${termino}%,materia.slug.ilike.%${termino}%`)
+			.limit(20)
+	])
+
+	if (carrerasRes.error) throw carrerasRes.error
+	if (materiasRes.error) throw materiasRes.error
+
+	const rawCarreras = (carrerasRes.data || []) as unknown as CarreraSearchRow[]
+	const rawMaterias = (materiasRes.data || []) as unknown as MateriaPlanSearchRow[]
+
+	const carreras: ResultadoBusquedaCarrera[] = rawCarreras.map((c) => ({
+		carreraId: Number(c.id),
+		carreraNombre: c.nombre,
+		carreraSlug: c.slug,
+		carreraIcon: c.icon
+	}))
+
+	const materias: ResultadoBusquedaMateria[] = rawMaterias
+		.filter((m) => m.materia && m.plan && m.plan.carreras)
+		.map((m) => ({
+			materiaId: Number(m.materia!.id),
+			materiaNombre: m.materia!.nombre,
+			materiaSlug: m.materia!.slug,
+			carreraNombre: m.plan!.carreras!.nombre,
+			carreraSlug: m.plan!.carreras!.slug,
+			planAnioInicio: Number(m.plan!.anio_inicio)
+		}))
+
+	return {
+		carreras,
+		materias
+	}
+}
+
+// --- FUNCIONES DE CONSULTA PRIVADAS/USUARIO (CON REACT CACHE) ---
+
+/**
+ * Obtiene el resumen del perfil del usuario y sus planes guardados como favoritos para el /dashboard.
+ * Las consultas se realizan en paralelo utilizando Promise.all.
+ *
+ * @param userId - ID del usuario autenticado
+ * @returns Perfil del usuario y listado de planes favoritos
+ */
+export const getDashboardUsuario = cache(async (userId: string): Promise<DatosDashboardUsuario> => {
 	const cookieStore = await cookies()
 	const supabase = createClient(cookieStore)
 
@@ -343,8 +919,7 @@ export async function getPageDashboardData(userId: string): Promise<DashboardUse
 		supabase.from("usuarios").select("id, username, full_name, avatar_url, role, icon").eq("id", userId).maybeSingle(),
 		supabase
 			.from("carreras_fav")
-			.select(
-				`
+			.select(`
 				id,
 				plan_id,
 				plan:plan_estudio (
@@ -358,16 +933,15 @@ export async function getPageDashboardData(userId: string): Promise<DashboardUse
 						icon
 					)
 				)
-			`,
-			)
+			`)
 			.eq("user_id", userId),
 	])
 
 	if (userRes.error) throw userRes.error
 	if (favsRes.error) throw favsRes.error
 
-	const userRaw = userRes.data
-	const user =
+	const userRaw = userRes.data as unknown as UsuarioQueryRow | null
+	const usuario: PerfilUsuario =
 		userRaw ?
 			{
 				id: userRaw.id,
@@ -386,64 +960,72 @@ export async function getPageDashboardData(userId: string): Promise<DashboardUse
 				icon: null,
 			}
 
-	const carrerasFav = (favsRes.data || [])
-		.filter((f: any) => f.plan && f.plan.carrera)
-		.map((f: any) => ({
+	const rawFavs = (favsRes.data || []) as unknown as CarreraFavQueryRow[]
+	const carrerasFavoritas: PlanCarreraFavorito[] = rawFavs
+		.filter((f) => f.plan && f.plan.carrera)
+		.map((f) => ({
 			id: Number(f.id),
 			planId: Number(f.plan_id),
-			anioInicio: Number(f.plan.anio_inicio),
-			anioFin: f.plan.anio_fin ? Number(f.plan.anio_fin) : null,
+			anioInicio: Number(f.plan!.anio_inicio),
+			anioFin: f.plan!.anio_fin ? Number(f.plan!.anio_fin) : null,
 			carrera: {
-				id: Number(f.plan.carrera.id),
-				nombre: f.plan.carrera.nombre,
-				slug: f.plan.carrera.slug,
-				icon: f.plan.carrera.icon,
+				id: Number(f.plan!.carrera!.id),
+				nombre: f.plan!.carrera!.nombre,
+				slug: f.plan!.carrera!.slug,
+				icon: f.plan!.carrera!.icon,
 			},
 		}))
 
 	return {
-		user,
-		carrerasFav,
+		usuario,
+		carrerasFavoritas,
 	}
-}
+})
 
 /**
- * Retorna la malla curricular de un plan de estudio inyectando los estados de avance del usuario.
+ * Obtiene la malla curricular de un plan inyectándole el avance del usuario actual.
+ * Realiza las consultas en paralelo utilizando Promise.all.
  *
- * @param userId - ID del usuario
- * @param planId - ID del plan de estudio
- * @returns Malla curricular con avances del usuario
+ * @param userId - ID del usuario autenticado
+ * @param planIdOrYear - ID o año del plan de estudio
+ * @returns Malla curricular con el estado actual de cada materia ("Cursando", "Aprobado", etc.)
  */
-export async function getPageMiCarreraData(userId: string, planId: number | string): Promise<SeguimientoPlanData> {
+export const getMiCarrera = cache(async (userId: string, planIdOrYear: number | string): Promise<DatosSeguimientoPlan> => {
 	const cookieStore = await cookies()
 	const supabase = createClient(cookieStore)
 
 	const [planData, advancesRes] = await Promise.all([
-		getPagePlanData(planId),
+		getPlanEstudio(planIdOrYear),
 		supabase.from("avances").select("materia_plan_id, estado").eq("user_id", userId),
 	])
 
 	if (advancesRes.error) {
-		console.error("Error fetching user advances:", advancesRes.error)
+		console.error("Error al obtener avances del usuario:", advancesRes.error)
 		throw advancesRes.error
 	}
 
+	const typedAdvances = (advancesRes.data || []) as unknown as AvanceQueryRow[]
+
 	const advancesMap = new Map<number, EstadoMateria>()
-	advancesRes.data?.forEach((adv) => {
-		advancesMap.set(adv.materia_plan_id, adv.estado as EstadoMateria)
+	typedAdvances.forEach((adv) => {
+		advancesMap.set(Number(adv.materia_plan_id), adv.estado as EstadoMateria)
 	})
 
 	const anios: AnioSeguimientoJSON[] = planData.anios.map((anio) => ({
 		anio: anio.anio,
-		periodos: anio.periodos.map((periodo) => ({
-			id: periodo.id,
-			nroPeriodo: periodo.nroPeriodo,
-			tipoPeriodo: periodo.tipoPeriodo,
-			materias: periodo.materias.map((materia) => ({
+		periodos: anio.periodos.map((periodo) => {
+			const materiasConEstado = periodo.materias.map((materia) => ({
 				...materia,
 				estadoMateria: advancesMap.get(materia.idMateriaPlan) || "Sin cursar",
-			})),
-		})),
+			}));
+			return {
+				id: periodo.id,
+				nroPeriodo: periodo.nroPeriodo,
+				tipoPeriodo: periodo.tipoPeriodo,
+				materias: materiasConEstado,
+				materiasPorOrientacion: agruparMateriasSeguimientoPorOrientacion(materiasConEstado)
+			};
+		}),
 	}))
 
 	return {
@@ -454,21 +1036,48 @@ export async function getPageMiCarreraData(userId: string, planId: number | stri
 		listaOrientaciones: planData.listaOrientaciones,
 		anios: anios,
 	}
-}
+})
 
-// ==========================================
-// Wrappers para compatibilidad
-// ==========================================
+/**
+ * Obtiene los datos del perfil de un usuario para su modificación en configuración.
+ *
+ * @param userId - ID del usuario a consultar
+ * @returns Perfil simplificado del usuario
+ */
+export const getUsuarioPerfil = cache(async (userId: string): Promise<PerfilUsuario> => {
+	const cookieStore = await cookies()
+	const supabase = createClient(cookieStore)
 
-export async function getCarreras(): Promise<Carrera[]> {
-	return getPageCarrerasData()
-}
+	const {data, error} = await supabase
+		.from("usuarios")
+		.select("id, username, full_name, avatar_url, role, icon")
+		.eq("id", userId)
+		.maybeSingle()
 
-export async function getCarrerasConPlanes(): Promise<Carrera[]> {
-	// await new Promise((resolve) => setTimeout(resolve, 20000))
-	return getPageCarrerasData()
-}
+	if (error) {
+		console.error("Error al obtener perfil de usuario:", error)
+		throw error
+	}
 
-export async function getCarreraBySlug(slug: string): Promise<CarreraWithPlanes> {
-	return getPageCarreraDetalleData(slug)
-}
+	if (!data) {
+		return {
+			id: userId,
+			username: null,
+			fullName: null,
+			avatarUrl: null,
+			role: "user",
+			icon: null,
+		}
+	}
+
+	const typed = data as unknown as UsuarioQueryRow
+
+	return {
+		id: typed.id,
+		username: typed.username,
+		fullName: typed.full_name,
+		avatarUrl: typed.avatar_url,
+		role: typed.role,
+		icon: typed.icon,
+	}
+})

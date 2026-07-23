@@ -67,7 +67,7 @@ export interface MateriaJSON {
 	creditos: number
 	esOptativa: boolean
 	nroOptativa: number | null
-	orientacion: {nombre: string; slug: string} | null
+	orientacion: {id?: number; nombre: string; slug: string} | null
 	estadoMateria?: string
 	correlativas: GrupoCorrelativa[]
 }
