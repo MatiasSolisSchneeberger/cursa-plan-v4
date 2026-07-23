@@ -821,6 +821,13 @@ export async function getMateriaDetalle(
 			nombre: typedRow.orientacion.nombre || "",
 			slug: typedRow.orientacion.slug || ""
 		} : null,
+		anio: Number(typedRow.anio),
+		nroPeriodo: Number(typedRow.nro_periodo),
+		periodo: typedRow.periodo ? {
+			id: Number(typedRow.periodo.id),
+			slug: typedRow.periodo.slug || "",
+			nombre: typedRow.periodo.nombre || ""
+		} : null,
 		plan: {
 			id: Number(typedRow.plan?.id || 0),
 			anioInicio: Number(typedRow.plan?.anio_inicio || 0),

@@ -1,31 +1,26 @@
 import * as React from "react"
-import { IconChevronRight, IconInfoCircle, IconCircleCheck, IconCircle } from "@tabler/icons-react"
-
 import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from "@/components/ui/collapsible"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-	Item,
-	ItemContent,
-	ItemGroup,
-	ItemMedia,
-	ItemTitle,
-	ItemDescription,
-	ItemActions,
-} from "@/components/ui/item"
-import { Button } from "@/components/ui/button"
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip"
+	IconChevronRight,
+	IconInfoCircle,
+	IconCircleCheck,
+	IconCircle,
+	IconChevronDown,
+	IconGitBranch,
+} from "@tabler/icons-react"
 
-import type { GrupoCorrelativa, Condicion, Requisito, RequisitoMateria } from "@/types/carrera"
+import {Collapsible, CollapsibleContent, CollapsibleTrigger} from "@/components/ui/collapsible"
+import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs"
+import {Item, ItemContent, ItemGroup, ItemMedia, ItemTitle, ItemDescription, ItemActions} from "@/components/ui/item"
+import {Button} from "@/components/ui/button"
+import {Tooltip, TooltipContent, TooltipTrigger, TooltipProvider} from "@/components/ui/tooltip"
+
+import type {GrupoCorrelativa, Condicion, Requisito, RequisitoMateria} from "@/types/carrera"
 
 interface MateriaCorrelativasProps {
 	correlativas: GrupoCorrelativa[]
 }
 
-export function MateriaCorrelativas({ correlativas }: MateriaCorrelativasProps) {
+export function MateriaCorrelativas({correlativas}: MateriaCorrelativasProps) {
 	const [isOpen, setIsOpen] = React.useState(false)
 
 	// Separar por tipo de requerimiento
@@ -35,22 +30,18 @@ export function MateriaCorrelativas({ correlativas }: MateriaCorrelativasProps) 
 	const hasCursar = cursar && cursar.condiciones.length > 0
 	const hasRendir = rendir && rendir.condiciones.length > 0
 
-	if (!hasCursar && !hasRendir) {
-		return null
-	}
-
 	const defaultTab = hasCursar ? "cursar" : "rendir"
 
 	const renderCondiciones = (condiciones: Condicion[]) => {
 		// Agrupar materias y otros requisitos
-		const materias: { req: RequisitoMateria; condicionStr: string }[] = []
+		const materias: {req: RequisitoMateria; condicionStr: string}[] = []
 		const otros: Requisito[] = []
 
 		condiciones.forEach((cond) => {
 			if (cond.tipo === "materia") {
 				cond.requisitos.forEach((req) => {
 					if ("slug" in req) {
-						materias.push({ req: req as RequisitoMateria, condicionStr: cond.condicion || "" })
+						materias.push({req: req as RequisitoMateria, condicionStr: cond.condicion || ""})
 					}
 				})
 			} else {
@@ -63,11 +54,9 @@ export function MateriaCorrelativas({ correlativas }: MateriaCorrelativasProps) 
 				{materias.map((m, idx) => (
 					<Item key={`mat-${idx}`} variant="outline">
 						<ItemMedia variant="icon">
-							{m.condicionStr === "aprobado" ? (
+							{m.condicionStr === "aprobado" ?
 								<IconCircleCheck className="text-green-500" />
-							) : (
-								<IconCircle className="text-yellow-500" />
-							)}
+							:	<IconCircle className="text-yellow-500" />}
 						</ItemMedia>
 						<ItemContent>
 							<ItemTitle>{m.req.nombre}</ItemTitle>
@@ -93,8 +82,7 @@ export function MateriaCorrelativas({ correlativas }: MateriaCorrelativasProps) 
 									</TooltipTrigger>
 									<TooltipContent>
 										<p className="max-w-xs text-xs">
-											Estos requisitos no se consideran para el cálculo automático
-											de disponibilidad de las materias.
+											Estos requisitos no se consideran para el cálculo automático de disponibilidad de las materias.
 										</p>
 									</TooltipContent>
 								</Tooltip>
@@ -126,18 +114,27 @@ export function MateriaCorrelativas({ correlativas }: MateriaCorrelativasProps) 
 	}
 
 	return (
-		<Collapsible
-			open={isOpen}
-			onOpenChange={setIsOpen}
-			className="w-full space-y-2 rounded-lg border bg-card p-3 shadow-sm"
-		>
-			<div className="flex items-center justify-between">
-				<span className="text-sm font-medium">Correlativas</span>
-				<CollapsibleTrigger render={<Button variant="ghost" size="sm" />}>
-					{isOpen ? "Ocultar" : "Ver"}
-				</CollapsibleTrigger>
-			</div>
-			<CollapsibleContent className="space-y-4">
+		<Collapsible open={isOpen} onOpenChange={setIsOpen}>
+			<CollapsibleTrigger
+				disabled={!hasCursar && !hasRendir}
+				render={
+					<Item variant="outline">
+						<ItemMedia variant="icon" className="z-auto">
+							<IconGitBranch />
+						</ItemMedia>
+						<ItemContent>
+							<ItemTitle>Ver Correlativas</ItemTitle>
+							{!hasCursar && !hasRendir && <ItemDescription>No tiene correlativas</ItemDescription>}
+						</ItemContent>
+						{!hasCursar && !hasRendir ? null : (
+							<ItemActions>
+								<IconChevronDown className={isOpen ? "rotate-180 transition-all" : "rotate-0"} />
+							</ItemActions>
+						)}
+					</Item>
+				}></CollapsibleTrigger>
+
+			<CollapsibleContent className="space-y-4 mt-2">
 				<Tabs defaultValue={defaultTab} className="w-full">
 					<TabsList className="grid w-full grid-cols-2">
 						<TabsTrigger value="cursar" disabled={!hasCursar}>

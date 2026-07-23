@@ -34,7 +34,7 @@ export default async function CarreraPlanLayout({children, params}: LayoutProps)
 				<AppSidebar carreraSlug={carreraSlug} plan={plan} />
 			</Suspense>
 			<main className="relative w-full">
-				<header className="bg-card sticky top-0 left-0 flex h-16 shrink-0 items-center gap-2 border-b border-border px-4">
+				<header className="bg-card sticky top-0 left-0 flex h-16 shrink-0 items-center gap-2 border-b border-border px-4 z-50">
 					<Tooltip delay={2000}>
 						<TooltipTrigger render={<SidebarTrigger className="-ml-1" />} />
 						<TooltipContent>

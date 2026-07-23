@@ -214,6 +214,9 @@ export interface DatosMateriaDetalle {
 	esOptativa: boolean;
 	nroOptativa: number | null;
 	orientacion: { id?: number; nombre: string; slug: string } | null;
+	anio: number;
+	nroPeriodo: number;
+	periodo: { id: number; slug: string; nombre: string } | null;
 	plan: {
 		id: number;
 		anioInicio: number;

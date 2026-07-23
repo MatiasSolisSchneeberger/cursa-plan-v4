@@ -14,7 +14,7 @@ import {
 	IconUsers,
 } from "@tabler/icons-react"
 import Icon from "@/components/Icon"
-import {Carrera} from "@/types/materiaTypes"
+import {Carrera} from "@/types/consultas"
 import {getCarreras} from "./carreras"
 
 export interface BaseLink {
@@ -42,12 +42,17 @@ export async function getNavbarLinks(): Promise<Links[]> {
 		{
 			label: "Carreras",
 			href: "/carreras",
-			subtabs: carreras.map(({nombre, icon, slug}: Carrera) => {
+			subtabs: carreras.map((carrera: Carrera) => {
+				const sortedPlanes = carrera.planes
+					? [...carrera.planes].sort((a, b) => a.anio_inicio - b.anio_inicio)
+					: []
+				const lastPlan = sortedPlanes.length > 0 ? sortedPlanes[sortedPlanes.length - 1] : null
+				const planParam = lastPlan ? lastPlan.anio_inicio : ""
 				return {
-					label: nombre,
-					href: `/${slug}`,
-					icon: <Icon icon={icon} className="text-primary size-4 shrink-0" />,
-					slug: slug,
+					label: carrera.nombre,
+					href: `/${carrera.slug}/${planParam}`,
+					icon: <Icon icon={carrera.icon} className="text-primary size-4 shrink-0" />,
+					slug: carrera.slug,
 				}
 			}),
 			icon: <IconBook className="text-primary size-4 shrink-0" />,

@@ -52,7 +52,7 @@ export function PlanView({ planData, carreraSlug, planIdOrYear }: PlanViewProps)
 										value={selectedOrientation}
 										onValueChange={setSelectedOrientation}
 									>
-										<SelectTrigger className="w-[250px]">
+										<SelectTrigger className="w-62.5">
 											<SelectValue placeholder="Todas las orientaciones" />
 										</SelectTrigger>
 										<SelectContent>
@@ -70,24 +70,24 @@ export function PlanView({ planData, carreraSlug, planIdOrYear }: PlanViewProps)
 
 						{/* Periodos del Año */}
 						<div className="space-y-8 pl-0 sm:pl-4">
-							{anio.periodos.map((periodo) => (
-								<div key={`periodo-${periodo.id}`} className="space-y-4">
+							{anio.periodos.map(({id,materias,materiasPorOrientacion,nroPeriodo,tipoPeriodo}) => (
+								<div key={`periodo-${id}`} className="space-y-4">
 									<h3 className="text-xl font-semibold border-b pb-2">
-										{periodo.tipoPeriodo.nombre} {periodo.nroPeriodo}
+										{nroPeriodo >=1 && `${nroPeriodo}° `}{tipoPeriodo.nombre} 
 									</h3>
 
 									<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-										{periodo.materiasPorOrientacion.map((grupo) => {
+										{materiasPorOrientacion.map(({materias,orientacion}) => {
 											// Si el grupo es una orientación específica y no coincide con el filtro, lo omitimos
 											if (
-												grupo.orientacion !== null &&
+												orientacion !== null &&
 												selectedOrientation !== "all" &&
-												grupo.orientacion.id.toString() !== selectedOrientation
+												orientacion.id.toString() !== selectedOrientation
 											) {
 												return null
 											}
 
-											return grupo.materias.map((materia) => (
+											return materias.map((materia) => (
 												<MateriaCard
 													key={`materia-${materia.id}`}
 													materia={materia}
