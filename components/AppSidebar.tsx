@@ -12,8 +12,9 @@ import {
 	SidebarMenuSub,
 	SidebarMenuSubItem,
 	SidebarMenuButton,
+	SidebarMenuSubButton,
 } from "./ui/sidebar"
-import { Skeleton } from "./ui/skeleton"
+import {Skeleton} from "./ui/skeleton"
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -25,11 +26,21 @@ import {
 } from "./ui/dropdown-menu"
 import {Avatar, AvatarFallback, AvatarImage} from "./ui/avatar"
 import {Collapsible, CollapsibleTrigger, CollapsibleContent} from "./ui/collapsible"
-import {getCarreraBySlug, getPagePlanData} from "@/lib/carreras"
+import {
+	getCarreraDetalle,
+	getPlanEstudio,
+	flattenYearMaterias,
+	processYearWithOrientations,
+	groupElectivesBySlot,
+	formatearNombrePeriodo,
+	esOptativaGenericaUnica,
+	type MateriaConPeriodo,
+} from "@/lib/carreras"
 import IconCarrera from "@/components/Icon"
 import SidebarLink from "./SidebarLink"
 import SidebarSubLink from "./SidebarSubLink"
-import {IconSelector, IconCheck, IconHome, IconFileText, IconBook, IconChevronRight} from "@tabler/icons-react"
+import SidebarFolder from "./SidebarFolder"
+import {IconSelector, IconCheck, IconHome, IconFileText, IconBook, IconChevronRight, IconFolder, IconArrowLeft} from "@tabler/icons-react"
 import {acortarNombreCarrera, cn} from "@/lib/utils"
 
 interface AppSidebarProps {
@@ -39,7 +50,7 @@ interface AppSidebarProps {
 
 export default async function AppSidebar({carreraSlug, plan}: AppSidebarProps) {
 	// Obtenemos los datos en paralelo para mejorar el performance
-	const [carreraData, planData] = await Promise.all([getCarreraBySlug(carreraSlug), getPagePlanData(plan, carreraSlug)])
+	const [carreraData, planData] = await Promise.all([getCarreraDetalle(carreraSlug), getPlanEstudio(plan, carreraSlug)])
 
 	const {nombre, planes, icon} = carreraData
 	const hasMultiplePlans = planes.length > 1
@@ -48,15 +59,13 @@ export default async function AppSidebar({carreraSlug, plan}: AppSidebarProps) {
 	return (
 		<Sidebar>
 			{/* HEADER: Selector de Plan */}
-			<SidebarHeader className="border-b border-sidebar-border/50 p-4">
+			<SidebarHeader>
 				<SidebarMenu>
 					<SidebarMenuItem>
 						<DropdownMenu>
 							<DropdownMenuTrigger
 								render={
-									<SidebarMenuButton
-										size="lg"
-										className="data-[state=open]:bg-sidebar-accent justify-start data-[state=open]:text-sidebar-accent-foreground">
+									<SidebarMenuButton size="lg">
 										<div className="flex aspect-square size-8 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground shrink-0">
 											<IconCarrera icon={icon || "device-imac"} className="size-5" />
 										</div>
@@ -73,20 +82,20 @@ export default async function AppSidebar({carreraSlug, plan}: AppSidebarProps) {
 								<DropdownMenuContent className="w-56" align="start">
 									<DropdownMenuGroup>
 										<DropdownMenuLabel>Planes Disponibles</DropdownMenuLabel>
-										<DropdownMenuSeparator />
 										{planes.map(({id, anio_inicio}) => {
 											const isSelected = String(anio_inicio) === String(plan)
 											return (
 												<DropdownMenuItem
 													key={id}
-													className={cn("p-0", isSelected && "bg-accent text-accent-foreground font-medium")}>
-													<Link
-														href={`/${carreraSlug}/${anio_inicio}`}
-														className="flex items-center justify-between w-full px-2.5 py-2">
-														<span>Plan {anio_inicio}</span>
-														{isSelected && <IconCheck className="size-4 text-primary" />}
-													</Link>
-												</DropdownMenuItem>
+													render={
+														<Link
+															href={`/${carreraSlug}/${anio_inicio}`}
+															className="flex flex-row items-center justify-between w-full">
+															<span>Plan {anio_inicio}</span>
+															{isSelected && <IconCheck className="size-4 text-primary" />}
+														</Link>
+													}
+												/>
 											)
 										})}
 									</DropdownMenuGroup>
@@ -98,10 +107,15 @@ export default async function AppSidebar({carreraSlug, plan}: AppSidebarProps) {
 			</SidebarHeader>
 
 			{/* CONTENT: Navegación, Información y Materias */}
-			<SidebarContent className="p-2 gap-4">
+			<SidebarContent>
 				{/* 1. Item Inicio */}
 				<SidebarGroup>
 					<SidebarMenu>
+						<SidebarMenuItem>
+							<SidebarLink href={`/`} icon={<IconArrowLeft className="size-4" />}>
+								Volver
+							</SidebarLink>
+						</SidebarMenuItem>
 						<SidebarMenuItem>
 							<SidebarLink href={`/${carreraSlug}/${plan}`} icon={<IconHome className="size-4" />}>
 								Inicio de la Carrera
@@ -129,50 +143,143 @@ export default async function AppSidebar({carreraSlug, plan}: AppSidebarProps) {
 					<SidebarGroupLabel>Plan de Estudios</SidebarGroupLabel>
 					<SidebarGroupContent>
 						<SidebarMenu className="gap-1">
-							{planData.anios.map(({anio, periodos}) => (
-								<Collapsible key={anio} className="group/collapsible w-full">
-									<SidebarMenuItem>
-										<CollapsibleTrigger
-											render={
-												<SidebarMenuButton className="w-full justify-between cursor-pointer">
-													<div className="flex items-center gap-2">
-														<IconBook className="size-4 shrink-0 text-muted-foreground" />
-														<span>{anio}º Año</span>
-													</div>
-													<IconChevronRight className="size-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90 text-muted-foreground" />
-												</SidebarMenuButton>
-											}
-										/>
-										<CollapsibleContent className="transition-all data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:slide-out-to-top-2 data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:slide-in-from-top-2">
-											<SidebarMenuSub className="ml-4 pl-2 border-l border-sidebar-border/50 flex flex-col gap-2 mt-1">
-												{periodos.map(({id: periodoId, tipoPeriodo: {nombre: periodoNombre}, materias}) => (
-													<div key={periodoId} className="flex flex-col gap-1">
-														<div className="px-2 py-0.5 text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-wider">
-															{periodoNombre}
+							{planData.anios.map(({ anio, periodos }) => {
+								const yearMaterias: MateriaConPeriodo[] = flattenYearMaterias(periodos)
+								const hasOrientations = yearMaterias.some(({ orientacion }) => orientacion !== null)
+
+								return (
+									<Collapsible key={anio} className="group/collapsible w-full">
+										<SidebarMenuItem>
+											<CollapsibleTrigger
+												render={
+													<SidebarMenuButton className="w-full justify-between cursor-pointer">
+														<div className="flex items-center gap-2">
+															<IconBook className="size-4 shrink-0 text-muted-foreground" />
+															<span>{anio}º Año</span>
 														</div>
-														{materias.map(({idMateriaPlan, nombre: materiaNombre, slug: materiaSlug}) => (
-															<SidebarMenuSubItem key={idMateriaPlan}>
-																<SidebarSubLink href={`/${carreraSlug}/${plan}/${materiaSlug}`}>
-																	<span className="truncate text-xs" title={materiaNombre}>
-																		{materiaNombre}
-																	</span>
-																</SidebarSubLink>
-															</SidebarMenuSubItem>
-														))}
-													</div>
-												))}
-											</SidebarMenuSub>
-										</CollapsibleContent>
-									</SidebarMenuItem>
-								</Collapsible>
-							))}
+														<IconChevronRight className="size-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90 text-muted-foreground" />
+													</SidebarMenuButton>
+												}
+											/>
+											<CollapsibleContent className="transition-all data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:slide-out-to-top-2 data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:slide-in-from-top-2">
+												<SidebarMenuSub className="ml-4 pl-2 border-l border-sidebar-border/50 flex flex-col gap-2 mt-1">
+													{hasOrientations ? (
+														// A. Años con Orientaciones
+														processYearWithOrientations(yearMaterias).map(({ id: orientId, nombre: orientNombre, periodos: orientPeriodos, optativas: orientOptativas }) => (
+															<SidebarFolder key={orientId} title={orientNombre}>
+																{/* Required periods for this orientation */}
+																{orientPeriodos.map(({ periodoId, nombre: periodoNombre, materias: periodoMaterias }) => (
+																	<SidebarFolder key={periodoId} title={periodoNombre}>
+																		{periodoMaterias.map(({ idMateriaPlan, nombre: materiaNombre, slug: materiaSlug }) => (
+																			<SidebarMenuSubItem key={idMateriaPlan}>
+																				<SidebarSubLink href={`/${carreraSlug}/${plan}/${materiaSlug}`}>
+																					<span className="truncate" title={materiaNombre}>
+																						{materiaNombre}
+																					</span>
+																				</SidebarSubLink>
+																			</SidebarMenuSubItem>
+																		))}
+																	</SidebarFolder>
+																))}
+
+																{/* Electives (Optativas) for this orientation */}
+																{orientOptativas.map(({ nro: optNro, materias: optMaterias }) =>
+																	esOptativaGenericaUnica(optMaterias) ? (
+																		optMaterias.map(({ idMateriaPlan, nombre: materiaNombre, slug: materiaSlug }) => (
+																			<SidebarMenuSubItem key={idMateriaPlan}>
+																				<SidebarSubLink href={`/${carreraSlug}/${plan}/${materiaSlug}`}>
+																					<span className="truncate" title={materiaNombre}>
+																						{materiaNombre}
+																					</span>
+																				</SidebarSubLink>
+																			</SidebarMenuSubItem>
+																		))
+																	) : (
+																		<SidebarFolder key={optNro} title={`Optativa ${optNro}`}>
+																			{optMaterias.map(({ idMateriaPlan, nombre: materiaNombre, slug: materiaSlug }) => (
+																				<SidebarMenuSubItem key={idMateriaPlan}>
+																					<SidebarSubLink href={`/${carreraSlug}/${plan}/${materiaSlug}`}>
+																						<span className="truncate" title={materiaNombre}>
+																							{materiaNombre}
+																						</span>
+																					</SidebarSubLink>
+																				</SidebarMenuSubItem>
+																			))}
+																		</SidebarFolder>
+																	)
+																)}
+															</SidebarFolder>
+														))
+													) : (
+														// B. Años sin Orientaciones
+														periodos.map(({ id: periodoId, nroPeriodo, tipoPeriodo: { nombre: tNombre, slug: tSlug }, materias }) => {
+															const periodoNombre = formatearNombrePeriodo(nroPeriodo, tNombre, tSlug)
+															const materiasComunes = materias.filter(({ esOptativa }) => !esOptativa)
+															const optativasGrouped = groupElectivesBySlot(
+																materias.map((materia) => ({
+																	...materia,
+																	periodoId,
+																	periodoNombre,
+																	nroPeriodo,
+																}))
+															)
+
+															return (
+																<SidebarFolder key={periodoId} title={periodoNombre}>
+																	{/* Required materias */}
+																	{materiasComunes.map(({ idMateriaPlan, nombre: materiaNombre, slug: materiaSlug }) => (
+																		<SidebarMenuSubItem key={idMateriaPlan}>
+																			<SidebarSubLink href={`/${carreraSlug}/${plan}/${materiaSlug}`}>
+																				<span className="truncate" title={materiaNombre}>
+																					{materiaNombre}
+																				</span>
+																			</SidebarSubLink>
+																		</SidebarMenuSubItem>
+																	))}
+
+																	{/* Optativas */}
+																	{optativasGrouped.map(({ nro: optNro, materias: optMaterias }) =>
+																		esOptativaGenericaUnica(optMaterias) ? (
+																			optMaterias.map(({ idMateriaPlan, nombre: materiaNombre, slug: materiaSlug }) => (
+																				<SidebarMenuSubItem key={idMateriaPlan}>
+																					<SidebarSubLink href={`/${carreraSlug}/${plan}/${materiaSlug}`}>
+																						<span className="truncate" title={materiaNombre}>
+																							{materiaNombre}
+																						</span>
+																					</SidebarSubLink>
+																				</SidebarMenuSubItem>
+																			))
+																		) : (
+																			<SidebarFolder key={optNro} title={`Optativa ${optNro}`}>
+																				{optMaterias.map(({ idMateriaPlan, nombre: materiaNombre, slug: materiaSlug }) => (
+																					<SidebarMenuSubItem key={idMateriaPlan}>
+																						<SidebarSubLink href={`/${carreraSlug}/${plan}/${materiaSlug}`}>
+																							<span className="truncate" title={materiaNombre}>
+																								{materiaNombre}
+																							</span>
+																						</SidebarSubLink>
+																					</SidebarMenuSubItem>
+																				))}
+																			</SidebarFolder>
+																		)
+																	)}
+																</SidebarFolder>
+															)
+														})
+													)}
+												</SidebarMenuSub>
+											</CollapsibleContent>
+										</SidebarMenuItem>
+									</Collapsible>
+								)
+							})}
 						</SidebarMenu>
 					</SidebarGroupContent>
 				</SidebarGroup>
 			</SidebarContent>
 
 			{/* FOOTER: Perfil de Usuario */}
-			<SidebarFooter className="border-t border-sidebar-border/50 p-4">
+			<SidebarFooter>
 				<div className="flex items-center gap-3 w-full p-1 rounded-lg">
 					<Avatar size="default" className="shadow-xs">
 						<AvatarImage
@@ -247,7 +354,7 @@ export function AppSidebarSkeleton() {
 					</SidebarGroupLabel>
 					<SidebarGroupContent>
 						<SidebarMenu className="gap-1">
-							{Array.from({ length: 5 }).map((_, i) => (
+							{Array.from({length: 5}).map((_, i) => (
 								<SidebarMenuItem key={i}>
 									<div className="flex items-center justify-between px-3 py-2">
 										<div className="flex items-center gap-2">
@@ -276,6 +383,8 @@ export function AppSidebarSkeleton() {
 		</Sidebar>
 	)
 }
+
+
 
 /* 
 <DropdownMenu>

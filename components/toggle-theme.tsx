@@ -8,7 +8,7 @@ import {IconMoon, IconSun} from "@tabler/icons-react"
 
 import {useEffect} from "react"
 
-export function ModeToggle() {
+export function ThemeButton() {
 	const {setTheme, resolvedTheme} = useTheme()
 
 	const changeThemeWithTransition = (newTheme: string) => {

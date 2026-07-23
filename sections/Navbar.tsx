@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/navigation-menu"
 import {IconLogin, IconMenu2, IconUserPlus} from "@tabler/icons-react"
 import Link from "next/link"
-import LogoPage from "../components/LogoPage"
+import LogoPage from "@/components/LogoPage"
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -19,9 +19,9 @@ import {
 	DropdownMenuSub,
 	DropdownMenuSubTrigger,
 	DropdownMenuSubContent,
-} from "../components/ui/dropdown-menu"
-import {Button, buttonVariants} from "../components/ui/button"
-import {ModeToggle} from "../components/toggle-theme"
+} from "@/components/ui/dropdown-menu"
+import {Button, buttonVariants} from "@/components/ui/button"
+import {ThemeButton} from "@/components/toggle-theme"
 import {cn, acortarNombreCarrera} from "@/lib/utils"
 import {getNavbarLinks} from "@/lib/navigation"
 import {Suspense} from "react"
@@ -85,7 +85,7 @@ export default async function Navbar() {
 				{/* DERECHA: Acciones */}
 				<article className="*:border-border flex items-center gap-2 *:border-l-2 *:pl-2 *:first:border-0 *:first:pl-0">
 					<div>
-						<ModeToggle />
+						<ThemeButton />
 					</div>
 
 					<div className="hidden flex-row gap-2 lg:flex">

@@ -1,5 +1,5 @@
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs"
-import {getCarrerasConPlanes} from "@/lib/carreras"
+import {getCarreras} from "@/lib/carreras"
 import CardCarrera, {CardCarreraSkeleton} from "@/components/CardCarrera"
 import {Skeleton} from "@/components/ui/skeleton"
 import {Suspense} from "react"
@@ -19,7 +19,7 @@ export default function CarreraPage() {
 }
 
 async function CarrerasContent() {
-	const carreras = await getCarrerasConPlanes()
+	const carreras = await getCarreras()
 
 	const filtros = [
 		{

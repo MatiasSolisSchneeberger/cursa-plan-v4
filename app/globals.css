@@ -171,7 +171,7 @@
 	--muted-foreground: var(--text-800);
 	--accent: var(--primary-200);
 	--accent-foreground: var(--primary-800);
-	--border: var(--background-400);
+	--border: var(--background-300);
 	--input: var(--background-300);
 	--ring: var(--primary-800);
 
@@ -277,14 +277,14 @@
 	--info-ring: var(--info-800);
 
 	/* Sidebar */
-	--sidebar: var(--background-50);
-	--sidebar-foreground: var(--text-900);
-	--sidebar-primary: var(--primary-600);
-	--sidebar-primary-foreground: var(--primary-100);
-	--sidebar-accent: var(--primary-200);
-	--sidebar-accent-foreground: var(--primary-800);
-	--sidebar-border: var(--background-400);
-	--sidebar-ring: var(--primary-800);
+	--sidebar: var(--background-900);
+	--sidebar-foreground: var(--text-50);
+	--sidebar-primary: var(--primary-400);
+	--sidebar-primary-foreground: var(--primary-900);
+	--sidebar-accent: var(--primary-800);
+	--sidebar-accent-foreground: var(--primary-200);
+	--sidebar-border: var(--background-700);
+	--sidebar-ring: var(--primary-700);
 
 	--radius: 0.75rem;
 }
@@ -362,7 +362,10 @@
 	}
 	body {
 		@apply bg-background text-foreground;
-		transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+		transition:
+			background-color 0.3s ease-in-out,
+			color 0.3s ease-in-out,
+			border-color 0.3s ease-in-out;
 	}
 
 	h1,
@@ -404,4 +407,3 @@
 	animation-duration: 0.15s;
 	animation-timing-function: ease-in-out;
 }
-
