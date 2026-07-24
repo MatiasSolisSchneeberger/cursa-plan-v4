@@ -50,7 +50,7 @@ export function PlanView({ planData, carreraSlug, planIdOrYear }: PlanViewProps)
 									</span>
 									<Select
 										value={selectedOrientation}
-										onValueChange={setSelectedOrientation}
+										onValueChange={(val) => setSelectedOrientation(val ?? "all")}
 									>
 										<SelectTrigger className="w-62.5">
 											<SelectValue placeholder="Todas las orientaciones" />

@@ -3,7 +3,7 @@ import {cookies} from "next/headers"
 import {formatearCorrelativas} from "@/utils/transformData"
 import type {GrupoCorrelativa, MateriaJSON} from "@/types/carrera"
 import type {EstadoMateria} from "@/types/materiaTypes"
-import {unstable_cacheLife as cacheLife} from "next/cache"
+import {cacheLife} from "next/cache"
 import {cache} from "react"
 import {createClient as createSupabaseClient} from "@supabase/supabase-js"
 import type {

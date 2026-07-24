@@ -22,7 +22,16 @@ interface LayoutProps {
 	}>
 }
 
-export default async function CarreraPlanLayout({children, params}: LayoutProps) {
+async function CarreraPlanContent({
+	children,
+	params,
+}: {
+	children: React.ReactNode
+	params: Promise<{
+		carreraSlug: string
+		plan: string
+	}>
+}) {
 	const resolvedParams = await params
 	const {carreraSlug, plan} = resolvedParams
 
@@ -55,5 +64,13 @@ export default async function CarreraPlanLayout({children, params}: LayoutProps)
 				{children}
 			</main>
 		</SidebarProvider>
+	)
+}
+
+export default function CarreraPlanLayout({children, params}: LayoutProps) {
+	return (
+		<Suspense>
+			<CarreraPlanContent params={params}>{children}</CarreraPlanContent>
+		</Suspense>
 	)
 }
