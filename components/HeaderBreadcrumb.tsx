@@ -28,7 +28,7 @@ import {IconHome, IconChevronDown, IconChevronRight} from "@tabler/icons-react"
 import type {Carrera} from "@/types/consultas"
 import type {AnioJSON} from "@/types/consultas"
 import type {MateriaJSON} from "@/types/carrera"
-import { acortarNombreCarrera } from "@/lib/utils"
+import {acortarNombreCarrera} from "@/lib/utils"
 
 interface HeaderBreadcrumbProps {
 	allCarreras: Carrera[]
@@ -69,7 +69,7 @@ export default function HeaderBreadcrumb({allCarreras, currentCarrera, currentPl
 		return allMaterias.find((m) => m.slug === currentMateriaSlug) || null
 	}, [allMaterias, currentMateriaSlug])
 
-    const currentCarreraNombre = acortarNombreCarrera(currentCarrera.nombre)
+	const currentCarreraNombre = acortarNombreCarrera(currentCarrera.nombre)
 
 	return (
 		<Breadcrumb>
@@ -81,7 +81,7 @@ export default function HeaderBreadcrumb({allCarreras, currentCarrera, currentPl
 					</Button>
 				</BreadcrumbItem>
 
-				<BreadcrumbSeparator />
+				<BreadcrumbSeparator>/</BreadcrumbSeparator>
 
 				{/* Carrera Selector */}
 				<BreadcrumbItem>
@@ -105,7 +105,7 @@ export default function HeaderBreadcrumb({allCarreras, currentCarrera, currentPl
 									const planes = c.planes || []
 									const hasMultiplePlanes = planes.length > 1
 									const primaryPlan = planes.length > 0 ? planes[0] : null
-                                    const nombre = acortarNombreCarrera(c.nombre);
+									const nombre = acortarNombreCarrera(c.nombre)
 									if (!primaryPlan) return null
 
 									if (hasMultiplePlanes) {
@@ -140,7 +140,7 @@ export default function HeaderBreadcrumb({allCarreras, currentCarrera, currentPl
 					</DropdownMenu>
 				</BreadcrumbItem>
 
-				<BreadcrumbSeparator />
+				<BreadcrumbSeparator>/</BreadcrumbSeparator>
 
 				{/* Plan Selector */}
 				<BreadcrumbItem>
@@ -174,7 +174,7 @@ export default function HeaderBreadcrumb({allCarreras, currentCarrera, currentPl
 
 				{currentMateriaSlug && (
 					<>
-						<BreadcrumbSeparator />
+						<BreadcrumbSeparator>/</BreadcrumbSeparator>
 
 						{/* Materia Selector */}
 						<BreadcrumbItem className="min-w-0">
