@@ -69,7 +69,9 @@ export default async function MateriaDetailPage({params}: PageProps) {
 	// Obtener usuario autenticado y su estado actual para la materia
 	const cookieStore = await cookies()
 	const supabase = createClient(cookieStore)
-	const {data: {user}} = await supabase.auth.getUser()
+	const {
+		data: {user},
+	} = await supabase.auth.getUser()
 
 	let estadoActual: EstadoMateria = "Sin cursar"
 	if (user) {
@@ -92,8 +94,10 @@ export default async function MateriaDetailPage({params}: PageProps) {
 	const cursarGroup = groupRequisitos(correlativasCursar?.condiciones || [])
 	const rendirGroup = groupRequisitos(correlativasRendir?.condiciones || [])
 
-	const hasCursarReqs = cursarGroup.aprobados.length > 0 || cursarGroup.regulares.length > 0 || cursarGroup.otros.length > 0
-	const hasRendirReqs = rendirGroup.aprobados.length > 0 || rendirGroup.regulares.length > 0 || rendirGroup.otros.length > 0
+	const hasCursarReqs =
+		cursarGroup.aprobados.length > 0 || cursarGroup.regulares.length > 0 || cursarGroup.otros.length > 0
+	const hasRendirReqs =
+		rendirGroup.aprobados.length > 0 || rendirGroup.regulares.length > 0 || rendirGroup.otros.length > 0
 
 	return (
 		<section className="flex flex-col gap-6 py-6 max-w-7xl px-3 sm:px-4 md:px-5 mx-auto w-full">
@@ -109,9 +113,6 @@ export default async function MateriaDetailPage({params}: PageProps) {
 			<Card>
 				<CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-3">
 					<div className="typeset">
-						<span className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
-							{materia.plan.carrera.nombre}
-						</span>
 						<h1 className="text-2xl sm:text-3xl font-bold tracking-tight mt-1">{materia.nombre}</h1>
 					</div>
 					<div className="flex items-center gap-2">
@@ -124,16 +125,14 @@ export default async function MateriaDetailPage({params}: PageProps) {
 					</div>
 				</CardHeader>
 				<CardContent className="text-muted-foreground">
-					<ItemGroup className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-2">
+					<div className="flex flex-row flex-wrap gap-3 *:flex-1 *:min-w-xs *:max-w-lg">
 						<Item variant="outline" size="sm">
 							<ItemMedia>
 								<IconSchool className="size-5 text-primary" />
 							</ItemMedia>
 							<ItemContent>
 								<ItemTitle>Año</ItemTitle>
-								<ItemDescription className="font-semibold text-foreground">
-									{materia.anio}º Año
-								</ItemDescription>
+								<ItemDescription className="font-semibold text-foreground">{materia.anio}º Año</ItemDescription>
 							</ItemContent>
 						</Item>
 
@@ -156,25 +155,26 @@ export default async function MateriaDetailPage({params}: PageProps) {
 							<ItemContent>
 								<ItemTitle>Tipo</ItemTitle>
 								<ItemDescription className="font-semibold text-foreground">
-									{materia.esOptativa
-										? `Optativa ${materia.nroOptativa ? `#${materia.nroOptativa}` : ""}`
-										: "Obligatoria"}
+									{materia.esOptativa ?
+										`Optativa ${materia.nroOptativa ? `#${materia.nroOptativa}` : ""}`
+									:	"Obligatoria"}
 								</ItemDescription>
 							</ItemContent>
 						</Item>
 
-						<Item variant="muted" size="sm" className="opacity-90 border-dashed border-border">
+						<Item
+							variant="muted"
+							size="sm"
+							className="opacity-90 border-dashed border-border">
 							<ItemMedia>
 								<IconFileText className="size-5 text-muted-foreground" />
 							</ItemMedia>
 							<ItemContent>
 								<ItemTitle className="text-muted-foreground">Resolución</ItemTitle>
-								<ItemDescription className="font-semibold text-muted-foreground">
-									{RESOLUCION_MOCK}
-								</ItemDescription>
+								<ItemDescription className="font-semibold text-muted-foreground">{RESOLUCION_MOCK}</ItemDescription>
 							</ItemContent>
 						</Item>
-					</ItemGroup>
+					</div>
 				</CardContent>
 			</Card>
 
@@ -187,7 +187,7 @@ export default async function MateriaDetailPage({params}: PageProps) {
 						<CardDescription>Materias y requisitos necesarios para poder cursar esta materia.</CardDescription>
 					</CardHeader>
 					<CardContent>
-						{!hasCursarReqs ? (
+						{!hasCursarReqs ?
 							<ItemGroup>
 								<Item variant="muted" size="sm">
 									<ItemMedia>
@@ -200,8 +200,7 @@ export default async function MateriaDetailPage({params}: PageProps) {
 									</ItemContent>
 								</Item>
 							</ItemGroup>
-						) : (
-							<ItemGroup className="gap-3">
+						:	<ItemGroup className="gap-3">
 								{/* Aprobadas */}
 								{cursarGroup.aprobados.map((req) => (
 									<Item key={req.id} variant="outline" render={<Link href={`/${carreraSlug}/${plan}/${req.slug}`} />}>
@@ -254,7 +253,7 @@ export default async function MateriaDetailPage({params}: PageProps) {
 									)
 								})}
 							</ItemGroup>
-						)}
+						}
 					</CardContent>
 				</Card>
 
@@ -265,7 +264,7 @@ export default async function MateriaDetailPage({params}: PageProps) {
 						<CardDescription>Materias y requisitos necesarios para poder rendir el examen final.</CardDescription>
 					</CardHeader>
 					<CardContent>
-						{!hasRendirReqs ? (
+						{!hasRendirReqs ?
 							<ItemGroup>
 								<Item variant="muted" size="sm">
 									<ItemMedia>
@@ -278,8 +277,7 @@ export default async function MateriaDetailPage({params}: PageProps) {
 									</ItemContent>
 								</Item>
 							</ItemGroup>
-						) : (
-							<ItemGroup className="gap-3">
+						:	<ItemGroup className="gap-3">
 								{/* Aprobadas */}
 								{rendirGroup.aprobados.map((req) => (
 									<Item key={req.id} variant="outline" render={<Link href={`/${carreraSlug}/${plan}/${req.slug}`} />}>
@@ -332,7 +330,7 @@ export default async function MateriaDetailPage({params}: PageProps) {
 									)
 								})}
 							</ItemGroup>
-						)}
+						}
 					</CardContent>
 				</Card>
 
@@ -344,7 +342,7 @@ export default async function MateriaDetailPage({params}: PageProps) {
 					</CardHeader>
 					<CardContent className="flex-1 flex flex-col justify-between gap-6">
 						<div>
-							{FECHAS_EXAMEN_MOCK.length === 0 ? (
+							{FECHAS_EXAMEN_MOCK.length === 0 ?
 								<ItemGroup>
 									<Item variant="muted" size="sm">
 										<ItemMedia>
@@ -357,8 +355,7 @@ export default async function MateriaDetailPage({params}: PageProps) {
 										</ItemContent>
 									</Item>
 								</ItemGroup>
-							) : (
-								<ItemGroup className="gap-3">
+							:	<ItemGroup className="gap-3">
 									{FECHAS_EXAMEN_MOCK.map((fecha, idx) => (
 										<Item key={idx} variant="outline">
 											<ItemMedia>
@@ -378,20 +375,24 @@ export default async function MateriaDetailPage({params}: PageProps) {
 										</Item>
 									))}
 								</ItemGroup>
-							)}
+							}
 
 							{/* Aviso importante */}
 							<div className="mt-4 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-yellow-600 dark:text-yellow-500 text-xs flex gap-2.5 items-start">
 								<IconAlertCircle className="size-5 shrink-0 mt-0.5" />
 								<span>
-									<strong>Aviso importante:</strong> Revisa siempre la información oficial provista por la institución, ya que estas fechas pueden cambiar de último momento.
+									<strong>Aviso importante:</strong> Revisa siempre la información oficial provista por la institución,
+									ya que estas fechas pueden cambiar de último momento.
 								</span>
 							</div>
 						</div>
 
 						{/* Botón de Enlace a Resoluciones */}
 						<div className="pt-4 border-t border-border">
-							<Button variant="outline" className="w-full justify-between" render={<Link href={RESOLUCIONES_URL} target="_blank" />}>
+							<Button
+								variant="outline"
+								className="w-full justify-between"
+								render={<Link href={RESOLUCIONES_URL} target="_blank" />}>
 								<span className="flex items-center gap-2">
 									<IconFileText className="size-4" />
 									Ver Resoluciones Oficiales

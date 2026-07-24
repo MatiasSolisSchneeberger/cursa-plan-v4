@@ -1,18 +1,12 @@
 import AppSidebar, {AppSidebarSkeleton} from "@/components/AppSidebar"
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
 import KbdMacShortcut from "@/components/KbdMacShortcut"
 import {SidebarProvider, SidebarTrigger} from "@/components/ui/sidebar"
 import {Tooltip, TooltipContent, TooltipTrigger} from "@/components/ui/tooltip"
 import {Suspense} from "react"
 import {ThemeButton} from "@/components/toggle-theme"
-import {getCarreraDetalle, getPlanEstudio} from "@/lib/carreras"
+import {getCarreras, getPlanEstudio} from "@/lib/carreras"
+import HeaderBreadcrumb from "@/components/HeaderBreadcrumb"
+import { Separator } from "@/components/ui/separator"
 
 interface LayoutProps {
 	children: React.ReactNode
@@ -35,7 +29,12 @@ async function CarreraPlanContent({
 	const resolvedParams = await params
 	const {carreraSlug, plan} = resolvedParams
 
-	const {carrera, anioInicio} = await getPlanEstudio(plan, carreraSlug)
+	const [allCarreras, planEstudio] = await Promise.all([
+		getCarreras(),
+		getPlanEstudio(plan, carreraSlug),
+	])
+
+	const {carrera, anioInicio, anios} = planEstudio
 
 	return (
 		<SidebarProvider className={`theme-${carreraSlug}`}>
@@ -52,11 +51,16 @@ async function CarreraPlanContent({
 							<KbdMacShortcut />
 						</TooltipContent>
 					</Tooltip>
-					<Breadcrumb>
-						<BreadcrumbList>
-							{carrera.nombre}, {anioInicio}
-						</BreadcrumbList>
-					</Breadcrumb>
+                    <Separator orientation="vertical" className="h-6 my-auto" />
+					<HeaderBreadcrumb
+						allCarreras={allCarreras}
+						currentCarrera={{
+							nombre: carrera.nombre,
+							slug: carrera.slug,
+						}}
+						currentPlanYear={anioInicio}
+						anios={anios}
+					/>
 					<div className="ml-auto">
 						<ThemeButton />
 					</div>

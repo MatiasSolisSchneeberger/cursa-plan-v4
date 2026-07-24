@@ -1,16 +1,10 @@
 "use client"
 
 import * as React from "react"
-import { MateriaCard } from "./materia-card"
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select"
+import {MateriaCard} from "./materia-card"
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
 
-import type { DatosPlanCurricular, AnioJSON } from "@/types/consultas"
+import type {DatosPlanCurricular, AnioJSON} from "@/types/consultas"
 
 interface PlanViewProps {
 	planData: DatosPlanCurricular
@@ -18,40 +12,31 @@ interface PlanViewProps {
 	planIdOrYear: string | number
 }
 
-export function PlanView({ planData, carreraSlug, planIdOrYear }: PlanViewProps) {
+export function PlanView({planData, carreraSlug, planIdOrYear}: PlanViewProps) {
 	// Estado para la orientación seleccionada. "all" por defecto.
 	const [selectedOrientation, setSelectedOrientation] = React.useState<string>("all")
 
 	// Verificar si un año específico contiene orientaciones
 	const anioHasOrientaciones = (anio: AnioJSON) => {
-		return anio.periodos.some((periodo) =>
-			periodo.materiasPorOrientacion.some((grupo) => grupo.orientacion !== null)
-		)
+		return anio.periodos.some((periodo) => periodo.materiasPorOrientacion.some((grupo) => grupo.orientacion !== null))
 	}
 
 	return (
-		<div className="space-y-12">
+		<section className="space-y-12">
 			{planData.anios.map((anio) => {
 				const hasOrientations = anioHasOrientaciones(anio)
 
 				return (
 					<section key={`anio-${anio.anio}`} className="space-y-6">
 						{/* Encabezado del Año */}
-						<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-							<h2 className="text-2xl font-bold tracking-tight">
-								{anio.anio}º Año
-							</h2>
-							
+						<article className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+							<h2 className="text-2xl font-bold tracking-tight">{anio.anio}º Año</h2>
+
 							{/* Select de Orientaciones, solo visible si el año tiene orientaciones */}
 							{hasOrientations && planData.listaOrientaciones.length > 0 && (
 								<div className="flex items-center gap-2">
-									<span className="text-sm font-medium text-muted-foreground whitespace-nowrap">
-										Orientación:
-									</span>
-									<Select
-										value={selectedOrientation}
-										onValueChange={(val) => setSelectedOrientation(val ?? "all")}
-									>
+									<span className="text-sm font-medium text-muted-foreground whitespace-nowrap">Orientación:</span>
+									<Select value={selectedOrientation} onValueChange={(val) => setSelectedOrientation(val ?? "all")}>
 										<SelectTrigger className="w-62.5">
 											<SelectValue placeholder="Todas las orientaciones" />
 										</SelectTrigger>
@@ -66,18 +51,19 @@ export function PlanView({ planData, carreraSlug, planIdOrYear }: PlanViewProps)
 									</Select>
 								</div>
 							)}
-						</div>
+						</article>
 
 						{/* Periodos del Año */}
-						<div className="space-y-8 pl-0 sm:pl-4">
-							{anio.periodos.map(({id,materias,materiasPorOrientacion,nroPeriodo,tipoPeriodo}) => (
+						<article className="space-y-8 pl-0 sm:pl-4">
+							{anio.periodos.map(({id, materiasPorOrientacion, nroPeriodo, tipoPeriodo}) => (
 								<div key={`periodo-${id}`} className="space-y-4">
 									<h3 className="text-xl font-semibold border-b pb-2">
-										{nroPeriodo >=1 && `${nroPeriodo}° `}{tipoPeriodo.nombre} 
+										{nroPeriodo >= 1 && `${nroPeriodo}° `}
+										{tipoPeriodo.nombre}
 									</h3>
 
 									<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-										{materiasPorOrientacion.map(({materias,orientacion}) => {
+										{materiasPorOrientacion.map(({materias, orientacion}) => {
 											// Si el grupo es una orientación específica y no coincide con el filtro, lo omitimos
 											if (
 												orientacion !== null &&
@@ -99,10 +85,10 @@ export function PlanView({ planData, carreraSlug, planIdOrYear }: PlanViewProps)
 									</div>
 								</div>
 							))}
-						</div>
+						</article>
 					</section>
 				)
 			})}
-		</div>
+		</section>
 	)
 }

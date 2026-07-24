@@ -24,8 +24,8 @@ export default async function PlanPage({params}: PageProps) {
 					<h1>{planData.carrera.nombre}</h1>
 				</CardHeader>
 				<CardContent className="text-muted-foreground text-lg">
-					<ItemGroup className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-						<Item variant="outline" size="sm">
+					<div className="flex flex-row flex-wrap gap-3">
+						<Item variant="outline" size="sm" className="flex-1 min-w-[200px] max-w-sm">
 							<ItemMedia>
 								<IconInfoCircle className="size-5" />
 							</ItemMedia>
@@ -33,7 +33,7 @@ export default async function PlanPage({params}: PageProps) {
 								<ItemTitle>Plan de estudio: {planData.anioInicio}{planData.anioFin && (<> - {planData.anioFin}</>)}</ItemTitle>
 							</ItemContent>
 						</Item>
-					</ItemGroup>
+					</div>
 				</CardContent>
 			</Card>
 
