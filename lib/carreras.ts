@@ -810,6 +810,17 @@ export async function getMateriaDetalle(
 
 	const typedRow = data as unknown as MateriaDetalleQueryRow;
 
+	const {data: datesData, error: datesError} = await staticSupabase
+		.from("fechas_examenes")
+		.select("fecha")
+		.eq("materia_id", Number(typedRow.materia?.id || 0))
+
+	if (datesError) {
+		console.error("Error al obtener fechas de exámenes:", datesError)
+	}
+
+	const fechasExamenes = (datesData || []).map((d: any) => d.fecha as string)
+
 	return {
 		id: Number(typedRow.materia?.id || 0),
 		idMateriaPlan: Number(typedRow.id),
@@ -828,6 +839,7 @@ export async function getMateriaDetalle(
 			slug: typedRow.periodo.slug || "",
 			nombre: typedRow.periodo.nombre || ""
 		} : null,
+		fechasExamenes,
 		plan: {
 			id: Number(typedRow.plan?.id || 0),
 			anioInicio: Number(typedRow.plan?.anio_inicio || 0),

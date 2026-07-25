@@ -55,36 +55,35 @@ export function PlanView({planData, carreraSlug, planIdOrYear}: PlanViewProps) {
 
 						{/* Periodos del Año */}
 						<article className="space-y-8 pl-0 sm:pl-4">
-							{anio.periodos.map(({id, materiasPorOrientacion, nroPeriodo, tipoPeriodo}) => (
-								<div key={`periodo-${id}`} className="space-y-4">
-									<h3 className="text-xl font-semibold border-b pb-2">
-										{nroPeriodo >= 1 && `${nroPeriodo}° `}
-										{tipoPeriodo.nombre}
-									</h3>
+							{anio.periodos.map(({id, materiasPorOrientacion, nroPeriodo, tipoPeriodo}) => {
+                                return (
+                                    <div key={`periodo-${nroPeriodo}-${tipoPeriodo.id}`} className="space-y-4">
+                                        <h3 className="text-xl font-semibold border-b pb-2">
+                                            {nroPeriodo >= 1 && `${nroPeriodo}° `}
+                                            {tipoPeriodo.nombre}
+                                        </h3>
 
-									<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-										{materiasPorOrientacion.map(({materias, orientacion}) => {
-											// Si el grupo es una orientación específica y no coincide con el filtro, lo omitimos
-											if (
-												orientacion !== null &&
-												selectedOrientation !== "all" &&
-												orientacion.id.toString() !== selectedOrientation
-											) {
-												return null
-											}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                                            {materiasPorOrientacion.map(({ materias, orientacion }) => {
+                                                // Si el grupo es una orientación específica y no coincide con el filtro, lo omitimos
+                                                if (orientacion !== null &&
+                                                    selectedOrientation !== "all" &&
+                                                    orientacion.id.toString() !== selectedOrientation) {
+                                                    return null
+                                                }
 
-											return materias.map((materia) => (
-												<MateriaCard
-													key={`materia-${materia.id}`}
-													materia={materia}
-													carreraSlug={carreraSlug}
-													planIdOrYear={planIdOrYear}
-												/>
-											))
-										})}
-									</div>
-								</div>
-							))}
+                                                return materias.map((materia) => (
+                                                    <MateriaCard
+                                                        key={`materia-${materia.id}`}
+                                                        materia={materia}
+                                                        carreraSlug={carreraSlug}
+                                                        planIdOrYear={planIdOrYear} />
+                                                ))
+                                            })}
+                                        </div>
+                                    </div>
+                                )
+                            })}
 						</article>
 					</section>
 				)

@@ -44,7 +44,7 @@ export default function RootLayout({
 				jetbrainsMono.variable,
 				"font-sans",
 			)}>
-			<body suppressHydrationWarning className="min-h-full flex flex-col">
+			<body suppressHydrationWarning className="h-full flex flex-col">
 				<TooltipProvider>
 					<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
 						{children}

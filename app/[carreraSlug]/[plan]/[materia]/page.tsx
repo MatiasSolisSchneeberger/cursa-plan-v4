@@ -17,6 +17,7 @@ import {
 	IconChevronRight,
 	IconCalendarOff,
 	IconArrowLeft,
+	IconCalendarPlus,
 } from "@tabler/icons-react"
 import {Button} from "@/components/ui/button"
 import type {EstadoMateria} from "@/types/materiaTypes"
@@ -25,7 +26,21 @@ import type {Condicion, Requisito, RequisitoMateria} from "@/types/carrera"
 // Constantes configurables
 const RESOLUCION_MOCK = "Res. CD 142/18"
 const RESOLUCIONES_URL = "https://example.com/resoluciones-academicas"
-const FECHAS_EXAMEN_MOCK: string[] = [] // Cambiar para agregar fechas de exámenes, ej. ["2026-08-10", "2026-08-24"]
+
+function getGoogleCalendarLink(materiaNombre: string, fechaStr: string) {
+	const baseDate = new Date(fechaStr + "T00:00:00")
+	const start = fechaStr.replace(/-/g, "")
+
+	const endDate = new Date(baseDate)
+	endDate.setDate(endDate.getDate() + 1)
+	const year = endDate.getFullYear()
+	const month = String(endDate.getMonth() + 1).padStart(2, "0")
+	const day = String(endDate.getDate()).padStart(2, "0")
+	const end = `${year}${month}${day}`
+
+	const eventTitle = encodeURIComponent(`Mesa de Examen - ${materiaNombre}`)
+	return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=${start}/${end}&sf=true&output=xml`
+}
 
 interface PageProps {
 	params: Promise<{
@@ -162,10 +177,7 @@ export default async function MateriaDetailPage({params}: PageProps) {
 							</ItemContent>
 						</Item>
 
-						<Item
-							variant="muted"
-							size="sm"
-							className="opacity-90 border-dashed border-border">
+						<Item variant="muted" size="sm" className="opacity-90 border-dashed border-border">
 							<ItemMedia>
 								<IconFileText className="size-5 text-muted-foreground" />
 							</ItemMedia>
@@ -342,7 +354,7 @@ export default async function MateriaDetailPage({params}: PageProps) {
 					</CardHeader>
 					<CardContent className="flex-1 flex flex-col justify-between gap-6">
 						<div>
-							{FECHAS_EXAMEN_MOCK.length === 0 ?
+							{materia.fechasExamenes.length === 0 ?
 								<ItemGroup>
 									<Item variant="muted" size="sm">
 										<ItemMedia>
@@ -356,22 +368,36 @@ export default async function MateriaDetailPage({params}: PageProps) {
 									</Item>
 								</ItemGroup>
 							:	<ItemGroup className="gap-3">
-									{FECHAS_EXAMEN_MOCK.map((fecha, idx) => (
+									{materia.fechasExamenes.map((fecha, idx) => (
 										<Item key={idx} variant="outline">
 											<ItemMedia>
 												<IconCalendar className="size-5 text-primary" />
 											</ItemMedia>
 											<ItemContent>
-												<ItemTitle>Llamado {idx + 1}</ItemTitle>
+												<ItemTitle>Mesa N° {idx + 1}</ItemTitle>
 												<ItemDescription className="font-semibold text-foreground">
-													{new Date(fecha).toLocaleDateString("es-AR", {
-														weekday: "long",
+													{new Date(fecha + "T00:00:00").toLocaleDateString("es-AR", {
 														year: "numeric",
-														month: "long",
+														month: "2-digit",
 														day: "numeric",
 													})}
 												</ItemDescription>
 											</ItemContent>
+											<ItemActions>
+												<Button
+													variant="ghost"
+													size="icon"
+													className="size-8"
+													render={
+														<Link
+															href={getGoogleCalendarLink(materia.nombre, fecha)}
+															target="_blank"
+															title="Agregar a Google Calendar"
+														/>
+													}>
+													<IconCalendarPlus className="size-4 text-primary" />
+												</Button>
+											</ItemActions>
 										</Item>
 									))}
 								</ItemGroup>

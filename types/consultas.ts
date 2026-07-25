@@ -217,6 +217,7 @@ export interface DatosMateriaDetalle {
 	anio: number;
 	nroPeriodo: number;
 	periodo: { id: number; slug: string; nombre: string } | null;
+	fechasExamenes: string[];
 	plan: {
 		id: number;
 		anioInicio: number;
