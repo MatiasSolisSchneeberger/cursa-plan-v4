@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, Suspense } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -53,54 +53,56 @@ export default function UpdatePasswordPage() {
 	}
 
 	return (
-		<section className="w-full h-full flex items-center justify-center py-6">
-			<Card className="w-full max-w-md mx-auto">
-				<CardHeader className="text-center">
-					<CardTitle className="text-2xl font-title">Nueva Contraseña</CardTitle>
-					<CardDescription>Ingresa tu nueva contraseña para actualizar tu acceso</CardDescription>
-				</CardHeader>
-				<CardContent>
-					{error && (
-						<div className="mb-4 p-3 rounded bg-destructive/15 text-destructive text-sm font-medium">
-							{error}
-						</div>
-					)}
-					{success && (
-						<div className="mb-4 p-3 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-sm font-medium">
-							{success}
-						</div>
-					)}
-					<form onSubmit={handleSubmit}>
-						<FieldGroup>
-							<Field>
-								<FieldLabel htmlFor="password">Nueva Contraseña</FieldLabel>
-								<Input
-									id="password"
-									type="password"
-									value={password}
-									onChange={(e) => setPassword(e.target.value)}
-									required
-								/>
-							</Field>
-							<Field>
-								<FieldLabel htmlFor="confirm-password">Confirmar Contraseña</FieldLabel>
-								<Input
-									id="confirm-password"
-									type="password"
-									value={confirmPassword}
-									onChange={(e) => setConfirmPassword(e.target.value)}
-									required
-								/>
-							</Field>
-							<Field className="pt-2">
-								<Button type="submit" className="w-full" disabled={loading}>
-									{loading ? "Actualizando..." : "Actualizar Contraseña"}
-								</Button>
-							</Field>
-						</FieldGroup>
-					</form>
-				</CardContent>
-			</Card>
-		</section>
+		<Suspense fallback={<div className="flex items-center justify-center p-8">Cargando...</div>}>
+			<section className="w-full h-full flex items-center justify-center py-6">
+				<Card className="w-full max-w-md mx-auto">
+					<CardHeader className="text-center">
+						<CardTitle className="text-2xl font-title">Nueva Contraseña</CardTitle>
+						<CardDescription>Ingresa tu nueva contraseña para actualizar tu acceso</CardDescription>
+					</CardHeader>
+					<CardContent>
+						{error && (
+							<div className="mb-4 p-3 rounded bg-destructive/15 text-destructive text-sm font-medium">
+								{error}
+							</div>
+						)}
+						{success && (
+							<div className="mb-4 p-3 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-sm font-medium">
+								{success}
+							</div>
+						)}
+						<form onSubmit={handleSubmit}>
+							<FieldGroup>
+								<Field>
+									<FieldLabel htmlFor="password">Nueva Contraseña</FieldLabel>
+									<Input
+										id="password"
+										type="password"
+										value={password}
+										onChange={(e) => setPassword(e.target.value)}
+										required
+									/>
+								</Field>
+								<Field>
+									<FieldLabel htmlFor="confirm-password">Confirmar Contraseña</FieldLabel>
+									<Input
+										id="confirm-password"
+										type="password"
+										value={confirmPassword}
+										onChange={(e) => setConfirmPassword(e.target.value)}
+										required
+									/>
+								</Field>
+								<Field className="pt-2">
+									<Button type="submit" className="w-full" disabled={loading}>
+										{loading ? "Actualizando..." : "Actualizar Contraseña"}
+									</Button>
+								</Field>
+							</FieldGroup>
+						</form>
+					</CardContent>
+				</Card>
+			</section>
+		</Suspense>
 	)
 }

@@ -247,9 +247,19 @@ export async function getCurrentUser(): Promise<AuthResponse<{ user: Usuario | n
 		console.error("Error al obtener el perfil de usuario:", profileError)
 	}
 
+	const userObj: Usuario = (profile as Usuario | null) || {
+		id: authUser.id,
+		username: (authUser.user_metadata?.username as string) || null,
+		full_name: (authUser.user_metadata?.full_name as string) || (authUser.user_metadata?.name as string) || authUser.email || null,
+		avatar_url: (authUser.user_metadata?.avatar_url as string) || null,
+		updated_at: authUser.updated_at || null,
+		role: "user",
+		icon: (authUser.user_metadata?.icon as string) || null,
+	}
+
 	return {
 		success: true,
-		data: { user: profile as Usuario | null },
+		data: { user: userObj },
 	}
 }
 

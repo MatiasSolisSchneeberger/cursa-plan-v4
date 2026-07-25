@@ -6,7 +6,7 @@ import {
 	NavigationMenuList,
 	NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu"
-import {IconLogin, IconMenu2, IconUserPlus} from "@tabler/icons-react"
+import {IconMenu2} from "@tabler/icons-react"
 import Link from "next/link"
 import LogoPage from "@/components/LogoPage"
 import {
@@ -14,7 +14,6 @@ import {
 	DropdownMenuContent,
 	DropdownMenuGroup,
 	DropdownMenuItem,
-	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 	DropdownMenuSub,
 	DropdownMenuSubTrigger,
@@ -24,7 +23,10 @@ import {Button, buttonVariants} from "@/components/ui/button"
 import {ThemeButton} from "@/components/toggle-theme"
 import {cn, acortarNombreCarrera} from "@/lib/utils"
 import {getNavbarLinks} from "@/lib/navigation"
+import NavUser from "@/components/NavUser"
+import NavUserSkeleton from "@/components/NavUserSkeleton"
 import {Suspense} from "react"
+import { Separator } from "@/components/ui/separator"
 
 export default async function Navbar() {
 	const links = await getNavbarLinks()
@@ -34,7 +36,7 @@ export default async function Navbar() {
 			<section className="bg-card border-border flex flex-row gap-4 rounded-3xl border p-3 shadow-md backdrop-blur-md transition-colors duration-300">
 				<article className="flex flex-1 gap-6">
 					<LogoPage />
-					<NavigationMenu className="md:flex hidden">
+					<NavigationMenu className="lg:flex hidden">
 						<NavigationMenuList className="gap-1">
 							{links.map(({label, href, icon, subtabs}) => {
 								if (subtabs) {
@@ -83,51 +85,17 @@ export default async function Navbar() {
 					</NavigationMenu>
 				</article>
 				{/* DERECHA: Acciones */}
-				<article className="*:border-border flex items-center gap-2 *:border-l-2 *:pl-2 *:first:border-0 *:first:pl-0">
+				<article className="flex items-center gap-2">
 					<div>
 						<ThemeButton />
 					</div>
+                    <Separator orientation="vertical" className="h-10 my-auto data-vertical:w-0.5 rounded-2xl"/>
+					{/* Componente del usuario encapsulado con Suspense individual y Skeleton fallback */}
+					<Suspense fallback={<NavUserSkeleton />}>
+						<NavUser />
+					</Suspense>
 
-					<div className="hidden flex-row gap-2 lg:flex">
-						<Button
-							variant="secondary"
-							render={
-								<Link href="/login">
-									<IconLogin />
-									Iniciar Sesión
-								</Link>
-							}
-						/>
-						<Button
-							variant="default"
-							render={
-								<Link href="/register">
-									<IconUserPlus />
-									Registrarte
-								</Link>
-							}
-						/>
-					</div>
-					<div className="flex flex-row gap-2 lg:hidden">
-						<Button
-							size={"icon-lg"}
-							variant="secondary"
-							render={
-								<Link href="/login">
-									<IconLogin />
-								</Link>
-							}
-						/>
-						<Button
-							size={"icon-lg"}
-							variant="default"
-							render={
-								<Link href="/register">
-									<IconUserPlus />
-								</Link>
-							}
-						/>
-					</div>
+                    <Separator orientation="vertical" className="h-10 my-auto data-vertical:w-0.5 rounded-2xl"/>
 
 					{/* --- DROPDOWN MÓVIL (HAMBURGUESA) --- */}
 					<div className="lg:hidden">
@@ -191,26 +159,6 @@ export default async function Navbar() {
 											)
 										}
 									})}
-								</DropdownMenuGroup>
-
-								<DropdownMenuSeparator />
-								<DropdownMenuGroup>
-									<DropdownMenuItem
-										render={
-											<Link href="/login" className="flex flex-row items-center gap-2 w-full">
-												<IconLogin />
-												Iniciar Sesión
-											</Link>
-										}
-									/>
-									<DropdownMenuItem
-										render={
-											<Link href="/register" className="flex flex-row items-center gap-2 w-full">
-												<IconUserPlus />
-												Registrarte
-											</Link>
-										}
-									/>
 								</DropdownMenuGroup>
 							</DropdownMenuContent>
 						</DropdownMenu>
