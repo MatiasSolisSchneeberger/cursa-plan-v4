@@ -29,128 +29,128 @@ import type {
 	PeriodoJSON,
 	GrupoOrientacion,
 	GrupoOrientacionSeguimiento,
-	MateriaSeguimientoJSON
+	MateriaSeguimientoJSON,
 } from "@/types/consultas"
 
 // Client estático de Supabase para consultas públicas cacheables.
 // No accede a cookies() ni headers, evitando errores de dynamic data en "use cache".
 const staticSupabase = createSupabaseClient(
 	process.env.NEXT_PUBLIC_SUPABASE_URL!,
-	process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+	process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
 )
 
 // --- INTERFACES INTERNAS PARA CONSULTAS DE BASE DE DATOS ---
 
 interface CorrelativaDBRow {
-	tipo_requisito: string;
-	condicion: string;
-	porcentaje: number;
-	notas: string | null;
+	tipo_requisito: string
+	condicion: string
+	porcentaje: number
+	notas: string | null
 	requisito_plan: {
-		id: number;
-		materia: { nombre: string; slug: string } | null;
-	} | null;
+		id: number
+		materia: {nombre: string; slug: string} | null
+	} | null
 }
 
 interface MateriaPlanQueryRow {
-	id: number;
-	anio: number;
-	nro_periodo: number;
-	nro_optativa: number | null;
-	periodo: { id: number; slug: string; nombre: string } | null;
-	orientacion: { id: number; nombre: string; slug: string } | null;
-	materia: { id: number; nombre: string; slug: string } | null;
-	correlativas: CorrelativaDBRow[];
+	id: number
+	anio: number
+	nro_periodo: number
+	nro_optativa: number | null
+	periodo: {id: number; slug: string; nombre: string} | null
+	orientacion: {id: number; nombre: string; slug: string} | null
+	materia: {id: number; nombre: string; slug: string} | null
+	correlativas: CorrelativaDBRow[]
 }
 
 interface PlanEstudioQueryResponse {
-	id: number;
-	anio_inicio: number;
-	anio_fin: number | null;
+	id: number
+	anio_inicio: number
+	anio_fin: number | null
 	carreras: {
-		id: number;
-		nombre: string;
-		slug: string;
-		icon: string;
-	} | null;
-	materias_plan: MateriaPlanQueryRow[];
+		id: number
+		nombre: string
+		slug: string
+		icon: string
+	} | null
+	materias_plan: MateriaPlanQueryRow[]
 }
 
 interface UsuarioQueryRow {
-	id: string;
-	username: string | null;
-	full_name: string | null;
-	avatar_url: string | null;
-	role: string;
-	icon: string | null;
+	id: string
+	username: string | null
+	full_name: string | null
+	avatar_url: string | null
+	role: string
+	icon: string | null
 }
 
 interface CarreraFavQueryRow {
-	id: number;
-	plan_id: number;
+	id: number
+	plan_id: number
 	plan: {
-		id: number;
-		anio_inicio: number;
-		anio_fin: number | null;
+		id: number
+		anio_inicio: number
+		anio_fin: number | null
 		carrera: {
-			id: number;
-			nombre: string;
-			slug: string;
-			icon: string;
-		} | null;
-	} | null;
+			id: number
+			nombre: string
+			slug: string
+			icon: string
+		} | null
+	} | null
 }
 
 interface AvanceQueryRow {
-	materia_plan_id: number;
-	estado: string;
+	materia_plan_id: number
+	estado: string
 }
 
 interface MateriaDetalleQueryRow {
-	id: number;
-	anio: number;
-	nro_periodo: number;
-	nro_optativa: number | null;
-	periodo: { id: number; slug: string; nombre: string } | null;
-	orientacion: { id: number; nombre: string; slug: string } | null;
-	materia: { id: number; nombre: string; slug: string } | null;
+	id: number
+	anio: number
+	nro_periodo: number
+	nro_optativa: number | null
+	periodo: {id: number; slug: string; nombre: string} | null
+	orientacion: {id: number; nombre: string; slug: string} | null
+	materia: {id: number; nombre: string; slug: string} | null
 	plan: {
-		id: number;
-		anio_inicio: number;
+		id: number
+		anio_inicio: number
 		carreras: {
-			nombre: string;
-			slug: string;
-		} | null;
-	} | null;
-	correlativas: CorrelativaDBRow[];
+			nombre: string
+			slug: string
+		} | null
+	} | null
+	correlativas: CorrelativaDBRow[]
 }
 
 interface CarreraSearchRow {
-	id: number;
-	nombre: string;
-	slug: string;
-	icon: string;
+	id: number
+	nombre: string
+	slug: string
+	icon: string
 }
 
 interface MateriaPlanSearchRow {
-	id: number;
+	id: number
 	materia: {
-		id: number;
-		nombre: string;
-		slug: string;
-	} | null;
+		id: number
+		nombre: string
+		slug: string
+	} | null
 	plan: {
-		anio_inicio: number;
+		anio_inicio: number
 		carreras: {
-			nombre: string;
-			slug: string;
-		} | null;
-	} | null;
+			nombre: string
+			slug: string
+		} | null
+	} | null
 }
 
 // --- HELPER PARA PROCESAR CORRELATIVAS ---
 
-import type { CorrelativaRaw } from "@/utils/transformData"
+import type {CorrelativaRaw} from "@/utils/transformData"
 
 function procesarCorrelativas(correlativasRaw: CorrelativaDBRow[]): GrupoCorrelativa[] {
 	const formateadas: CorrelativaRaw[] = (correlativasRaw || []).map((corr) => ({
@@ -158,13 +158,19 @@ function procesarCorrelativas(correlativasRaw: CorrelativaDBRow[]): GrupoCorrela
 		condicion: corr.condicion,
 		porcentaje: corr.porcentaje || undefined,
 		notas: corr.notas || undefined,
-		requisito_plan: corr.requisito_plan ? {
-			id: Number(corr.requisito_plan.id),
-			materia: corr.requisito_plan.materia ? {
-				nombre: corr.requisito_plan.materia.nombre,
-				slug: corr.requisito_plan.materia.slug,
-			} : { nombre: "", slug: "" }
-		} : undefined
+		requisito_plan:
+			corr.requisito_plan ?
+				{
+					id: Number(corr.requisito_plan.id),
+					materia:
+						corr.requisito_plan.materia ?
+							{
+								nombre: corr.requisito_plan.materia.nombre,
+								slug: corr.requisito_plan.materia.slug,
+							}
+						:	{nombre: "", slug: ""},
+				}
+			:	undefined,
 	}))
 
 	return formatearCorrelativas(formateadas) as unknown as GrupoCorrelativa[]
@@ -177,7 +183,7 @@ function agruparMateriasPorOrientacion(materias: MateriaJSON[]): GrupoOrientacio
 
 	gruposMap.set("comun", {
 		orientacion: null,
-		materias: []
+		materias: [],
 	})
 
 	materias.forEach((materia) => {
@@ -190,9 +196,9 @@ function agruparMateriasPorOrientacion(materias: MateriaJSON[]): GrupoOrientacio
 					orientacion: {
 						id: oId,
 						nombre: materia.orientacion.nombre,
-						slug: materia.orientacion.slug
+						slug: materia.orientacion.slug,
 					},
-					materias: []
+					materias: [],
 				})
 			}
 
@@ -216,7 +222,7 @@ function agruparMateriasSeguimientoPorOrientacion(materias: MateriaSeguimientoJS
 
 	gruposMap.set("comun", {
 		orientacion: null,
-		materias: []
+		materias: [],
 	})
 
 	materias.forEach((materia) => {
@@ -229,9 +235,9 @@ function agruparMateriasSeguimientoPorOrientacion(materias: MateriaSeguimientoJS
 					orientacion: {
 						id: oId,
 						nombre: materia.orientacion.nombre,
-						slug: materia.orientacion.slug
+						slug: materia.orientacion.slug,
 					},
-					materias: []
+					materias: [],
 				})
 			}
 
@@ -263,7 +269,8 @@ export async function getCarreras(): Promise<Carrera[]> {
 
 	const {data, error} = await staticSupabase
 		.from("carreras")
-		.select(`
+		.select(
+			`
 			id,
 			nombre,
 			slug,
@@ -276,7 +283,8 @@ export async function getCarreras(): Promise<Carrera[]> {
 					id
 				)
 			)
-		`)
+		`,
+		)
 		.order("nombre", {ascending: true})
 
 	if (error) {
@@ -289,7 +297,14 @@ export async function getCarreras(): Promise<Carrera[]> {
 		nombre: c.nombre as string,
 		slug: c.slug as string,
 		icon: c.icon as string,
-		planes: ((c.planes as unknown as { id: number | string; anio_inicio: number | string; anio_fin: number | string | null; materia_plan: { id: number }[] }[]) || []).map((p) => ({
+		planes: (
+			(c.planes as unknown as {
+				id: number | string
+				anio_inicio: number | string
+				anio_fin: number | string | null
+				materia_plan: {id: number}[]
+			}[]) || []
+		).map((p) => ({
 			id: Number(p.id),
 			anio_inicio: Number(p.anio_inicio),
 			anio_fin: p.anio_fin ? Number(p.anio_fin) : null,
@@ -310,7 +325,8 @@ export async function getCarreraDetalle(carreraSlug: string): Promise<CarreraCon
 
 	const {data, error} = await staticSupabase
 		.from("carreras")
-		.select(`
+		.select(
+			`
 			id,
 			nombre,
 			slug,
@@ -320,7 +336,8 @@ export async function getCarreraDetalle(carreraSlug: string): Promise<CarreraCon
 				anio_inicio,
 				anio_fin
 			)
-		`)
+		`,
+		)
 		.eq("slug", carreraSlug)
 		.single()
 
@@ -334,7 +351,13 @@ export async function getCarreraDetalle(carreraSlug: string): Promise<CarreraCon
 		nombre: data.nombre as string,
 		slug: data.slug as string,
 		icon: data.icon as string,
-		planes: ((data.planes as unknown as { id: number | string; anio_inicio: number | string; anio_fin: number | string | null }[]) || []).map((p) => ({
+		planes: (
+			(data.planes as unknown as {
+				id: number | string
+				anio_inicio: number | string
+				anio_fin: number | string | null
+			}[]) || []
+		).map((p) => ({
 			id: Number(p.id),
 			anio_inicio: Number(p.anio_inicio),
 			anio_fin: p.anio_fin ? Number(p.anio_fin) : null,
@@ -409,9 +432,9 @@ export async function getPlanEstudio(
 		throw new Error(error.message)
 	}
 
-	const typedData = data as unknown as PlanEstudioQueryResponse;
+	const typedData = data as unknown as PlanEstudioQueryResponse
 
-	const aniosMap = new Map<number, { anio: number; periodosMap: Map<string, PeriodoJSON> }>()
+	const aniosMap = new Map<number, {anio: number; periodosMap: Map<string, PeriodoJSON>}>()
 	const orientacionesSet = new Map<number, OrientacionBasica>()
 
 	const materiasPlan = typedData.materias_plan || []
@@ -489,11 +512,11 @@ export async function getPlanEstudio(
 	})
 
 	const anios: AnioJSON[] = Array.from(aniosMap.values())
-		.sort(({ anio: aAnio }, { anio: bAnio }) => aAnio - bAnio)
-		.map(({ anio, periodosMap }) => ({
+		.sort(({anio: aAnio}, {anio: bAnio}) => aAnio - bAnio)
+		.map(({anio, periodosMap}) => ({
 			anio,
 			periodos: Array.from(periodosMap.values())
-				.sort(({ nroPeriodo: p1 }, { nroPeriodo: p2 }) => p1 - p2)
+				.sort(({nroPeriodo: p1}, {nroPeriodo: p2}) => p1 - p2)
 				.map((periodoObj) => ({
 					...periodoObj,
 					materiasPorOrientacion: agruparMateriasPorOrientacion(periodoObj.materias),
@@ -570,13 +593,13 @@ export function formatearNombrePeriodo(nroPeriodo: number, tipoNombre: string, t
  * Aplana todas las materias de un año incluyendo la información del periodo formateado.
  */
 export function flattenYearMaterias(periodos: PeriodoJSON[]): MateriaConPeriodo[] {
-	return periodos.flatMap(({ id: pId, tipoPeriodo: { nombre: tNombre, slug: tSlug }, nroPeriodo: nroP, materias }) =>
+	return periodos.flatMap(({id: pId, tipoPeriodo: {nombre: tNombre, slug: tSlug}, nroPeriodo: nroP, materias}) =>
 		materias.map((materia) => ({
 			...materia,
 			periodoId: pId,
 			periodoNombre: formatearNombrePeriodo(nroP, tNombre, tSlug),
 			nroPeriodo: nroP,
-		}))
+		})),
 	)
 }
 
@@ -584,11 +607,11 @@ export function flattenYearMaterias(periodos: PeriodoJSON[]): MateriaConPeriodo[
  * Agrupa las materias obligatorias por periodo.
  */
 export function groupRequiredByPeriod(materias: MateriaConPeriodo[]): GroupedPeriodo[] {
-	const req = materias.filter(({ esOptativa }) => !esOptativa)
+	const req = materias.filter(({esOptativa}) => !esOptativa)
 	const periodMap = new Map<number, GroupedPeriodo>()
 
 	req.forEach((materia) => {
-		const { periodoId, periodoNombre, nroPeriodo } = materia
+		const {periodoId, periodoNombre, nroPeriodo} = materia
 		if (!periodMap.has(periodoId)) {
 			periodMap.set(periodoId, {
 				periodoId,
@@ -600,20 +623,18 @@ export function groupRequiredByPeriod(materias: MateriaConPeriodo[]): GroupedPer
 		periodMap.get(periodoId)!.materias.push(materia)
 	})
 
-	return Array.from(periodMap.values()).sort(
-		({ nroPeriodo: aNro }, { nroPeriodo: bNro }) => aNro - bNro
-	)
+	return Array.from(periodMap.values()).sort(({nroPeriodo: aNro}, {nroPeriodo: bNro}) => aNro - bNro)
 }
 
 /**
  * Agrupa las materias optativas por número de slot (nroOptativa).
  */
 export function groupElectivesBySlot(materias: MateriaConPeriodo[]): GroupedOptativa[] {
-	const opts = materias.filter(({ esOptativa }) => esOptativa)
+	const opts = materias.filter(({esOptativa}) => esOptativa)
 	const optMap = new Map<number, GroupedOptativa>()
 
 	opts.forEach((materia) => {
-		const { nroOptativa } = materia
+		const {nroOptativa} = materia
 		const nro = nroOptativa || 1
 		if (!optMap.has(nro)) {
 			optMap.set(nro, {
@@ -624,9 +645,7 @@ export function groupElectivesBySlot(materias: MateriaConPeriodo[]): GroupedOpta
 		optMap.get(nro)!.materias.push(materia)
 	})
 
-	return Array.from(optMap.values()).sort(
-		({ nro: aNro }, { nro: bNro }) => aNro - bNro
-	)
+	return Array.from(optMap.values()).sort(({nro: aNro}, {nro: bNro}) => aNro - bNro)
 }
 
 /**
@@ -635,7 +654,7 @@ export function groupElectivesBySlot(materias: MateriaConPeriodo[]): GroupedOpta
  */
 export function esOptativaGenericaUnica(materias: MateriaConPeriodo[]): boolean {
 	if (materias.length !== 1) return false
-	const [{ nombre }] = materias
+	const [{nombre}] = materias
 	return nombre.toLowerCase().trim().startsWith("optativa")
 }
 
@@ -646,7 +665,7 @@ export function processYearWithOrientations(yearMaterias: MateriaConPeriodo[]): 
 	const groups: GroupedOrientation[] = []
 
 	// 1. Tronco Común
-	const commonMaterias = yearMaterias.filter(({ orientacion }) => orientacion === null)
+	const commonMaterias = yearMaterias.filter(({orientacion}) => orientacion === null)
 	if (commonMaterias.length > 0) {
 		groups.push({
 			id: "comun",
@@ -658,7 +677,7 @@ export function processYearWithOrientations(yearMaterias: MateriaConPeriodo[]): 
 
 	// 2. Orientaciones específicas
 	const orientationsMap = new Map<number, OrientacionBasica>()
-	yearMaterias.forEach(({ orientacion }) => {
+	yearMaterias.forEach(({orientacion}) => {
 		if (orientacion && orientacion.id !== undefined) {
 			orientationsMap.set(orientacion.id, {
 				id: orientacion.id,
@@ -667,12 +686,12 @@ export function processYearWithOrientations(yearMaterias: MateriaConPeriodo[]): 
 			})
 		}
 	})
-	const uniqueOrientations = Array.from(orientationsMap.values()).sort(
-		({ nombre: aNombre }, { nombre: bNombre }) => aNombre.localeCompare(bNombre)
+	const uniqueOrientations = Array.from(orientationsMap.values()).sort(({nombre: aNombre}, {nombre: bNombre}) =>
+		aNombre.localeCompare(bNombre),
 	)
 
-	uniqueOrientations.forEach(({ id: orientId, nombre: orientNombre }) => {
-		const orientMaterias = yearMaterias.filter(({ orientacion }) => orientacion?.id === orientId)
+	uniqueOrientations.forEach(({id: orientId, nombre: orientNombre}) => {
+		const orientMaterias = yearMaterias.filter(({orientacion}) => orientacion?.id === orientId)
 		groups.push({
 			id: `orientacion-${orientId}`,
 			nombre: orientNombre,
@@ -749,14 +768,15 @@ export async function getCalendario(
 export async function getMateriaDetalle(
 	carreraSlug: string,
 	planIdOrYear: number | string,
-	materiaSlug: string
+	materiaSlug: string,
 ): Promise<DatosMateriaDetalle> {
 	"use cache"
 	cacheLife("hours")
 
 	let query = staticSupabase
 		.from("materia_plan")
-		.select(`
+		.select(
+			`
 			id,
 			anio,
 			nro_periodo,
@@ -782,7 +802,8 @@ export async function getMateriaDetalle(
 					materia:materias ( nombre, slug )
 				)
 			)
-		`)
+		`,
+		)
 		.eq("materia.slug", materiaSlug)
 		.eq("plan.carreras.slug", carreraSlug)
 
@@ -808,7 +829,7 @@ export async function getMateriaDetalle(
 		throw new Error(`Materia no encontrada en el plan especificado: ${materiaSlug}`)
 	}
 
-	const typedRow = data as unknown as MateriaDetalleQueryRow;
+	const typedRow = data as unknown as MateriaDetalleQueryRow
 
 	const {data: datesData, error: datesError} = await staticSupabase
 		.from("fechas_examenes")
@@ -828,27 +849,33 @@ export async function getMateriaDetalle(
 		slug: typedRow.materia?.slug || "",
 		esOptativa: !!typedRow.nro_optativa,
 		nroOptativa: typedRow.nro_optativa ? Number(typedRow.nro_optativa) : null,
-		orientacion: typedRow.orientacion ? {
-			nombre: typedRow.orientacion.nombre || "",
-			slug: typedRow.orientacion.slug || ""
-		} : null,
+		orientacion:
+			typedRow.orientacion ?
+				{
+					nombre: typedRow.orientacion.nombre || "",
+					slug: typedRow.orientacion.slug || "",
+				}
+			:	null,
 		anio: Number(typedRow.anio),
 		nroPeriodo: Number(typedRow.nro_periodo),
-		periodo: typedRow.periodo ? {
-			id: Number(typedRow.periodo.id),
-			slug: typedRow.periodo.slug || "",
-			nombre: typedRow.periodo.nombre || ""
-		} : null,
+		periodo:
+			typedRow.periodo ?
+				{
+					id: Number(typedRow.periodo.id),
+					slug: typedRow.periodo.slug || "",
+					nombre: typedRow.periodo.nombre || "",
+				}
+			:	null,
 		fechasExamenes,
 		plan: {
 			id: Number(typedRow.plan?.id || 0),
 			anioInicio: Number(typedRow.plan?.anio_inicio || 0),
 			carrera: {
 				nombre: typedRow.plan?.carreras?.nombre || "",
-				slug: typedRow.plan?.carreras?.slug || ""
-			}
+				slug: typedRow.plan?.carreras?.slug || "",
+			},
 		},
-		correlativas: procesarCorrelativas(typedRow.correlativas || [])
+		correlativas: procesarCorrelativas(typedRow.correlativas || []),
 	}
 }
 
@@ -872,7 +899,8 @@ export async function getBusquedaGeneral(termino: string): Promise<ResultadosBus
 			.limit(10),
 		staticSupabase
 			.from("materia_plan")
-			.select(`
+			.select(
+				`
 				id,
 				materia:materias!inner (
 					id,
@@ -886,9 +914,10 @@ export async function getBusquedaGeneral(termino: string): Promise<ResultadosBus
 						slug
 					)
 				)
-			`)
+			`,
+			)
 			.or(`materia.nombre.ilike.%${termino}%,materia.slug.ilike.%${termino}%`)
-			.limit(20)
+			.limit(20),
 	])
 
 	if (carrerasRes.error) throw carrerasRes.error
@@ -901,7 +930,7 @@ export async function getBusquedaGeneral(termino: string): Promise<ResultadosBus
 		carreraId: Number(c.id),
 		carreraNombre: c.nombre,
 		carreraSlug: c.slug,
-		carreraIcon: c.icon
+		carreraIcon: c.icon,
 	}))
 
 	const materias: ResultadoBusquedaMateria[] = rawMaterias
@@ -912,12 +941,12 @@ export async function getBusquedaGeneral(termino: string): Promise<ResultadosBus
 			materiaSlug: m.materia!.slug,
 			carreraNombre: m.plan!.carreras!.nombre,
 			carreraSlug: m.plan!.carreras!.slug,
-			planAnioInicio: Number(m.plan!.anio_inicio)
+			planAnioInicio: Number(m.plan!.anio_inicio),
 		}))
 
 	return {
 		carreras,
-		materias
+		materias,
 	}
 }
 
@@ -938,7 +967,8 @@ export const getDashboardUsuario = cache(async (userId: string): Promise<DatosDa
 		supabase.from("usuarios").select("id, username, full_name, avatar_url, role, icon").eq("id", userId).maybeSingle(),
 		supabase
 			.from("carreras_fav")
-			.select(`
+			.select(
+				`
 				id,
 				plan_id,
 				plan:plan_estudio (
@@ -952,7 +982,8 @@ export const getDashboardUsuario = cache(async (userId: string): Promise<DatosDa
 						icon
 					)
 				)
-			`)
+			`,
+			)
 			.eq("user_id", userId),
 	])
 
@@ -1009,53 +1040,55 @@ export const getDashboardUsuario = cache(async (userId: string): Promise<DatosDa
  * @param planIdOrYear - ID o año del plan de estudio
  * @returns Malla curricular con el estado actual de cada materia ("Cursando", "Aprobado", etc.)
  */
-export const getMiCarrera = cache(async (userId: string, planIdOrYear: number | string): Promise<DatosSeguimientoPlan> => {
-	const cookieStore = await cookies()
-	const supabase = createClient(cookieStore)
+export const getMiCarrera = cache(
+	async (userId: string, planIdOrYear: number | string): Promise<DatosSeguimientoPlan> => {
+		const cookieStore = await cookies()
+		const supabase = createClient(cookieStore)
 
-	const [planData, advancesRes] = await Promise.all([
-		getPlanEstudio(planIdOrYear),
-		supabase.from("avances").select("materia_plan_id, estado").eq("user_id", userId),
-	])
+		const [planData, advancesRes] = await Promise.all([
+			getPlanEstudio(planIdOrYear),
+			supabase.from("avances").select("materia_plan_id, estado").eq("user_id", userId),
+		])
 
-	if (advancesRes.error) {
-		console.error("Error al obtener avances del usuario:", advancesRes.error)
-		throw advancesRes.error
-	}
+		if (advancesRes.error) {
+			console.error("Error al obtener avances del usuario:", advancesRes.error)
+			throw advancesRes.error
+		}
 
-	const typedAdvances = (advancesRes.data || []) as unknown as AvanceQueryRow[]
+		const typedAdvances = (advancesRes.data || []) as unknown as AvanceQueryRow[]
 
-	const advancesMap = new Map<number, EstadoMateria>()
-	typedAdvances.forEach((adv) => {
-		advancesMap.set(Number(adv.materia_plan_id), adv.estado as EstadoMateria)
-	})
+		const advancesMap = new Map<number, EstadoMateria>()
+		typedAdvances.forEach((adv) => {
+			advancesMap.set(Number(adv.materia_plan_id), adv.estado as EstadoMateria)
+		})
 
-	const anios: AnioSeguimientoJSON[] = planData.anios.map((anio) => ({
-		anio: anio.anio,
-		periodos: anio.periodos.map((periodo) => {
-			const materiasConEstado = periodo.materias.map((materia) => ({
-				...materia,
-				estadoMateria: advancesMap.get(materia.idMateriaPlan) || "Sin cursar",
-			}));
-			return {
-				id: periodo.id,
-				nroPeriodo: periodo.nroPeriodo,
-				tipoPeriodo: periodo.tipoPeriodo,
-				materias: materiasConEstado,
-				materiasPorOrientacion: agruparMateriasSeguimientoPorOrientacion(materiasConEstado)
-			};
-		}),
-	}))
+		const anios: AnioSeguimientoJSON[] = planData.anios.map((anio) => ({
+			anio: anio.anio,
+			periodos: anio.periodos.map((periodo) => {
+				const materiasConEstado = periodo.materias.map((materia) => ({
+					...materia,
+					estadoMateria: advancesMap.get(materia.idMateriaPlan) || "Sin cursar",
+				}))
+				return {
+					id: periodo.id,
+					nroPeriodo: periodo.nroPeriodo,
+					tipoPeriodo: periodo.tipoPeriodo,
+					materias: materiasConEstado,
+					materiasPorOrientacion: agruparMateriasSeguimientoPorOrientacion(materiasConEstado),
+				}
+			}),
+		}))
 
-	return {
-		id: planData.id,
-		anioInicio: planData.anioInicio,
-		anioFin: planData.anioFin,
-		carrera: planData.carrera,
-		listaOrientaciones: planData.listaOrientaciones,
-		anios: anios,
-	}
-})
+		return {
+			id: planData.id,
+			anioInicio: planData.anioInicio,
+			anioFin: planData.anioFin,
+			carrera: planData.carrera,
+			listaOrientaciones: planData.listaOrientaciones,
+			anios: anios,
+		}
+	},
+)
 
 /**
  * Obtiene los datos del perfil de un usuario para su modificación en configuración.

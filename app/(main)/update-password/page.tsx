@@ -4,16 +4,12 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { signUp } from "@/lib/auth"
-import Link from "next/link"
+import { updatePassword } from "@/lib/auth"
 
-export default function RegisterPage() {
+export default function UpdatePasswordPage() {
 	const router = useRouter()
-	const [fullName, setFullName] = useState("")
-	const [username, setUsername] = useState("")
-	const [email, setEmail] = useState("")
 	const [password, setPassword] = useState("")
 	const [confirmPassword, setConfirmPassword] = useState("")
 	const [loading, setLoading] = useState(false)
@@ -38,17 +34,12 @@ export default function RegisterPage() {
 		setLoading(true)
 
 		try {
-			const res = await signUp({
-				fullName,
-				username,
-				email,
-				password,
-			})
+			const res = await updatePassword(password)
 
 			if (!res.success) {
-				setError(res.error || "Ocurrió un error al registrar la cuenta.")
+				setError(res.error || "Ocurrió un error al actualizar la contraseña.")
 			} else {
-				setSuccess("¡Cuenta creada exitosamente! Redirigiendo...")
+				setSuccess("¡Contraseña actualizada exitosamente! Redirigiendo...")
 				setTimeout(() => {
 					router.push("/login")
 				}, 1500)
@@ -65,8 +56,8 @@ export default function RegisterPage() {
 		<section className="w-full h-full flex items-center justify-center py-6">
 			<Card className="w-full max-w-md mx-auto">
 				<CardHeader className="text-center">
-					<CardTitle className="text-2xl font-title">Registrarse</CardTitle>
-					<CardDescription>Crea una cuenta para organizar tu plan de estudios</CardDescription>
+					<CardTitle className="text-2xl font-title">Nueva Contraseña</CardTitle>
+					<CardDescription>Ingresa tu nueva contraseña para actualizar tu acceso</CardDescription>
 				</CardHeader>
 				<CardContent>
 					{error && (
@@ -82,40 +73,7 @@ export default function RegisterPage() {
 					<form onSubmit={handleSubmit}>
 						<FieldGroup>
 							<Field>
-								<FieldLabel htmlFor="fullName">Nombre completo</FieldLabel>
-								<Input
-									id="fullName"
-									type="text"
-									placeholder="Tu nombre y apellido"
-									value={fullName}
-									onChange={(e) => setFullName(e.target.value)}
-									required
-								/>
-							</Field>
-							<Field>
-								<FieldLabel htmlFor="username">Nombre de usuario</FieldLabel>
-								<Input
-									id="username"
-									type="text"
-									placeholder="usuario123"
-									value={username}
-									onChange={(e) => setUsername(e.target.value)}
-									required
-								/>
-							</Field>
-							<Field>
-								<FieldLabel htmlFor="email">Correo electrónico</FieldLabel>
-								<Input
-									id="email"
-									type="email"
-									placeholder="m@ejemplo.com"
-									value={email}
-									onChange={(e) => setEmail(e.target.value)}
-									required
-								/>
-							</Field>
-							<Field>
-								<FieldLabel htmlFor="password">Contraseña</FieldLabel>
+								<FieldLabel htmlFor="password">Nueva Contraseña</FieldLabel>
 								<Input
 									id="password"
 									type="password"
@@ -125,7 +83,7 @@ export default function RegisterPage() {
 								/>
 							</Field>
 							<Field>
-								<FieldLabel htmlFor="confirm-password">Confirmar contraseña</FieldLabel>
+								<FieldLabel htmlFor="confirm-password">Confirmar Contraseña</FieldLabel>
 								<Input
 									id="confirm-password"
 									type="password"
@@ -136,14 +94,8 @@ export default function RegisterPage() {
 							</Field>
 							<Field className="pt-2">
 								<Button type="submit" className="w-full" disabled={loading}>
-									{loading ? "Creando cuenta..." : "Registrarse"}
+									{loading ? "Actualizando..." : "Actualizar Contraseña"}
 								</Button>
-								<FieldDescription className="text-center mt-2">
-									¿Ya tienes una cuenta?{" "}
-									<Link href="/login" className="font-semibold text-foreground hover:text-primary hover:underline underline-offset-4">
-										Iniciar sesión
-									</Link>
-								</FieldDescription>
 							</Field>
 						</FieldGroup>
 					</form>

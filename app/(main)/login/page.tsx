@@ -1,12 +1,51 @@
 "use client"
 
-import {Button} from "@/components/ui/button"
-import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card"
-import {Field, FieldDescription, FieldGroup, FieldLabel} from "@/components/ui/field"
-import {Input} from "@/components/ui/input"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
+import { signInWithEmail } from "@/lib/auth"
 import Link from "next/link"
 
 export default function LoginPage() {
+	const router = useRouter()
+	const [emailOrUsername, setEmailOrUsername] = useState("")
+	const [password, setPassword] = useState("")
+	const [loading, setLoading] = useState(false)
+	const [error, setError] = useState<string | null>(null)
+	const [success, setSuccess] = useState<string | null>(null)
+
+	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault()
+		setError(null)
+		setSuccess(null)
+		setLoading(true)
+
+		try {
+			const res = await signInWithEmail({
+				emailOrUsername,
+				password,
+			})
+
+			if (!res.success) {
+				setError(res.error || "Ocurrió un error al iniciar sesión.")
+			} else {
+				setSuccess("¡Inicio de sesión exitoso! Redirigiendo...")
+				setTimeout(() => {
+					router.push("/")
+					router.refresh()
+				}, 1000)
+			}
+		} catch (err) {
+			console.error(err)
+			setError("Ocurrió un error inesperado. Inténtalo de nuevo.")
+		} finally {
+			setLoading(false)
+		}
+	}
+
 	return (
 		<section className="w-full h-full flex items-center justify-center py-6">
 			<Card className="w-full max-w-md mx-auto">
@@ -15,11 +54,28 @@ export default function LoginPage() {
 					<CardDescription>Ingresa tus credenciales para acceder a tu cuenta</CardDescription>
 				</CardHeader>
 				<CardContent>
-					<form onSubmit={(e) => e.preventDefault()}>
+					{error && (
+						<div className="mb-4 p-3 rounded bg-destructive/15 text-destructive text-sm font-medium">
+							{error}
+						</div>
+					)}
+					{success && (
+						<div className="mb-4 p-3 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-sm font-medium">
+							{success}
+						</div>
+					)}
+					<form onSubmit={handleSubmit}>
 						<FieldGroup>
 							<Field>
-								<FieldLabel htmlFor="email">Correo electrónico</FieldLabel>
-								<Input id="email" type="email" placeholder="m@ejemplo.com" required />
+								<FieldLabel htmlFor="emailOrUsername">Correo electrónico o usuario</FieldLabel>
+								<Input
+									id="emailOrUsername"
+									type="text"
+									placeholder="usuario@ejemplo.com o tu_usuario"
+									value={emailOrUsername}
+									onChange={(e) => setEmailOrUsername(e.target.value)}
+									required
+								/>
 							</Field>
 							<Field>
 								<div className="flex items-center">
@@ -30,7 +86,13 @@ export default function LoginPage() {
 										¿Olvidaste tu contraseña?
 									</Link>
 								</div>
-								<Input id="password" type="password" required />
+								<Input
+									id="password"
+									type="password"
+									value={password}
+									onChange={(e) => setPassword(e.target.value)}
+									required
+								/>
 							</Field>
 							<Field orientation="horizontal" className="items-center gap-2 py-1">
 								<input
@@ -45,8 +107,8 @@ export default function LoginPage() {
 								</FieldLabel>
 							</Field>
 							<Field className="pt-2">
-								<Button type="submit" className="w-full">
-									Iniciar Sesión
+								<Button type="submit" className="w-full" disabled={loading}>
+									{loading ? "Iniciando sesión..." : "Iniciar Sesión"}
 								</Button>
 							</Field>
 						</FieldGroup>
