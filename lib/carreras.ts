@@ -30,6 +30,10 @@ import type {
 	GrupoOrientacion,
 	GrupoOrientacionSeguimiento,
 	MateriaSeguimientoJSON,
+	MateriaCursando,
+	CarreraFavoritaConAvance,
+	ResumenPerfilDashboard,
+	CarreraPerfilDashboardData,
 } from "@/types/consultas"
 
 // Client estático de Supabase para consultas públicas cacheables.
@@ -1133,3 +1137,184 @@ export const getUsuarioPerfil = cache(async (userId: string): Promise<PerfilUsua
 		icon: typed.icon,
 	}
 })
+
+/**
+ * Obtiene todos los datos para la página principal del perfil:
+ * Resumen de usuario, estadísticas generales, carreras favoritas con avance y materias actualmente en cursada.
+ */
+export const getDatosPerfilInicio = cache(async (userId: string): Promise<ResumenPerfilDashboard> => {
+	const cookieStore = await cookies()
+	const supabase = createClient(cookieStore)
+
+	const [usuario, dashboardData] = await Promise.all([
+		getUsuarioPerfil(userId),
+		getDashboardUsuario(userId),
+	])
+
+	// Consultar todos los avances del usuario
+	const { data: avancesRaw, error: errorAvances } = await supabase
+		.from("avances")
+		.select("materia_plan_id, estado")
+		.eq("user_id", userId)
+
+	if (errorAvances) {
+		console.error("Error al consultar avances en getDatosPerfilInicio:", errorAvances)
+	}
+
+	const avancesList = (avancesRaw || []) as AvanceQueryRow[]
+	const advancesMap = new Map<number, EstadoMateria>()
+	avancesList.forEach(({ materia_plan_id, estado }) => {
+		advancesMap.set(Number(materia_plan_id), estado as EstadoMateria)
+	})
+
+	let totalAprobadas = 0
+	let totalCursando = 0
+	let totalRegulares = 0
+
+	avancesList.forEach(({ estado }) => {
+		if (estado === "Aprobado") totalAprobadas++
+		if (estado === "Cursando") totalCursando++
+		if (estado === "Regular") totalRegulares++
+	})
+
+	const materiasCursandoMap = new Map<number, MateriaCursando>()
+
+	const carrerasFavoritas: CarreraFavoritaConAvance[] = await Promise.all(
+		dashboardData.carrerasFavoritas.map(async ({ id: planFavId, planId, anioInicio, carrera }) => {
+			let totalMaterias = 0
+			let aprobadas = 0
+			let cursando = 0
+			let regulares = 0
+
+			try {
+				const planEstudioData = await getMiCarrera(userId, planId)
+				planEstudioData.anios.forEach(({ anio, periodos }) => {
+					periodos.forEach(({ tipoPeriodo, materias }) => {
+						materias.forEach((materia) => {
+							totalMaterias++
+							const { idMateriaPlan, id: materiaId, estadoMateria } = materia
+
+							if (estadoMateria === "Aprobado") aprobadas++
+							if (estadoMateria === "Regular") regulares++
+							if (estadoMateria === "Cursando") {
+								cursando++
+								if (!materiasCursandoMap.has(idMateriaPlan)) {
+									materiasCursandoMap.set(idMateriaPlan, {
+										...materia,
+										idMateriaPlan,
+										materiaId,
+										carreraNombre: carrera.nombre,
+										carreraSlug: carrera.slug,
+										carreraIcon: carrera.icon || "book",
+										planAnio: planEstudioData.anioInicio,
+										anio,
+										periodoNombre: tipoPeriodo?.nombre,
+									})
+								}
+							}
+						})
+					})
+				})
+			} catch (e) {
+				console.error(`Error al obtener plan estudio ${planId}:`, e)
+			}
+
+			const porcentajeAvance = totalMaterias > 0 ? Math.round((aprobadas / totalMaterias) * 100) : 0
+
+			return {
+				planFavId,
+				planId,
+				anioInicio,
+				carrera,
+				totalMaterias,
+				aprobadas,
+				cursando,
+				regulares,
+				porcentajeAvance,
+			}
+		})
+	)
+
+	const materiasCursando = Array.from(materiasCursandoMap.values())
+
+	return {
+		usuario,
+		carrerasFavoritas,
+		materiasCursando,
+		stats: {
+			totalCarrerasFav: carrerasFavoritas.length,
+			totalMateriasAprobadas: totalAprobadas,
+			totalMateriasCursando: totalCursando,
+			totalMateriasRegulares: totalRegulares,
+		},
+	}
+})
+
+/**
+ * Obtiene los datos del dashboard de una carrera específica para el usuario.
+ */
+export const getDatosPerfilCarrera = cache(async (userId: string, carreraSlug: string): Promise<CarreraPerfilDashboardData | null> => {
+	const carreraData = await getCarreraDetalle(carreraSlug)
+	if (!carreraData || !carreraData.planes || carreraData.planes.length === 0) {
+		return null
+	}
+
+	const planActivo = carreraData.planes[0]
+	const planEstudioData = await getMiCarrera(userId, planActivo.id)
+
+	let totalMaterias = 0
+	let aprobadas = 0
+	let cursando = 0
+	let regulares = 0
+	const materiasCursando: MateriaCursando[] = []
+
+	planEstudioData.anios.forEach(({ anio, periodos }) => {
+		periodos.forEach(({ tipoPeriodo, materias }) => {
+			materias.forEach((materia) => {
+				totalMaterias++
+				const { idMateriaPlan, id: materiaId, estadoMateria } = materia
+
+				if (estadoMateria === "Aprobado") aprobadas++
+				if (estadoMateria === "Regular") regulares++
+				if (estadoMateria === "Cursando") {
+					cursando++
+					materiasCursando.push({
+						...materia,
+						idMateriaPlan,
+						materiaId,
+						carreraNombre: carreraData.nombre,
+						carreraSlug: carreraData.slug,
+						carreraIcon: carreraData.icon || "book",
+						planAnio: planEstudioData.anioInicio,
+						anio,
+						periodoNombre: tipoPeriodo?.nombre,
+					})
+				}
+			})
+		})
+	})
+
+	const restantes = Math.max(0, totalMaterias - aprobadas)
+	const porcentajeCompletado = totalMaterias > 0 ? Math.round((aprobadas / totalMaterias) * 100) : 0
+	const porcentajeFaltante = 100 - porcentajeCompletado
+
+	return {
+		carrera: {
+			id: carreraData.id,
+			nombre: carreraData.nombre,
+			slug: carreraData.slug,
+			icon: carreraData.icon || "book",
+		},
+		planAnio: planEstudioData.anioInicio,
+		totalMaterias,
+		aprobadas,
+		cursando,
+		regulares,
+		restantes,
+		porcentajeCompletado,
+		porcentajeFaltante,
+		materiasCursando,
+	}
+})
+
+

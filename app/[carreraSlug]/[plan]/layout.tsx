@@ -1,4 +1,4 @@
-import AppSidebar, {AppSidebarSkeleton} from "@/components/AppSidebar"
+import AppSidebar, {AppSidebarSkeleton} from "@/components/CarreraSidebar"
 import KbdMacShortcut from "@/components/KbdMacShortcut"
 import {SidebarProvider, SidebarTrigger} from "@/components/ui/sidebar"
 import {Tooltip, TooltipContent, TooltipTrigger} from "@/components/ui/tooltip"

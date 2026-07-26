@@ -6,6 +6,7 @@ export interface Usuario {
 	updated_at: string | null;
 	role: string;
 	icon: string | null;
+	email?: string | null;
 }
 
 export interface SignUpData {

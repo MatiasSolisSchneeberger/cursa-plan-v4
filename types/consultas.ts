@@ -250,3 +250,53 @@ export interface ResultadosBusquedaGeneral {
 	carreras: ResultadoBusquedaCarrera[];
 	materias: ResultadoBusquedaMateria[];
 }
+
+// 8. Interfaces para Perfil y Dashboard Extendido
+export interface MateriaCursando extends MateriaSeguimientoJSON {
+	idMateriaPlan: number;
+	materiaId: number;
+	carreraNombre: string;
+	carreraSlug: string;
+	carreraIcon: string;
+	planAnio: number;
+	anio: number;
+	periodoNombre?: string;
+}
+
+export interface CarreraFavoritaConAvance {
+	planFavId: number;
+	planId: number;
+	anioInicio: number;
+	carrera: CarreraInfo;
+	totalMaterias: number;
+	aprobadas: number;
+	cursando: number;
+	regulares: number;
+	porcentajeAvance: number;
+}
+
+export interface ResumenPerfilDashboard {
+	usuario: PerfilUsuario;
+	carrerasFavoritas: CarreraFavoritaConAvance[];
+	materiasCursando: MateriaCursando[];
+	stats: {
+		totalCarrerasFav: number;
+		totalMateriasAprobadas: number;
+		totalMateriasCursando: number;
+		totalMateriasRegulares: number;
+	};
+}
+
+export interface CarreraPerfilDashboardData {
+	carrera: CarreraInfo;
+	planAnio: number;
+	totalMaterias: number;
+	aprobadas: number;
+	cursando: number;
+	regulares: number;
+	restantes: number;
+	porcentajeCompletado: number;
+	porcentajeFaltante: number;
+	materiasCursando: MateriaCursando[];
+}
+
