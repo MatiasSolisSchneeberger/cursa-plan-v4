@@ -1,6 +1,6 @@
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs"
 import {getCarreras} from "@/lib/carreras"
-import CardCarrera, {CardCarreraSkeleton} from "@/components/CardCarrera"
+import CardCarrera, {CardCarreraSkeleton} from "@/sections/carreras/CardCarrera"
 import {Skeleton} from "@/components/ui/skeleton"
 import {Suspense} from "react"
 

@@ -52,26 +52,18 @@ export default function UserDropdown({user, isSidebar = false}: UserDropdownProp
 		<DropdownMenu>
 			<DropdownMenuTrigger
 				render={
-					isSidebar ? (
+					isSidebar ?
 						<button className="flex items-center gap-3 w-full p-2 rounded-lg bg-sidebar-accent/30 hover:bg-sidebar-accent/60 transition-all border border-sidebar-border/60 text-left cursor-pointer group">
-							<UserAvatar user={normalizedUser} size="sm" />
+							<UserAvatar user={normalizedUser} />
 							<div className="flex flex-col min-w-0 leading-tight flex-1">
-								<span className="text-xs font-semibold text-sidebar-foreground truncate">
-									{fullName}
-								</span>
-								{username && (
-									<span className="text-[10px] text-muted-foreground truncate">
-										@{username}
-									</span>
-								)}
+								<span className="text-xs font-semibold text-sidebar-foreground truncate">{fullName}</span>
+								{username && <span className="text-[10px] text-muted-foreground truncate">@{username}</span>}
 							</div>
 							<IconSelector className="size-4 text-muted-foreground shrink-0 group-hover:text-foreground transition-colors" />
 						</button>
-					) : (
-						<button className="cursor-pointer">
-							<UserAvatar user={normalizedUser} />
+					:	<button className="cursor-pointer">
+							<UserAvatar user={normalizedUser} size="lg" />
 						</button>
-					)
 				}
 			/>
 			<DropdownMenuContent align={isSidebar ? "start" : "end"} className="w-56 p-1.5">

@@ -9,7 +9,7 @@ interface UserAvatarProps {
 	className?: string
 }
 
-export default function UserAvatar({user, size = "lg", className}: UserAvatarProps) {
+export default function UserAvatar({user, size = "default", className}: UserAvatarProps) {
 	const displayName = user.full_name || user.username || "Usuario"
 	const initial = displayName.trim().charAt(0).toUpperCase() || "U"
 

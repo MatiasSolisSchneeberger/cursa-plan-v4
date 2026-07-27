@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import {MateriaCard} from "./materia-card"
+import {MateriaCard} from "@/sections/plan/MateriaCard"
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
 import {setEstadoMateria} from "@/lib/actions"
 import type {DatosPlanCurricular, AnioJSON} from "@/types/consultas"

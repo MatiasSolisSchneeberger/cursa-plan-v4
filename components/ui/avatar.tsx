@@ -7,7 +7,7 @@ import {cn} from "@/lib/utils"
 
 function Avatar({
 	className,
-	size = "lg",
+	size = "default",
 	...props
 }: AvatarPrimitive.Root.Props & {
 	size?: "default" | "sm" | "lg"

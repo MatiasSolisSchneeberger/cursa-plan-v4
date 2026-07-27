@@ -81,9 +81,9 @@ export const formatearCorrelativas = (correlativasRaw: CorrelativaRaw[]) => {
     });
 
     // 4. Transformar los Mapas a Arrays para el JSON final
-    return Array.from(gruposPrincipales.values()).map((g: any) => ({
-        tipo: g.tipo,
-        condiciones: Array.from(g.condicionesMap.values())
+    return Array.from(gruposPrincipales.values()).map(({ tipo, condicionesMap }: any) => ({
+        tipo,
+        condiciones: Array.from(condicionesMap.values())
     }));
 };
 
@@ -94,12 +94,12 @@ export const transformarDatos = (data: any): CarreraJSON => {
         carrera: data.nombre,
         id: data.id,
         icon: data.icon,
-        planes: data.planes.map((plan: any) => {
+        planes: data.planes.map(({ id, anio_inicio, anio_fin, materias_plan }: any) => {
 
             const aniosMap = new Map();
             const orientacionesSet = new Map();
 
-            plan.materias_plan.forEach((item: any) => {
+            materias_plan.forEach((item: any) => {
 
                 // A. Orientaciones
                 if (item.orientacion) {
@@ -170,16 +170,17 @@ export const transformarDatos = (data: any): CarreraJSON => {
             // Ordenamiento final
             const anios = Array.from(aniosMap.values())
                 .sort((a: any, b: any) => a.anio - b.anio)
-                .map((a: any) => ({
-                    ...a,
-                    periodos: Array.from(a.periodosMap.values())
+                .map(({ anio, periodosMap }: any) => ({
+                    anio,
+                    periodosMap,
+                    periodos: Array.from(periodosMap.values())
                         .sort((p1: any, p2: any) => p1.nroPeriodo - p2.nroPeriodo)
                 }));
 
             return {
-                id: plan.id,
-                anioInicio: plan.anio_inicio,
-                anioFin: plan.anio_fin,
+                id,
+                anioInicio: anio_inicio,
+                anioFin: anio_fin,
                 listaOrientaciones: Array.from(orientacionesSet.values()),
                 anios: anios
             };

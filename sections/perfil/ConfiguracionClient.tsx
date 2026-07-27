@@ -1,8 +1,8 @@
 "use client"
 
-import ConfiguracionPersonalSection from "./sections/ConfiguracionPersonalSection"
-import ConfiguracionSeguridadSection from "./sections/ConfiguracionSeguridadSection"
-import ConfiguracionPeligroSection from "./sections/ConfiguracionPeligroSection"
+import ConfiguracionPersonalSection from "@/sections/perfil/ConfiguracionPersonalSection"
+import ConfiguracionSeguridadSection from "@/sections/perfil/ConfiguracionSeguridadSection"
+import ConfiguracionPeligroSection from "@/sections/perfil/ConfiguracionPeligroSection"
 import type { PerfilUsuario } from "@/types/consultas"
 
 interface ConfiguracionClientProps {

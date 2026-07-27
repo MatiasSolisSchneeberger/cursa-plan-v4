@@ -1,10 +1,10 @@
 "use client"
 
-import PerfilHeroSection from "./sections/PerfilHeroSection"
-import PerfilKpiSection from "./sections/PerfilKpiSection"
-import PerfilCarrerasSection from "./sections/PerfilCarrerasSection"
-import PerfilMateriasSection from "./sections/PerfilMateriasSection"
-import PerfilEstadisticasSection from "./sections/PerfilEstadisticasSection"
+import PerfilHeroSection from "@/sections/perfil/PerfilHeroSection"
+import PerfilKpiSection from "@/sections/perfil/PerfilKpiSection"
+import PerfilCarrerasSection from "@/sections/perfil/PerfilCarrerasSection"
+import PerfilMateriasSection from "@/sections/perfil/PerfilMateriasSection"
+import PerfilEstadisticasSection from "@/sections/perfil/PerfilEstadisticasSection"
 import type { ResumenPerfilDashboard } from "@/types/consultas"
 
 interface PerfilInicioClientProps {

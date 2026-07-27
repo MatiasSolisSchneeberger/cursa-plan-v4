@@ -3,7 +3,7 @@ import Link from "next/link"
 import {cookies} from "next/headers"
 import {createClient} from "@/utils/supabase/server"
 import {getMateriaDetalle} from "@/lib/carreras"
-import {MateriaEstadoSelector} from "@/components/materia-estado-selector"
+import {MateriaEstadoSelector} from "@/sections/materia/MateriaEstadoSelector"
 import {Card, CardContent, CardHeader} from "@/components/ui/card"
 import {Item, ItemContent, ItemMedia, ItemTitle, ItemDescription} from "@/components/ui/item"
 import {
@@ -15,8 +15,8 @@ import {
 } from "@tabler/icons-react"
 import {Button} from "@/components/ui/button"
 import type {EstadoMateria} from "@/types/materiaTypes"
-import MateriaDocumentos from "@/components/materia/MateriaDocumentos"
-import MateriaProfesores from "@/components/materia/MateriaProfesores"
+import MateriaDocumentos from "@/sections/materia/MateriaDocumentos"
+import MateriaProfesores from "@/sections/materia/MateriaProfesores"
 
 // Constantes configurables
 const RESOLUCION_MOCK = "Res. CD 142/18"

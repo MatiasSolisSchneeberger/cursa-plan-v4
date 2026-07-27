@@ -201,7 +201,7 @@ export default function HeaderBreadcrumb({allCarreras, currentCarrera, currentPl
 										<Button
 											variant="ghost"
 											size="xs"
-											className={`font-medium flex items-center gap-1 max-w-37.5 sm:max-w-62.5 truncate ${
+											className={`font-medium flex items-center gap-1 sm:max-w-62.5 truncate ${
 												currentMateria ? "text-foreground" : "text-muted-foreground italic"
 											}`}>
 											<span className="truncate">
@@ -211,7 +211,7 @@ export default function HeaderBreadcrumb({allCarreras, currentCarrera, currentPl
 										</Button>
 									}
 								/>
-								<DropdownMenuContent align="start" className="w-72 max-h-87.5 overflow-y-auto">
+								<DropdownMenuContent align="start" className=" w-72 max-h-87.5 overflow-y-auto">
 									<DropdownMenuGroup>
 										<DropdownMenuLabel>Materias del Plan</DropdownMenuLabel>
 										<DropdownMenuSeparator />

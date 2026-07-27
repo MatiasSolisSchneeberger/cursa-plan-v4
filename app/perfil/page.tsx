@@ -1,6 +1,6 @@
 import { getCurrentUser } from "@/lib/auth"
 import { getDatosPerfilInicio } from "@/lib/carreras"
-import PerfilInicioClient from "@/components/perfil/PerfilInicioClient"
+import PerfilInicioClient from "@/sections/perfil/PerfilInicioClient"
 import { redirect } from "next/navigation"
 
 export const metadata = {

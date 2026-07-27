@@ -4,7 +4,7 @@ import * as React from "react"
 import {setEstadoMateria} from "@/lib/actions"
 import type {EstadoMateria} from "@/types/materiaTypes"
 import {IconLoader2} from "@tabler/icons-react"
-import {MateriaEstadoSelect} from "./materia-estado-select"
+import {MateriaEstadoSelect} from "@/components/MateriaEstadoSelect"
 
 interface MateriaEstadoSelectorProps {
 	materiaPlanId: number

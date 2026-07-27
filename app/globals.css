@@ -274,17 +274,17 @@
 	--warning-ring: var(--warning-800);
 
 	--success: var(--success-400);
-	--success-foreground: var(--success-100);
-	--success-accent: var(--success-200);
-	--success-accent-foreground: var(--success-800);
-	--success-border: var(--success-400);
+	--success-foreground: var(--success-900);
+	--success-accent: var(--success-800);
+	--success-accent-foreground: var(--success-200);
+	--success-border: var(--success-700);
 	--success-ring: var(--success-800);
 
 	--info: var(--info-600);
-	--info-foreground: var(--info-100);
-	--info-accent: var(--info-200);
-	--info-accent-foreground: var(--info-800);
-	--info-border: var(--info-400);
+	--info-foreground: var(--info-900);
+	--info-accent: var(--info-800);
+	--info-accent-foreground: var(--info-200);
+	--info-border: var(--info-700);
 	--info-ring: var(--info-800);
 
 	/* Sidebar */
@@ -371,10 +371,6 @@
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
 	--radius-xl: calc(var(--radius) + 4px);
-
-	--font-title: "Montserrat Variable", sans-serif;
-	--font-body: "Poppins", sans-serif;
-	--font-sans: "Inter Variable", sans-serif;
 }
 
 @layer base {

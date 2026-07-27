@@ -43,13 +43,13 @@ export function fechaProxima(
 
     // 2. Preparar lista de feriados (Set para búsqueda rápida)
     // Asumimos que los feriados vienen en formato YYYY-MM-DD
-    const setFeriados = new Set(feriados?.map(f => f.fecha) || [])
+    const setFeriados = new Set(feriados?.map(({ fecha }) => fecha) || [])
     const feriadosArray = Array.from(setFeriados) // Para usar en nuestra helper si hiciera falta
 
     // 3. Encontrar la próxima fecha válida
     // Convertimos a objetos Date, filtramos las pasadas y ordenamos
     const fechasFuturas = fechasExamenes
-        .map(f => parseLocal(f.fecha))
+        .map(({ fecha }) => parseLocal(fecha))
         .filter(date => date >= hoy) // Solo fechas futuras o de hoy
         .sort((a, b) => a.getTime() - b.getTime())
 

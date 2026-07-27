@@ -4,7 +4,7 @@ import {cn} from "@/lib/utils"
 import {TooltipProvider} from "@/components/ui/tooltip"
 
 import {/*Poppins, */ Montserrat, JetBrains_Mono} from "next/font/google"
-import {ThemeProvider} from "@/components/theme-provider"
+import {ThemeProvider} from "@/components/ThemeProvider"
 
 export const metadata: Metadata = {
 	title: "CursaPlan",

@@ -1,5 +1,5 @@
 import { getCurrentUser } from "@/lib/auth"
-import ConfiguracionClient from "@/components/perfil/ConfiguracionClient"
+import ConfiguracionClient from "@/sections/perfil/ConfiguracionClient"
 import { redirect } from "next/navigation"
 import type { PerfilUsuario } from "@/types/consultas"
 

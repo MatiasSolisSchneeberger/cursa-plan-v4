@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { Separator } from "@/components/ui/separator"
-import { ThemeButton } from "@/components/toggle-theme"
+import { ThemeButton } from "@/components/ToggleTheme"
 import {
 	Breadcrumb,
 	BreadcrumbItem,

@@ -25,74 +25,74 @@ const parseDate = (dateStr: string): Date => {
 // --- TRANSFORMADORES ---
 
 export function transformarFeriados(data: any[]): CalendarEvent[] {
-    return data.map((item) => ({
-        id: `feriado-${item.id}`,
-        title: item.nombre,
-        start: parseDate(item.fecha),
+    return data.map(({ id, nombre, fecha, nota, tipo }) => ({
+        id: `feriado-${id}`,
+        title: nombre,
+        start: parseDate(fecha),
         // Los feriados suelen ser de 1 día, start = end implícito, o lo explícitas:
-        end: parseDate(item.fecha),
+        end: parseDate(fecha),
 
-        note: item.nota,
-        eventType: item.tipo?.nombre || "Feriado",
+        note: nota,
+        eventType: tipo?.nombre || "Feriado",
     }))
 }
 
 export function transformarClases(data: any[]): CalendarEvent[] {
-    return data.map((item) => {
-        const periodoNombre = item.periodo?.nombre || "Periodo"
+    return data.map(({ id, periodo, nro_periodo, fecha_inicio, fecha_fin, nota }) => {
+        const periodoNombre = periodo?.nombre || "Periodo"
         // Ej: "1° Cuatrimestre"
-        const periodoStr = item.nro_periodo ? `${item.nro_periodo}° ${periodoNombre}` : periodoNombre
+        const periodoStr = nro_periodo ? `${nro_periodo}° ${periodoNombre}` : periodoNombre
 
         const titulo = `Cursado ${periodoStr}`
 
         return {
-            id: `clase-${item.id}`,
+            id: `clase-${id}`,
             title: titulo,
             period: periodoNombre, // Change: Use general name for filtering
-            start: parseDate(item.fecha_inicio),
-            end: parseDate(item.fecha_fin),
+            start: parseDate(fecha_inicio),
+            end: parseDate(fecha_fin),
 
-            note: item.nota,
+            note: nota,
             eventType: "Clases",
         }
     })
 }
 
 export function transformarExamenes(data: any[]): CalendarEvent[] {
-    return data.map((item) => {
+    return data.map(({ id, tipo_mesa_id, fecha_inicio, fecha_fin, is_suspencion }) => {
         // Ej: "Mesa Comprimida"
-        const nombreMesa = item.tipo_mesa_id?.nombre || "Examen"
-        const title = `Mesa N° ${item.id} - ${nombreMesa}`
+        const nombreMesa = tipo_mesa_id?.nombre || "Examen"
+        const title = `Mesa N° ${id} - ${nombreMesa}`
 
         return {
-            id: `examen-${item.id}`,
+            id: `examen-${id}`,
             title: title,
-            start: parseDate(item.fecha_inicio),
-            end: parseDate(item.fecha_fin),
+            start: parseDate(fecha_inicio),
+            end: parseDate(fecha_fin),
 
-            note: item.is_suspencion && "Suspende clases",
+            note: is_suspencion && "Suspende clases",
             eventType: "Exámenes",
-            isSuspended: item.is_suspencion,
+            isSuspended: is_suspencion,
         }
     })
 }
 
 export function transformarInscripciones(data: any[]): CalendarEvent[] {
-    return data.map((item) => {
-        const periodoNombre = item.periodo?.nombre || "Periodo"
+    return data.map(({ id, periodo, nro_periodo, fecha_inicio, fecha_fin, nota }) => {
+        const periodoNombre = periodo?.nombre || "Periodo"
         // Ej: "1° Cuatrimestre"
-        const periodoStr = item.nro_periodo ? `${item.nro_periodo}° ${periodoNombre}` : periodoNombre
+        const periodoStr = nro_periodo ? `${nro_periodo}° ${periodoNombre}` : periodoNombre
 
         const titulo = `Inscripción ${periodoStr}`
 
         return {
-            id: `insc-${item.id}`,
+            id: `insc-${id}`,
             title: titulo,
             period: periodoNombre, // Change: Use general name for filtering
-            start: parseDate(item.fecha_inicio),
-            end: parseDate(item.fecha_fin),
+            start: parseDate(fecha_inicio),
+            end: parseDate(fecha_fin),
 
-            note: item.nota,
+            note: nota,
             eventType: "Inscripciones",
         }
     })

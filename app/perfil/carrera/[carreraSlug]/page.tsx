@@ -1,10 +1,10 @@
 import { getCurrentUser } from "@/lib/auth"
 import { getDatosPerfilCarrera } from "@/lib/carreras"
 import { redirect, notFound } from "next/navigation"
-import CarreraHeaderSection from "@/components/perfil/sections/CarreraHeaderSection"
-import CarreraProgressSection from "@/components/perfil/sections/CarreraProgressSection"
-import CarreraKpiSection from "@/components/perfil/sections/CarreraKpiSection"
-import CarreraMateriasSection from "@/components/perfil/sections/CarreraMateriasSection"
+import CarreraHeaderSection from "@/sections/perfil/CarreraHeaderSection"
+import CarreraProgressSection from "@/sections/perfil/CarreraProgressSection"
+import CarreraKpiSection from "@/sections/perfil/CarreraKpiSection"
+import CarreraMateriasSection from "@/sections/perfil/CarreraMateriasSection"
 
 interface PageProps {
 	params: Promise<{
