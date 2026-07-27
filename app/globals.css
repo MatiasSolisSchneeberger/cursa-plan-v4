@@ -156,7 +156,6 @@
 	--primary-foreground: var(--primary-100);
 	--secondary: var(--secondary-400);
 	--secondary-foreground: var(--secondary-800);
-	--destructive: var(--danger-600);
 
 	/* Base */
 	--background: var(--background-50);
@@ -183,25 +182,32 @@
 	--chart-5: oklch(0.4 0.07 227.04);
 
 	/*  */
+	--destructive: var(--danger-600);
+	--destructive-foreground: var(--danger-100);
+	--destructive-accent: var(--danger-200);
+	--destructive-accent-foreground: var(--danger-800);
+	--destructive-border: var(--danger-300);
+	--destructive-ring: var(--danger-800);
+
 	--warning: var(--warning-600);
 	--warning-foreground: var(--warning-100);
 	--warning-accent: var(--warning-200);
 	--warning-accent-foreground: var(--warning-800);
-	--warning-border: var(--warning-400);
+	--warning-border: var(--warning-300);
 	--warning-ring: var(--warning-800);
 
 	--success: var(--success-600);
 	--success-foreground: var(--success-100);
 	--success-accent: var(--success-200);
 	--success-accent-foreground: var(--success-800);
-	--success-border: var(--success-400);
+	--success-border: var(--success-300);
 	--success-ring: var(--success-800);
 
 	--info: var(--info-600);
 	--info-foreground: var(--info-100);
 	--info-accent: var(--info-200);
 	--info-accent-foreground: var(--info-800);
-	--info-border: var(--info-400);
+	--info-border: var(--info-300);
 	--info-ring: var(--info-800);
 
 	/* Sidebar */
@@ -254,6 +260,11 @@
 
 	/*  */
 	--destructive: var(--danger-400);
+	--destructive-foreground: var(--danger-900);
+	--destructive-accent: var(--danger-800);
+	--destructive-accent-foreground: var(--danger-200);
+	--destructive-border: var(--danger-700);
+	--destructive-ring: var(--danger-800);
 
 	--warning: var(--warning-400);
 	--warning-foreground: var(--warning-900);
@@ -304,7 +315,14 @@
 	--color-muted-foreground: var(--muted-foreground);
 	--color-accent: var(--accent);
 	--color-accent-foreground: var(--accent-foreground);
+
 	--color-destructive: var(--destructive);
+	--color-destructive-foreground: var(--destructive-foreground);
+	--color-destructive-accent: var(--destructive-accent);
+	--color-destructive-accent-foreground: var(--destructive-accent-foreground);
+	--color-destructive-border: var(--destructive-border);
+	--color-destructive-ring: var(--destructive-ring);
+
 	--color-warning: var(--warning);
 	--color-warning-foreground: var(--warning-foreground);
 	--color-warning-accent: var(--warning-accent);
@@ -325,14 +343,17 @@
 	--color-info-accent-foreground: var(--info-accent-foreground);
 	--color-info-border: var(--info-border);
 	--color-info-ring: var(--info-ring);
+
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+
 	--color-chart-1: var(--chart-1);
 	--color-chart-2: var(--chart-2);
 	--color-chart-3: var(--chart-3);
 	--color-chart-4: var(--chart-4);
 	--color-chart-5: var(--chart-5);
+
 	--color-sidebar: var(--sidebar);
 	--color-sidebar-foreground: var(--sidebar-foreground);
 	--color-sidebar-primary: var(--sidebar-primary);

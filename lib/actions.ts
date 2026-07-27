@@ -67,11 +67,18 @@ export async function setToggleFavoritoPlan(
 	const cookieStore = await cookies()
 	const supabase = createClient(cookieStore)
 
+	let targetUserId = userId
+	if (!targetUserId) {
+		const { data: { user } } = await supabase.auth.getUser()
+		if (!user) return false
+		targetUserId = user.id
+	}
+
 	// Verificar si ya existe en favoritos
 	const {data, error: checkError} = await supabase
 		.from("carreras_fav")
 		.select("id")
-		.eq("user_id", userId)
+		.eq("user_id", targetUserId)
 		.eq("plan_id", planId)
 		.maybeSingle()
 
@@ -98,7 +105,7 @@ export async function setToggleFavoritoPlan(
 		const {error: insertError} = await supabase
 			.from("carreras_fav")
 			.insert({
-				user_id: userId,
+				user_id: targetUserId,
 				plan_id: planId,
 			})
 
@@ -108,6 +115,34 @@ export async function setToggleFavoritoPlan(
 		}
 	}
 
+	return true
+}
+
+/**
+ * Consulta si un plan específico está en los favoritos del usuario.
+ */
+export async function isPlanFavorito(
+	userId: string,
+	planId: number | string
+): Promise<boolean> {
+	const cookieStore = await cookies()
+	const supabase = createClient(cookieStore)
+
+	let targetUserId = userId
+	if (!targetUserId) {
+		const { data: { user } } = await supabase.auth.getUser()
+		if (!user) return false
+		targetUserId = user.id
+	}
+
+	const {data, error} = await supabase
+		.from("carreras_fav")
+		.select("id")
+		.eq("user_id", targetUserId)
+		.eq("plan_id", planId)
+		.maybeSingle()
+
+	if (error || !data) return false
 	return true
 }
 
@@ -127,11 +162,21 @@ export async function setEstadoMateria(
 	const cookieStore = await cookies()
 	const supabase = createClient(cookieStore)
 
+	let targetUserId = userId
+	if (!targetUserId) {
+		const { data: { user } } = await supabase.auth.getUser()
+		if (!user) {
+			console.warn("setEstadoMateria: No authenticated user found.")
+			return false
+		}
+		targetUserId = user.id
+	}
+
 	// Buscar si existe un avance previo para esa materia y usuario
 	const {data, error: selectError} = await supabase
 		.from("avances")
 		.select("id")
-		.eq("user_id", userId)
+		.eq("user_id", targetUserId)
 		.eq("materia_plan_id", materiaPlanId)
 		.maybeSingle()
 
@@ -162,7 +207,7 @@ export async function setEstadoMateria(
 		const {error: insertError} = await supabase
 			.from("avances")
 			.insert({
-				user_id: userId,
+				user_id: targetUserId,
 				materia_plan_id: materiaPlanId,
 				estado: estado,
 				updated_at: now,

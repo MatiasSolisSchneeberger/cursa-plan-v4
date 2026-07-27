@@ -1,10 +1,13 @@
 import AppSidebar, {AppSidebarSkeleton} from "@/components/CarreraSidebar"
+import MateriaSidebar from "@/components/MateriaSidebar"
+import DynamicSidebar from "@/components/DynamicSidebar"
 import KbdMacShortcut from "@/components/KbdMacShortcut"
 import {SidebarProvider, SidebarTrigger} from "@/components/ui/sidebar"
 import {Tooltip, TooltipContent, TooltipTrigger} from "@/components/ui/tooltip"
 import {Suspense} from "react"
 import {ThemeButton} from "@/components/toggle-theme"
 import {getCarreras, getPlanEstudio} from "@/lib/carreras"
+import {getCurrentUser} from "@/lib/auth"
 import HeaderBreadcrumb from "@/components/HeaderBreadcrumb"
 import { Separator } from "@/components/ui/separator"
 
@@ -29,17 +32,31 @@ async function CarreraPlanContent({
 	const resolvedParams = await params
 	const {carreraSlug, plan} = resolvedParams
 
-	const [allCarreras, planEstudio] = await Promise.all([
+	const [allCarreras, planEstudio, userRes] = await Promise.all([
 		getCarreras(),
 		getPlanEstudio(plan, carreraSlug),
+		getCurrentUser(),
 	])
 
 	const {carrera, anioInicio, anios} = planEstudio
+	const user = userRes.data?.user
 
 	return (
 		<SidebarProvider className={`theme-${carreraSlug}`}>
 			<Suspense fallback={<AppSidebarSkeleton />}>
-				<AppSidebar carreraSlug={carreraSlug} plan={plan} />
+				<DynamicSidebar
+					carreraSidebar={<AppSidebar carreraSlug={carreraSlug} plan={plan} />}
+					materiaSidebar={
+						<MateriaSidebar
+							carreraSlug={carreraSlug}
+							plan={plan}
+							carreraNombre={carrera.nombre}
+							carreraIcon={carrera.icon}
+							anios={anios}
+							user={user}
+						/>
+					}
+				/>
 			</Suspense>
 			<main className="relative w-full">
 				<header className="bg-card sticky top-0 left-0 flex h-16 shrink-0 items-center gap-2 border-b border-border px-4 z-50">
@@ -78,3 +95,4 @@ export default function CarreraPlanLayout({children, params}: LayoutProps) {
 		</Suspense>
 	)
 }
+

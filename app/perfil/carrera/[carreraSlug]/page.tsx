@@ -47,10 +47,20 @@ export default async function CarreraDashboardPage({ params }: PageProps) {
 		materiasCursando,
 	} = carreraData
 
+	const userObj = userRes.data.user
+
 	return (
 		<div className="flex flex-col gap-8 pb-12">
 			{/* HEADER DE CARRERA */}
-			<CarreraHeaderSection carrera={carrera} planAnio={planAnio} />
+			<CarreraHeaderSection
+				carrera={carrera}
+				planAnio={planAnio}
+				user={{
+					fullName: userObj.full_name,
+					username: userObj.username,
+					avatarUrl: userObj.avatar_url,
+				}}
+			/>
 
 			{/* PROGRESO PRINCIPAL */}
 			<CarreraProgressSection

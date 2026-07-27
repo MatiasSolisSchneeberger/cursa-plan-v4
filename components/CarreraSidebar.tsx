@@ -15,6 +15,7 @@ import {
 	SidebarMenuSubButton,
 } from "./ui/sidebar"
 import {Skeleton} from "./ui/skeleton"
+import {Button} from "./ui/button"
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -40,8 +41,10 @@ import IconCarrera from "@/components/Icon"
 import SidebarLink from "./SidebarLink"
 import SidebarSubLink from "./SidebarSubLink"
 import SidebarFolder from "./SidebarFolder"
+import UserDropdown from "@/components/UserDropdown"
 import {IconSelector, IconCheck, IconHome, IconFileText, IconBook, IconChevronRight, IconFolder, IconArrowLeft} from "@tabler/icons-react"
 import {acortarNombreCarrera, cn} from "@/lib/utils"
+import {getCurrentUser} from "@/lib/auth"
 
 interface AppSidebarProps {
 	carreraSlug: string
@@ -50,8 +53,13 @@ interface AppSidebarProps {
 
 export default async function AppSidebar({carreraSlug, plan}: AppSidebarProps) {
 	// Obtenemos los datos en paralelo para mejorar el performance
-	const [carreraData, planData] = await Promise.all([getCarreraDetalle(carreraSlug), getPlanEstudio(plan, carreraSlug)])
+	const [carreraData, planData, userRes] = await Promise.all([
+		getCarreraDetalle(carreraSlug),
+		getPlanEstudio(plan, carreraSlug),
+		getCurrentUser(),
+	])
 
+	const user = userRes.data?.user
 	const {nombre, planes, icon} = carreraData
 	const hasMultiplePlans = planes.length > 1
 	const nombreCarrera = acortarNombreCarrera(nombre)
@@ -279,20 +287,17 @@ export default async function AppSidebar({carreraSlug, plan}: AppSidebarProps) {
 			</SidebarContent>
 
 			{/* FOOTER: Perfil de Usuario */}
-			<SidebarFooter>
-				<div className="flex items-center gap-3 w-full p-1 rounded-lg">
-					<Avatar size="default" className="shadow-xs">
-						<AvatarImage
-							src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80"
-							alt="Usuario Matias"
-						/>
-						<AvatarFallback className="bg-primary/10 text-primary font-semibold">MS</AvatarFallback>
-					</Avatar>
-					<div className="flex-1 min-w-0">
-						<p className="text-sm font-semibold truncate text-sidebar-foreground">Matias Solis</p>
-						<p className="text-xs text-muted-foreground truncate">@matias.solis</p>
-					</div>
-				</div>
+			<SidebarFooter className="p-2 border-t border-sidebar-border/50">
+				{user ? (
+					<UserDropdown user={user} isSidebar />
+				) : (
+					<Button variant="outline" size="sm" className="w-full justify-between" render={
+						<Link href="/login">
+							<span>Iniciar Sesión</span>
+							<IconArrowLeft className="rotate-180 size-4" />
+						</Link>
+					} />
+				)}
 			</SidebarFooter>
 		</Sidebar>
 	)
