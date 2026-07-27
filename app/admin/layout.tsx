@@ -55,7 +55,7 @@ function AccessDeniedView({email, role}: {email?: string | null; role?: string})
 						</AlertTitle>
 					</Alert>
 				</CardContent>
-				<CardFooter>
+				<CardFooter className="flex flex-row gap-2">
 					<Button render={<Link href="/perfil" />} variant="outline" className="w-full flex-1 text-xs gap-1.5">
 						<IconArrowLeft className="size-4" /> Ir a Mi Perfil
 					</Button>
