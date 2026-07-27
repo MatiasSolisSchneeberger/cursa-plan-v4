@@ -1,16 +1,10 @@
 "use client"
 
 import * as React from "react"
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select"
 import {setEstadoMateria} from "@/lib/actions"
 import type {EstadoMateria} from "@/types/materiaTypes"
 import {IconLoader2} from "@tabler/icons-react"
+import {MateriaEstadoSelect} from "./materia-estado-select"
 
 interface MateriaEstadoSelectorProps {
 	materiaPlanId: number
@@ -60,18 +54,12 @@ export function MateriaEstadoSelector({
 	return (
 		<div className="flex items-center gap-2">
 			{isPending && <IconLoader2 className="size-4 animate-spin text-muted-foreground" />}
-			<Select value={estado} onValueChange={handleValueChange}>
-				<SelectTrigger className="w-40" size="sm">
-					<SelectValue placeholder="Estado" />
-				</SelectTrigger>
-				<SelectContent>
-					<SelectItem value="Sin cursar">Sin cursar</SelectItem>
-					<SelectItem value="Cursando">Cursando</SelectItem>
-					<SelectItem value="Regular">Regular</SelectItem>
-					<SelectItem value="Aprobado">Aprobado</SelectItem>
-					<SelectItem value="Libre">Libre</SelectItem>
-				</SelectContent>
-			</Select>
+			<MateriaEstadoSelect
+				value={estado}
+				onValueChange={handleValueChange}
+				className="w-40"
+			/>
 		</div>
 	)
 }
+

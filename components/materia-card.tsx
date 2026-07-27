@@ -4,7 +4,7 @@ import Link from "next/link"
 import {Card, CardContent, CardFooter, CardHeader, CardTitle, CardAction} from "@/components/ui/card"
 import {Badge} from "@/components/ui/badge"
 import {Button} from "@/components/ui/button"
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
+import {MateriaEstadoSelect} from "./materia-estado-select"
 import {MateriaCorrelativas} from "./materia-correlativas"
 import {getMateriaAvailability} from "@/utils/materiaUtils"
 
@@ -14,12 +14,6 @@ import {
 	IconCheck,
 	IconLock,
 	IconBook,
-	IconCircle,
-	IconCircleDashed,
-	IconHourglass,
-	IconCircleDashedCheck,
-	IconCircleCheck,
-	IconCircleX,
 } from "@tabler/icons-react"
 
 interface MateriaCardProps {
@@ -83,49 +77,20 @@ export function MateriaCard({
 			<CardContent className="flex-1 space-y-4">
 				<div className="space-y-1.5">
 					<span className="text-xs font-medium text-muted-foreground">Estado</span>
-					<Select
+					<MateriaEstadoSelect
 						value={estado}
 						onValueChange={(val) => {
-							if (val && onEstadoChange) {
-								onEstadoChange(materia.idMateriaPlan, val as EstadoMateria)
+							if (onEstadoChange) {
+								onEstadoChange(materia.idMateriaPlan, val)
 							}
-						}}>
-						<SelectTrigger className="w-full sm:w-auto min-w-35 justify-between">
-							<SelectValue placeholder="Sin cursar" />
-						</SelectTrigger>
-						<SelectContent align="start">
-							<SelectItem value="Sin cursar">
-								<span className="flex items-center gap-2">
-									<IconCircleDashed />
-									Sin cursar
-								</span>
-							</SelectItem>
-							<SelectItem value="Cursando" disabled={!cursarSatisfied}>
-								<span className="flex items-center gap-2">
-									<IconHourglass />
-									Cursando
-								</span>
-							</SelectItem>
-							<SelectItem value="Regular" disabled={!cursarSatisfied}>
-								<span className="flex items-center gap-2">
-									<IconCircleDashedCheck />
-									Regular
-								</span>
-							</SelectItem>
-							<SelectItem value="Aprobado" disabled={!cursarSatisfied || !rendirSatisfied}>
-								<span className="flex items-center gap-2">
-									<IconCircleCheck />
-									Aprobado
-								</span>
-							</SelectItem>
-							<SelectItem value="Libre" disabled={!cursarSatisfied}>
-								<span className="flex items-center gap-2">
-									<IconCircleX />
-									Libre
-								</span>
-							</SelectItem>
-						</SelectContent>
-					</Select>
+						}}
+						disabledOptions={{
+							"Cursando": !cursarSatisfied,
+							"Regular": !cursarSatisfied,
+							"Aprobado": !cursarSatisfied || !rendirSatisfied,
+							"Libre": !cursarSatisfied,
+						}}
+					/>
 				</div>
 
 				<MateriaCorrelativas correlativas={materia.correlativas} />
