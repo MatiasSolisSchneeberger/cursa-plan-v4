@@ -10,7 +10,17 @@ import {getMateriaAvailability} from "@/utils/materiaUtils"
 
 import type {MateriaJSON} from "@/types/carrera"
 import type {EstadoMateria} from "@/types/materiaTypes"
-import {IconCheck, IconLock, IconBook} from "@tabler/icons-react"
+import {
+	IconCheck,
+	IconLock,
+	IconBook,
+	IconCircle,
+	IconCircleDashed,
+	IconHourglass,
+	IconCircleDashedCheck,
+	IconCircleCheck,
+	IconCircleX,
+} from "@tabler/icons-react"
 
 interface MateriaCardProps {
 	materia: MateriaJSON
@@ -51,19 +61,19 @@ export function MateriaCard({
 				</div>
 				<CardAction>
 					{isBloqueado && (
-						<Badge variant="outline" className="border-destructive/40 text-destructive bg-destructive/10 gap-1 sm:gap-1.5">
+						<Badge variant="outline" className="bg-destructive-foreground border-destructive-border text-destructive">
 							<IconLock className="size-3.5" />
 							<span>No disponible</span>
 						</Badge>
 					)}
 					{isSoloCursar && (
-						<Badge variant="outline" className="border-amber-500/40 text-amber-600 dark:text-amber-400 bg-amber-500/10 gap-1 sm:gap-1.5">
+						<Badge variant="outline" className="bg-warning-foreground border-warning-border text-warning">
 							<IconBook className="size-3.5" />
 							<span>Solo Cursar</span>
 						</Badge>
 					)}
 					{isDesbloqueado && (
-						<Badge variant="default" className="bg-emerald-600 hover:bg-emerald-600/90 dark:bg-emerald-500 text-white gap-1 sm:gap-1.5">
+						<Badge variant="default" className="bg-success-foreground border-success-border text-success">
 							<IconCheck className="size-3.5" />
 							<span>Disponible</span>
 						</Badge>
@@ -80,37 +90,37 @@ export function MateriaCard({
 								onEstadoChange(materia.idMateriaPlan, val as EstadoMateria)
 							}
 						}}>
-						<SelectTrigger className="w-full sm:w-auto min-w-[140px] justify-between">
+						<SelectTrigger className="w-full sm:w-auto min-w-35 justify-between">
 							<SelectValue placeholder="Sin cursar" />
 						</SelectTrigger>
 						<SelectContent align="start">
 							<SelectItem value="Sin cursar">
 								<span className="flex items-center gap-2">
-									<span className="size-2 rounded-full bg-slate-400" />
+									<IconCircleDashed />
 									Sin cursar
 								</span>
 							</SelectItem>
 							<SelectItem value="Cursando" disabled={!cursarSatisfied}>
 								<span className="flex items-center gap-2">
-									<span className="size-2 rounded-full bg-blue-500" />
+									<IconHourglass />
 									Cursando
 								</span>
 							</SelectItem>
 							<SelectItem value="Regular" disabled={!cursarSatisfied}>
 								<span className="flex items-center gap-2">
-									<span className="size-2 rounded-full bg-amber-500" />
+									<IconCircleDashedCheck />
 									Regular
 								</span>
 							</SelectItem>
 							<SelectItem value="Aprobado" disabled={!cursarSatisfied || !rendirSatisfied}>
 								<span className="flex items-center gap-2">
-									<span className="size-2 rounded-full bg-emerald-500" />
+									<IconCircleCheck />
 									Aprobado
 								</span>
 							</SelectItem>
 							<SelectItem value="Libre" disabled={!cursarSatisfied}>
 								<span className="flex items-center gap-2">
-									<span className="size-2 rounded-full bg-rose-500" />
+									<IconCircleX />
 									Libre
 								</span>
 							</SelectItem>

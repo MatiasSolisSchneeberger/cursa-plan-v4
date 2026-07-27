@@ -89,13 +89,13 @@ export default async function Navbar() {
 					<div>
 						<ThemeButton />
 					</div>
-					<Separator orientation="vertical" className="h-10 my-auto data-vertical:w-0.5 rounded-2xl" />
+					<Separator orientation="vertical" className="h-10 my-auto rounded-2xl" />
 					{/* Componente del usuario encapsulado con Suspense individual y Skeleton fallback */}
 					<Suspense fallback={<NavUserSkeleton />}>
 						<NavUser />
 					</Suspense>
 
-					<Separator orientation="vertical" className="h-10 my-auto data-vertical:w-0.5 rounded-2xl lg:hidden" />
+					<Separator orientation="vertical" className="h-10 my-auto rounded-2xl lg:hidden" />
 
 					{/* --- DROPDOWN MÓVIL (HAMBURGUESA) --- */}
 					<div className="lg:hidden">

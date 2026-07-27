@@ -10,6 +10,7 @@ import {
 	BreadcrumbList,
 	BreadcrumbPage,
 	BreadcrumbSeparator,
+	BreadcrumbEllipsis,
 } from "@/components/ui/breadcrumb"
 import {
 	DropdownMenu,
@@ -84,103 +85,112 @@ export default function HeaderBreadcrumb({allCarreras, currentCarrera, currentPl
 
 				<BreadcrumbSeparator>/</BreadcrumbSeparator>
 
-				{/* Carrera Selector */}
-				<BreadcrumbItem>
-					<DropdownMenu>
-						<DropdownMenuTrigger
-							render={
-								<Button
-									variant="ghost"
-									size="xs"
-									className="font-semibold text-foreground flex items-center gap-1 max-w-30 sm:max-w-50 truncate">
-									<span className="truncate">{currentCarreraNombre}</span>
-									<IconChevronDown className="size-3.5 opacity-60 shrink-0" />
-								</Button>
-							}
-						/>
-						<DropdownMenuContent align="start" className="w-2xs">
-							<DropdownMenuGroup>
-								<DropdownMenuLabel>Carreras</DropdownMenuLabel>
+				{currentMateriaSlug ?
+					<>
+						{/* Ellipsis for mobile */}
+						<BreadcrumbItem className="lg:hidden">
+							<BreadcrumbEllipsis />
+						</BreadcrumbItem>
 
-								{allCarreras.map(({icon, id, nombre, slug, planes}) => {
-									if (!planes) return null
+						{/* Carrera Selector - Hidden on mobile */}
+						<BreadcrumbItem className="hidden lg:inline-flex">
+							<DropdownMenu>
+								<DropdownMenuTrigger
+									render={
+										<Button
+											variant="ghost"
+											size="xs"
+											className="font-semibold text-foreground flex items-center gap-1 max-w-30 sm:max-w-50 truncate">
+											<span className="truncate">{currentCarreraNombre}</span>
+											<IconChevronDown className="size-3.5 opacity-60 shrink-0" />
+										</Button>
+									}
+								/>
+								<DropdownMenuContent align="start" className="w-2xs">
+									<DropdownMenuGroup>
+										<DropdownMenuLabel>Carreras</DropdownMenuLabel>
 
-									const hasMultiplePlanes = planes.length > 1
-									const primaryPlan = planes.length > 0 ? planes[0] : null
-									const nombreCorto = acortarNombreCarrera(nombre)
+										{allCarreras.map(({icon, id, nombre, slug, planes}) => {
+											if (!planes) return null
 
-									if (!primaryPlan) return null
+											const hasMultiplePlanes = planes.length > 1
+											const primaryPlan = planes.length > 0 ? planes[0] : null
+											const nombreCorto = acortarNombreCarrera(nombre)
 
-									if (hasMultiplePlanes) {
-										return (
-											<DropdownMenuSub key={id}>
-												<DropdownMenuSubTrigger className="w-full justify-between">
+											if (!primaryPlan) return null
+
+											if (hasMultiplePlanes) {
+												return (
+													<DropdownMenuSub key={id}>
+														<DropdownMenuSubTrigger className="w-full justify-between">
+															<Icon icon={icon} className="text-primary" />
+															<span className="truncate">{nombreCorto}</span>
+														</DropdownMenuSubTrigger>
+														<DropdownMenuSubContent className="w-48">
+															<DropdownMenuGroup>
+																<DropdownMenuLabel>Seleccionar Plan</DropdownMenuLabel>
+
+																{planes?.map(({anio_inicio, id}) => (
+																	<DropdownMenuItem
+																		key={id}
+																		render={<Link href={`/${slug}/${anio_inicio}`}>Plan {anio_inicio}</Link>}
+																	/>
+																))}
+															</DropdownMenuGroup>
+														</DropdownMenuSubContent>
+													</DropdownMenuSub>
+												)
+											}
+
+											return (
+												<DropdownMenuItem
+													key={id}
+													render={<Link href={`/${slug}/${primaryPlan.anio_inicio}`} />}
+													className={`theme-${slug}`}>
 													<Icon icon={icon} className="text-primary" />
 													<span className="truncate">{nombreCorto}</span>
-												</DropdownMenuSubTrigger>
-												<DropdownMenuSubContent className="w-48">
-													<DropdownMenuGroup>
-														<DropdownMenuLabel>Seleccionar Plan</DropdownMenuLabel>
+												</DropdownMenuItem>
+											)
+										})}
+									</DropdownMenuGroup>
+								</DropdownMenuContent>
+							</DropdownMenu>
+						</BreadcrumbItem>
 
-														{planes?.map(({anio_inicio, id}) => (
-															<DropdownMenuItem
-																key={id}
-																render={<Link href={`/${slug}/${anio_inicio}`}>Plan {anio_inicio}</Link>}
-															/>
-														))}
-													</DropdownMenuGroup>
-												</DropdownMenuSubContent>
-											</DropdownMenuSub>
-										)
+						<BreadcrumbSeparator className="hidden lg:inline-flex">/</BreadcrumbSeparator>
+
+						{/* Plan Selector - Hidden on mobile */}
+						<BreadcrumbItem className="hidden lg:inline-flex">
+							<DropdownMenu>
+								<DropdownMenuTrigger
+									render={
+										<Button variant="ghost" size="xs" className="font-medium flex items-center gap-1 shrink-0">
+											<span>Plan {currentPlanYear}</span>
+											<IconChevronDown className="size-3.5 opacity-60 shrink-0" />
+										</Button>
 									}
+								/>
+								<DropdownMenuContent align="start" className="w-40">
+									<DropdownMenuGroup>
+										<DropdownMenuLabel>Planes de Estudio</DropdownMenuLabel>
+										<DropdownMenuSeparator />
+										{(allCarreras.find(({slug}) => slug === currentCarrera.slug)?.planes || []).map(
+											({id, anio_inicio}) => (
+												<DropdownMenuItem
+													key={id}
+													className={
+														anio_inicio === currentPlanYear ? "font-semibold bg-accent text-accent-foreground" : ""
+													}
+													render={<Link href={`/${currentCarrera.slug}/${anio_inicio}`} />}>
+													Plan {anio_inicio}
+												</DropdownMenuItem>
+											),
+										)}
+									</DropdownMenuGroup>
+								</DropdownMenuContent>
+							</DropdownMenu>
+						</BreadcrumbItem>
 
-									return (
-										<DropdownMenuItem
-											key={id}
-											render={<Link href={`/${slug}/${primaryPlan.anio_inicio}`} />}
-											className={`theme-${slug}`}>
-											<Icon icon={icon} className="text-primary" />
-											<span className="truncate">{nombreCorto}</span>
-										</DropdownMenuItem>
-									)
-								})}
-							</DropdownMenuGroup>
-						</DropdownMenuContent>
-					</DropdownMenu>
-				</BreadcrumbItem>
-
-				<BreadcrumbSeparator>/</BreadcrumbSeparator>
-
-				{/* Plan Selector */}
-				<BreadcrumbItem>
-					<DropdownMenu>
-						<DropdownMenuTrigger
-							render={
-								<Button variant="ghost" size="xs" className="font-medium flex items-center gap-1 shrink-0">
-									<span>Plan {currentPlanYear}</span>
-									<IconChevronDown className="size-3.5 opacity-60 shrink-0" />
-								</Button>
-							}
-						/>
-						<DropdownMenuContent align="start" className="w-40">
-							<DropdownMenuGroup>
-								<DropdownMenuLabel>Planes de Estudio</DropdownMenuLabel>
-								<DropdownMenuSeparator />
-								{(allCarreras.find(({slug}) => slug === currentCarrera.slug)?.planes || []).map(({id, anio_inicio}) => (
-									<DropdownMenuItem
-										key={id}
-										className={anio_inicio === currentPlanYear ? "font-semibold bg-accent text-accent-foreground" : ""}
-										render={<Link href={`/${currentCarrera.slug}/${anio_inicio}`} />}>
-										Plan {anio_inicio}
-									</DropdownMenuItem>
-								))}
-							</DropdownMenuGroup>
-						</DropdownMenuContent>
-					</DropdownMenu>
-				</BreadcrumbItem>
-
-				{currentMateriaSlug && (
-					<>
 						<BreadcrumbSeparator>/</BreadcrumbSeparator>
 
 						{/* Materia Selector */}
@@ -227,7 +237,107 @@ export default function HeaderBreadcrumb({allCarreras, currentCarrera, currentPl
 							</DropdownMenu>
 						</BreadcrumbItem>
 					</>
-				)}
+				:	<>
+						{/* Carrera Selector */}
+						<BreadcrumbItem>
+							<DropdownMenu>
+								<DropdownMenuTrigger
+									render={
+										<Button
+											variant="ghost"
+											size="xs"
+											className="font-semibold text-foreground flex items-center gap-1 max-w-30 sm:max-w-50 truncate">
+											<span className="truncate">{currentCarreraNombre}</span>
+											<IconChevronDown className="size-3.5 opacity-60 shrink-0" />
+										</Button>
+									}
+								/>
+								<DropdownMenuContent align="start" className="w-2xs">
+									<DropdownMenuGroup>
+										<DropdownMenuLabel>Carreras</DropdownMenuLabel>
+
+										{allCarreras.map(({icon, id, nombre, slug, planes}) => {
+											if (!planes) return null
+
+											const hasMultiplePlanes = planes.length > 1
+											const primaryPlan = planes.length > 0 ? planes[0] : null
+											const nombreCorto = acortarNombreCarrera(nombre)
+
+											if (!primaryPlan) return null
+
+											if (hasMultiplePlanes) {
+												return (
+													<DropdownMenuSub key={id}>
+														<DropdownMenuSubTrigger className="w-full justify-between">
+															<Icon icon={icon} className="text-primary" />
+															<span className="truncate">{nombreCorto}</span>
+														</DropdownMenuSubTrigger>
+														<DropdownMenuSubContent className="w-48">
+															<DropdownMenuGroup>
+																<DropdownMenuLabel>Seleccionar Plan</DropdownMenuLabel>
+
+																{planes?.map(({anio_inicio, id}) => (
+																	<DropdownMenuItem
+																		key={id}
+																		render={<Link href={`/${slug}/${anio_inicio}`}>Plan {anio_inicio}</Link>}
+																	/>
+																))}
+															</DropdownMenuGroup>
+														</DropdownMenuSubContent>
+													</DropdownMenuSub>
+												)
+											}
+
+											return (
+												<DropdownMenuItem
+													key={id}
+													render={<Link href={`/${slug}/${primaryPlan.anio_inicio}`} />}
+													className={`theme-${slug}`}>
+													<Icon icon={icon} className="text-primary" />
+													<span className="truncate">{nombreCorto}</span>
+												</DropdownMenuItem>
+											)
+										})}
+									</DropdownMenuGroup>
+								</DropdownMenuContent>
+							</DropdownMenu>
+						</BreadcrumbItem>
+
+						<BreadcrumbSeparator>/</BreadcrumbSeparator>
+
+						{/* Plan Selector */}
+						<BreadcrumbItem>
+							<DropdownMenu>
+								<DropdownMenuTrigger
+									render={
+										<Button variant="ghost" size="xs" className="font-medium flex items-center gap-1 shrink-0">
+											<span>Plan {currentPlanYear}</span>
+											<IconChevronDown className="size-3.5 opacity-60 shrink-0" />
+										</Button>
+									}
+								/>
+								<DropdownMenuContent align="start" className="w-40">
+									<DropdownMenuGroup>
+										<DropdownMenuLabel>Planes de Estudio</DropdownMenuLabel>
+										<DropdownMenuSeparator />
+										{(allCarreras.find(({slug}) => slug === currentCarrera.slug)?.planes || []).map(
+											({id, anio_inicio}) => (
+												<DropdownMenuItem
+													key={id}
+													className={
+														anio_inicio === currentPlanYear ? "font-semibold bg-accent text-accent-foreground" : ""
+													}
+													render={<Link href={`/${currentCarrera.slug}/${anio_inicio}`} />}>
+													Plan {anio_inicio}
+												</DropdownMenuItem>
+											),
+										)}
+									</DropdownMenuGroup>
+								</DropdownMenuContent>
+							</DropdownMenu>
+						</BreadcrumbItem>
+					</>
+				}
 			</BreadcrumbList>
 		</Breadcrumb>
 	)
