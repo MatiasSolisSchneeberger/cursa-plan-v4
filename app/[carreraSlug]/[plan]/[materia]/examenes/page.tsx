@@ -1,16 +1,12 @@
 import * as React from "react"
 import Link from "next/link"
-import { getMateriaDetalle } from "@/lib/carreras"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Item, ItemContent, ItemGroup, ItemMedia, ItemTitle, ItemDescription, ItemActions } from "@/components/ui/item"
-import { Button } from "@/components/ui/button"
-import {
-	IconCalendar,
-	IconCalendarOff,
-	IconCalendarPlus,
-	IconAlertCircle,
-	IconArrowLeft,
-} from "@tabler/icons-react"
+import {getMateriaDetalle} from "@/lib/carreras"
+import {Card, CardContent} from "@/components/ui/card"
+import {Button} from "@/components/ui/button"
+import {ExamenCard} from "@/sections/materia/ExamenCard"
+import {IconCalendarOff, IconAlertCircle, IconArrowLeft} from "@tabler/icons-react"
+import {Alert, AlertAction, AlertDescription} from "@/components/ui/alert"
+import {Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle} from "@/components/ui/item"
 
 interface PageProps {
 	params: Promise<{
@@ -20,27 +16,23 @@ interface PageProps {
 	}>
 }
 
-function getGoogleCalendarLink(materiaNombre: string, fechaStr: string) {
-	const baseDate = new Date(fechaStr + "T00:00:00")
-	const start = fechaStr.replace(/-/g, "")
-
-	const endDate = new Date(baseDate)
-	endDate.setDate(endDate.getDate() + 1)
-	const year = endDate.getFullYear()
-	const month = String(endDate.getMonth() + 1).padStart(2, "0")
-	const day = String(endDate.getDate()).padStart(2, "0")
-	const end = `${year}${month}${day}`
-
-	const eventTitle = encodeURIComponent(`Mesa de Examen - ${materiaNombre}`)
-	return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=${start}/${end}&sf=true&output=xml`
-}
-
-export default async function ExamenesPage({ params }: PageProps) {
+export default async function ExamenesPage({params}: PageProps) {
 	const resolvedParams = await params
-	const { carreraSlug, plan, materia: materiaSlug } = resolvedParams
+	const {carreraSlug, plan, materia: materiaSlug} = resolvedParams
 
 	// Obtener detalles de la materia
 	const materia = await getMateriaDetalle(carreraSlug, plan, materiaSlug)
+
+	// Encontrar la fecha de examen más cercana hoy o en el futuro
+	const hoy = new Date()
+	const hoyLocal = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate())
+
+	const fechasFuturas = (materia.fechasExamenes || [])
+		.map((fecha) => ({fecha, parsed: new Date(fecha + "T00:00:00")}))
+		.filter(({parsed}) => parsed >= hoyLocal)
+		.sort(({parsed: a}, {parsed: b}) => a.getTime() - b.getTime())
+
+	const proximaFechaStr = fechasFuturas[0]?.fecha || null
 
 	return (
 		<section className="flex flex-col gap-6 py-6 max-w-7xl px-3 sm:px-4 md:px-5 mx-auto w-full animate-in fade-in duration-200">
@@ -57,74 +49,43 @@ export default async function ExamenesPage({ params }: PageProps) {
 				<p className="text-muted-foreground">Próximos llamados y mesas de examen final programadas.</p>
 			</div>
 
-			<div className="max-w-3xl">
-				<Card>
-					<CardHeader>
-						<CardTitle className="text-lg">Próximas Mesas</CardTitle>
-						<CardDescription>Fechas estimadas o confirmadas de los llamados a examen final.</CardDescription>
-					</CardHeader>
-					<CardContent className="flex flex-col gap-6">
-						{materia.fechasExamenes.length === 0 ? (
-							<ItemGroup>
-								<Item variant="muted" size="sm">
-									<ItemMedia>
-										<IconCalendarOff className="size-5 text-muted-foreground" />
-									</ItemMedia>
-									<ItemContent>
-										<ItemTitle className="text-muted-foreground font-normal">
-											No hay fechas de exámenes programadas en este momento.
-										</ItemTitle>
-									</ItemContent>
-								</Item>
-							</ItemGroup>
-						) : (
-							<ItemGroup className="gap-3">
-								{materia.fechasExamenes.map((fecha, idx) => (
-									<Item key={idx} variant="outline" className="hover:bg-accent/40 transition-colors">
-										<ItemMedia>
-											<IconCalendar className="size-5 text-primary" />
-										</ItemMedia>
-										<ItemContent>
-											<ItemTitle>Llamado Mesa N° {idx + 1}</ItemTitle>
-											<ItemDescription className="font-semibold text-foreground mt-0.5">
-												{new Date(fecha + "T00:00:00").toLocaleDateString("es-AR", {
-													year: "numeric",
-													month: "long",
-													day: "numeric",
-													weekday: "long"
-												})}
-											</ItemDescription>
-										</ItemContent>
-										<ItemActions>
-											<Button
-												variant="ghost"
-												size="icon"
-												className="size-9"
-												render={
-													<Link
-														href={getGoogleCalendarLink(materia.nombre, fecha)}
-														target="_blank"
-														title="Agregar a Google Calendar"
-													/>
-												}>
-												<IconCalendarPlus className="size-5 text-primary" />
-											</Button>
-										</ItemActions>
-									</Item>
-								))}
-							</ItemGroup>
-						)}
+			<div className="flex flex-col gap-6">
+				{/* Aviso importante */}
+				<Item variant="outline" className="border-warning-border bg-warning-accent/30 max-w-3xl mx-auto">
+					<ItemMedia variant="icon">
+						<IconAlertCircle className="size-5 text-warning" />
+					</ItemMedia>
+					<ItemContent>
+						<ItemTitle className="text-warning">Aviso importante:</ItemTitle>
+						<ItemDescription className="text-warning-accent-foreground">
+							Revisa siempre la información oficial provista por el sistema de alumnado de tu institución, ya que estas
+							fechas pueden cambiar de último momento.
+						</ItemDescription>
+					</ItemContent>
+					<ItemActions>
+						<Button variant="warning">Ver Pagina oficial</Button>
+					</ItemActions>
+				</Item>
 
-						{/* Aviso importante */}
-						<div className="p-3.5 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-yellow-600 dark:text-yellow-500 text-xs flex gap-2.5 items-start">
-							<IconAlertCircle className="size-5 shrink-0 mt-0.5" />
-							<span>
-								<strong>Aviso importante:</strong> Revisa siempre la información oficial provista por el sistema de alumnado de tu institución,
-								ya que estas fechas pueden cambiar de último momento.
-							</span>
-						</div>
-					</CardContent>
-				</Card>
+				{materia.fechasExamenes.length === 0 ?
+					<Card>
+						<CardContent className="flex items-center gap-3 py-6">
+							<IconCalendarOff className="size-5 text-muted-foreground" />
+							<span className="text-muted-foreground">No hay fechas de exámenes programadas en este momento.</span>
+						</CardContent>
+					</Card>
+				:	<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
+						{materia.fechasExamenes.map((fecha, idx) => (
+							<ExamenCard
+								key={idx}
+								fecha={fecha}
+								materiaNombre={materia.nombre}
+								mesaNumero={idx + 1}
+								esProxima={fecha === proximaFechaStr}
+							/>
+						))}
+					</div>
+				}
 			</div>
 		</section>
 	)

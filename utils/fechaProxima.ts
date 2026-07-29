@@ -102,3 +102,35 @@ export function fechaProxima(
 
     return { proxima, isUrgent, status, tooltip }
 }
+
+export function parseLocalExamen(dateStr: string): Date {
+    const [y, m, d] = dateStr.split("-").map(Number)
+    return new Date(y, m - 1, d)
+}
+
+export function calcularDiasHabiles(fechaExamen: Date, hoy: Date): number {
+    if (fechaExamen <= hoy) return 0
+
+    let count = 0
+    const cursor = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate())
+    cursor.setDate(cursor.getDate() + 1)
+
+    const target = new Date(fechaExamen.getFullYear(), fechaExamen.getMonth(), fechaExamen.getDate())
+
+    while (cursor <= target) {
+        const day = cursor.getDay()
+        if (day !== 0 && day !== 6) { // Excluir Sábado (6) y Domingo (0)
+            count++
+        }
+        cursor.setDate(cursor.getDate() + 1)
+    }
+    return count
+}
+
+export function calcularDiasCalendario(fechaExamen: Date, hoy: Date): number {
+    const d1 = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate())
+    const d2 = new Date(fechaExamen.getFullYear(), fechaExamen.getMonth(), fechaExamen.getDate())
+    const diffTime = d2.getTime() - d1.getTime()
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+}
+

@@ -58,7 +58,7 @@ export default async function PlanPage({params}: PageProps) {
 				</CardHeader>
 				<CardContent className="text-muted-foreground text-lg">
 					<div className="flex flex-row flex-wrap gap-3">
-						<Item variant="outline" size="sm" className="flex-1 min-w-[200px] max-w-sm">
+						<Item variant="outline" size="sm" className="flex-1 min-w-50 max-w-sm">
 							<ItemMedia>
 								<IconInfoCircle className="size-5" />
 							</ItemMedia>
