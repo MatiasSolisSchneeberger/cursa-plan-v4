@@ -18,7 +18,7 @@ import {IconUser, IconSettings, IconHeart, IconLogout, IconShieldCheck, IconSele
 import {cn} from "@/lib/utils"
 
 interface UserDropdownProps {
-	user: any
+	user: Usuario | null | undefined
 	isSidebar?: boolean
 }
 

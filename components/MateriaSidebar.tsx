@@ -38,7 +38,8 @@ import {
 	IconFolder,
 	IconBook,
 } from "@tabler/icons-react"
-import type { AnioJSON, PerfilUsuario } from "@/types/consultas"
+import type { AnioJSON } from "@/types/consultas"
+import type { Usuario } from "@/types/auth"
 
 interface MateriaSidebarProps {
 	carreraSlug: string
@@ -46,14 +47,13 @@ interface MateriaSidebarProps {
 	carreraNombre: string
 	carreraIcon?: string
 	anios: AnioJSON[]
-	user?: any
+	user?: Usuario | null
 }
 
 export default function MateriaSidebar({
 	carreraSlug,
 	plan,
 	carreraNombre,
-	carreraIcon,
 	anios,
 	user,
 }: MateriaSidebarProps) {

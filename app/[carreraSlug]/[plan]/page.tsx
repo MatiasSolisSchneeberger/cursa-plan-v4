@@ -23,7 +23,7 @@ export default async function PlanPage({params}: PageProps) {
 	const userRes = await getCurrentUser()
 	const userId = userRes.data?.user?.id
 
-	let initialAvances: Record<number, EstadoMateria> = {}
+	const initialAvances: Record<number, EstadoMateria> = {}
 	let isFav = false
 
 	if (userId) {

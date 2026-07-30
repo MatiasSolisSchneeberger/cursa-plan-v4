@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
+import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { IconBooks, IconChevronRight, IconBook } from "@tabler/icons-react"
@@ -77,7 +77,7 @@ export default function CarreraMateriasSection({
 					<div className="flex flex-col gap-1">
 						<h3 className="font-semibold text-foreground">No estás cursando ninguna materia de esta carrera</h3>
 						<p className="text-xs text-muted-foreground max-w-sm">
-							Ingresa al plan de estudios y marca tus materias como "Cursando" para verlas organizadas en este panel.
+							Ingresa al plan de estudios y marca tus materias como &quot;Cursando&quot; para verlas organizadas en este panel.
 						</p>
 					</div>
 					<Button variant="outline" size="sm" className="mt-2" render={

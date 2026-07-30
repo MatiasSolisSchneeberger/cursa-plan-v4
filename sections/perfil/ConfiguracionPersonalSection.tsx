@@ -48,7 +48,7 @@ export default function ConfiguracionPersonalSection({ user, email = "" }: Confi
 			} else {
 				setProfileMessage({ type: "error", text: "No se pudo actualizar el perfil. Inténtalo de nuevo." })
 			}
-		} catch (err) {
+		} catch {
 			setProfileMessage({ type: "error", text: "Ocurrió un error inesperado al guardar los cambios." })
 		} finally {
 			setIsSavingProfile(false)

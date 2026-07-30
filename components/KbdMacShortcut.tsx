@@ -1,14 +1,15 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Kbd } from "./ui/kbd"
 
 export default function KbdMacShortcut() {
-	const [isMac, setIsMac] = useState(false)
-
-	useEffect(() => {
-		setIsMac(navigator.userAgent.includes("Mac"))
-	}, [])
+	const [isMac] = useState(() => {
+		if (typeof window !== "undefined") {
+			return navigator.userAgent.includes("Mac")
+		}
+		return false
+	})
 
 	return <Kbd>{isMac ? "⌘" : "Ctrl"} + B</Kbd>
 }

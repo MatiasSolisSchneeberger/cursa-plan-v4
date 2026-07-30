@@ -3,6 +3,7 @@ import Link from "next/link"
 import {cookies} from "next/headers"
 import {createClient} from "@/utils/supabase/server"
 import {getMateriaDetalle} from "@/lib/carreras"
+import {getCurrentUser} from "@/lib/auth"
 import {MateriaEstadoSelector} from "@/sections/materia/MateriaEstadoSelector"
 import {Card, CardContent, CardHeader} from "@/components/ui/card"
 import {Item, ItemContent, ItemMedia, ItemTitle, ItemDescription} from "@/components/ui/item"
@@ -37,11 +38,10 @@ export default async function MateriaDetailPage({params}: PageProps) {
 	const materia = await getMateriaDetalle(carreraSlug, plan, materiaSlug)
 
 	// Obtener usuario autenticado y su estado actual para la materia
+	const userRes = await getCurrentUser()
+	const user = userRes.data?.user
 	const cookieStore = await cookies()
 	const supabase = createClient(cookieStore)
-	const {
-		data: {user},
-	} = await supabase.auth.getUser()
 
 	let estadoActual: EstadoMateria = "Sin cursar"
 	if (user) {

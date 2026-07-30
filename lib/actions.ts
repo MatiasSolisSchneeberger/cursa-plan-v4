@@ -2,6 +2,8 @@
 
 import {createClient} from "@/utils/supabase/server"
 import {cookies} from "next/headers"
+import {getCurrentUser} from "@/lib/auth"
+import {cache} from "react"
 import type {EstadoMateria} from "@/types/materiaTypes"
 
 interface DatosActualizacionPerfil {
@@ -69,9 +71,9 @@ export async function setToggleFavoritoPlan(
 
 	let targetUserId = userId
 	if (!targetUserId) {
-		const { data: { user } } = await supabase.auth.getUser()
-		if (!user) return false
-		targetUserId = user.id
+		const userRes = await getCurrentUser()
+		if (!userRes.data?.user) return false
+		targetUserId = userRes.data.user.id
 	}
 
 	// Verificar si ya existe en favoritos
@@ -121,18 +123,18 @@ export async function setToggleFavoritoPlan(
 /**
  * Consulta si un plan específico está en los favoritos del usuario.
  */
-export async function isPlanFavorito(
+export const isPlanFavorito = cache(async (
 	userId: string,
 	planId: number | string
-): Promise<boolean> {
+): Promise<boolean> => {
 	const cookieStore = await cookies()
 	const supabase = createClient(cookieStore)
 
 	let targetUserId = userId
 	if (!targetUserId) {
-		const { data: { user } } = await supabase.auth.getUser()
-		if (!user) return false
-		targetUserId = user.id
+		const userRes = await getCurrentUser()
+		if (!userRes.data?.user) return false
+		targetUserId = userRes.data.user.id
 	}
 
 	const {data, error} = await supabase
@@ -144,7 +146,7 @@ export async function isPlanFavorito(
 
 	if (error || !data) return false
 	return true
-}
+})
 
 /**
  * Actualiza el estado de avance de una materia para un usuario específico.
@@ -164,12 +166,12 @@ export async function setEstadoMateria(
 
 	let targetUserId = userId
 	if (!targetUserId) {
-		const { data: { user } } = await supabase.auth.getUser()
-		if (!user) {
+		const userRes = await getCurrentUser()
+		if (!userRes.data?.user) {
 			console.warn("setEstadoMateria: No authenticated user found.")
 			return false
 		}
-		targetUserId = user.id
+		targetUserId = userRes.data.user.id
 	}
 
 	// Buscar si existe un avance previo para esa materia y usuario

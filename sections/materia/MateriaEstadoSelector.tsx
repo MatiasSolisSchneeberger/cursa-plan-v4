@@ -17,7 +17,14 @@ export function MateriaEstadoSelector({
 	initialEstado,
 	userId,
 }: MateriaEstadoSelectorProps) {
-	const [estado, setEstado] = React.useState<EstadoMateria>(initialEstado)
+	const [estado, setEstado] = React.useState<EstadoMateria>(() => {
+		if (initialEstado && initialEstado !== "Sin cursar") return initialEstado
+		if (typeof window !== "undefined" && !userId) {
+			const localSaved = localStorage.getItem(`materia-estado-${materiaPlanId}`)
+			if (localSaved) return localSaved as EstadoMateria
+		}
+		return initialEstado || "Sin cursar"
+	})
 	const [isPending, startTransition] = React.useTransition()
 
 	const handleValueChange = (newValue: EstadoMateria | null) => {
@@ -26,7 +33,6 @@ export function MateriaEstadoSelector({
 		setEstado(nextEstado)
 
 		if (!userId) {
-			// Si no hay usuario logueado, podemos guardarlo en localStorage o simplemente simularlo para testing local
 			localStorage.setItem(`materia-estado-${materiaPlanId}`, nextEstado)
 			return
 		}
@@ -34,22 +40,11 @@ export function MateriaEstadoSelector({
 		startTransition(async () => {
 			const success = await setEstadoMateria(userId, materiaPlanId, nextEstado)
 			if (!success) {
-				// Revertir en caso de error
 				setEstado(estado)
 				alert("Error al actualizar el estado de la materia. Intenta de nuevo.")
 			}
 		})
 	}
-
-	// Al montar, si no hay usuario, recuperamos el estado guardado localmente si existe
-	React.useEffect(() => {
-		if (!userId) {
-			const localSaved = localStorage.getItem(`materia-estado-${materiaPlanId}`)
-			if (localSaved) {
-				setEstado(localSaved as EstadoMateria)
-			}
-		}
-	}, [userId, materiaPlanId])
 
 	return (
 		<div className="flex items-center gap-2">

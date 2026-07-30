@@ -45,7 +45,7 @@ export default function ConfiguracionSeguridadSection() {
 			} else {
 				setPasswordMessage({ type: "error", text: res.error || "Error al actualizar la contraseña." })
 			}
-		} catch (err) {
+		} catch {
 			setPasswordMessage({ type: "error", text: "Ocurrió un error inesperado al actualizar la contraseña." })
 		} finally {
 			setIsSavingPassword(false)

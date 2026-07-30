@@ -85,7 +85,7 @@ export default function PerfilMateriasSection({ materiasCursando }: PerfilMateri
 					<div className="flex flex-col gap-1">
 						<h3 className="font-semibold text-foreground">No estás cursando ninguna materia</h3>
 						<p className="text-xs text-muted-foreground max-w-sm">
-							Ingresa a cualquier plan de carrera y cambia el estado de tus materias a "Cursando" para verlas organizadas aquí.
+							Ingresa a cualquier plan de carrera y cambia el estado de tus materias a &quot;Cursando&quot; para verlas organizadas aquí.
 						</p>
 					</div>
 				</Card>

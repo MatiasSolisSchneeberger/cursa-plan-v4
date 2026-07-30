@@ -22,9 +22,43 @@ const parseDate = (dateStr: string): Date => {
 
 
 
+export interface RawFeriado {
+    id: number | string;
+    nombre: string;
+    fecha: string;
+    nota?: string;
+    tipo?: { nombre: string };
+}
+
+export interface RawClase {
+    id: number | string;
+    periodo?: { nombre: string };
+    nro_periodo?: number;
+    fecha_inicio: string;
+    fecha_fin: string;
+    nota?: string;
+}
+
+export interface RawExamen {
+    id: number | string;
+    tipo_mesa_id?: { nombre: string };
+    fecha_inicio: string;
+    fecha_fin: string;
+    is_suspencion?: boolean;
+}
+
+export interface RawInscripcion {
+    id: number | string;
+    periodo?: { nombre: string };
+    nro_periodo?: number;
+    fecha_inicio: string;
+    fecha_fin: string;
+    nota?: string;
+}
+
 // --- TRANSFORMADORES ---
 
-export function transformarFeriados(data: any[]): CalendarEvent[] {
+export function transformarFeriados(data: RawFeriado[]): CalendarEvent[] {
     return data.map(({ id, nombre, fecha, nota, tipo }) => ({
         id: `feriado-${id}`,
         title: nombre,
@@ -37,7 +71,7 @@ export function transformarFeriados(data: any[]): CalendarEvent[] {
     }))
 }
 
-export function transformarClases(data: any[]): CalendarEvent[] {
+export function transformarClases(data: RawClase[]): CalendarEvent[] {
     return data.map(({ id, periodo, nro_periodo, fecha_inicio, fecha_fin, nota }) => {
         const periodoNombre = periodo?.nombre || "Periodo"
         // Ej: "1° Cuatrimestre"
@@ -58,7 +92,7 @@ export function transformarClases(data: any[]): CalendarEvent[] {
     })
 }
 
-export function transformarExamenes(data: any[]): CalendarEvent[] {
+export function transformarExamenes(data: RawExamen[]): CalendarEvent[] {
     return data.map(({ id, tipo_mesa_id, fecha_inicio, fecha_fin, is_suspencion }) => {
         // Ej: "Mesa Comprimida"
         const nombreMesa = tipo_mesa_id?.nombre || "Examen"
@@ -70,14 +104,14 @@ export function transformarExamenes(data: any[]): CalendarEvent[] {
             start: parseDate(fecha_inicio),
             end: parseDate(fecha_fin),
 
-            note: is_suspencion && "Suspende clases",
+            note: is_suspencion ? "Suspende clases" : undefined,
             eventType: "Exámenes",
             isSuspended: is_suspencion,
         }
     })
 }
 
-export function transformarInscripciones(data: any[]): CalendarEvent[] {
+export function transformarInscripciones(data: RawInscripcion[]): CalendarEvent[] {
     return data.map(({ id, periodo, nro_periodo, fecha_inicio, fecha_fin, nota }) => {
         const periodoNombre = periodo?.nombre || "Periodo"
         // Ej: "1° Cuatrimestre"

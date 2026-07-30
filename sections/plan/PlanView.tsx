@@ -28,23 +28,19 @@ export function PlanView({
 
 	// Mapa de estados de materias por idMateriaPlan
 	const [estados, setEstados] = React.useState<Record<number, EstadoMateria>>(() => {
+		if (typeof window !== "undefined") {
+			try {
+				const saved = localStorage.getItem(`cursa_plan_avance_${planData.id}`)
+				if (saved) {
+					const parsed = JSON.parse(saved) as Record<number, EstadoMateria>
+					return {...parsed, ...initialAvances}
+				}
+			} catch (e) {
+				console.error("Error al cargar avances desde localStorage:", e)
+			}
+		}
 		return initialAvances
 	})
-
-	// Cargar avances guardados en localStorage o sincronizar con initialAvances
-	React.useEffect(() => {
-		try {
-			const saved = localStorage.getItem(storageKey)
-			if (saved) {
-				const parsed = JSON.parse(saved) as Record<number, EstadoMateria>
-				setEstados((prev) => ({...parsed, ...initialAvances, ...prev}))
-			} else if (Object.keys(initialAvances).length > 0) {
-				setEstados(initialAvances)
-			}
-		} catch (e) {
-			console.error("Error al cargar avances desde localStorage:", e)
-		}
-	}, [initialAvances, storageKey])
 
 	// Función para obtener el estado de una materia dado su idMateriaPlan
 	const getEstado = React.useCallback(
@@ -114,7 +110,7 @@ export function PlanView({
 
 						{/* Periodos del Año */}
 						<article className="space-y-8 pl-0 sm:pl-4">
-							{anio.periodos.map(({id, materiasPorOrientacion, nroPeriodo, tipoPeriodo}) => {
+							{anio.periodos.map(({materiasPorOrientacion, nroPeriodo, tipoPeriodo}) => {
 								return (
 									<div key={`periodo-${nroPeriodo}-${tipoPeriodo.id}`} className="space-y-4">
 										<h3 className="text-xl font-semibold border-b pb-2">

@@ -14,8 +14,6 @@ import {
 	SidebarMenuItem,
 	SidebarMenuButton,
 } from "@/components/ui/sidebar"
-import {Avatar, AvatarFallback} from "@/components/ui/avatar"
-import {Badge} from "@/components/ui/badge"
 import {
 	IconArrowLeft,
 	IconLayoutDashboard,
@@ -24,16 +22,16 @@ import {
 	IconUsers,
 	IconHistory,
 	IconAdjustmentsHorizontal,
-	IconShieldCheck,
 	IconLock,
 } from "@tabler/icons-react"
 import {cn} from "@/lib/utils"
 import {canRoleAccessRoute} from "@/lib/permissions"
 import UserDropdown from "@/components/UserDropdown"
+import type {Usuario} from "@/types/auth"
 
 interface AdminSidebarProps {
 	userRole?: string
-	user?: any
+	user?: Usuario | null
 }
 
 export default function AdminSidebar({userRole = "super_admin", user}: AdminSidebarProps) {

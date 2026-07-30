@@ -1,13 +1,16 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { signInWithEmail } from "@/lib/auth"
+import {useState} from "react"
+import {useRouter} from "next/navigation"
+import {Button} from "@/components/ui/button"
+import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card"
+import {Field, FieldGroup, FieldLabel} from "@/components/ui/field"
+import {Input} from "@/components/ui/input"
+import {signInWithEmail} from "@/lib/auth"
 import Link from "next/link"
+import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert"
+import {IconCheck, IconX} from "@tabler/icons-react"
+import {Checkbox} from "@/components/ui/checkbox"
 
 export default function LoginPage() {
 	const router = useRouter()
@@ -36,7 +39,7 @@ export default function LoginPage() {
 				setTimeout(() => {
 					router.push("/")
 					router.refresh()
-				}, 1000)
+				}, 500)
 			}
 		} catch (err) {
 			console.error(err)
@@ -55,14 +58,20 @@ export default function LoginPage() {
 				</CardHeader>
 				<CardContent>
 					{error && (
-						<div className="mb-4 p-3 rounded bg-destructive/15 text-destructive text-sm font-medium">
-							{error}
-						</div>
+						<Alert variant="destructive">
+							<IconX />
+							<AlertTitle>Hubo un error</AlertTitle>
+							<AlertDescription>
+								Pasó algo, ni idea que
+								{error}
+							</AlertDescription>
+						</Alert>
 					)}
 					{success && (
-						<div className="mb-4 p-3 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-sm font-medium">
-							{success}
-						</div>
+						<Alert variant="success">
+							<IconCheck />
+							<AlertTitle>{success}</AlertTitle>
+						</Alert>
 					)}
 					<form onSubmit={handleSubmit}>
 						<FieldGroup>
@@ -95,11 +104,7 @@ export default function LoginPage() {
 								/>
 							</Field>
 							<Field orientation="horizontal" className="items-center gap-2 py-1">
-								<input
-									id="keep-session"
-									type="checkbox"
-									className="w-4 h-4 rounded border-input bg-transparent text-primary focus:ring-ring cursor-pointer"
-								/>
+								<Checkbox id="keep-session" name="keep-session" />
 								<FieldLabel
 									htmlFor="keep-session"
 									className="text-sm font-normal text-muted-foreground cursor-pointer select-none">

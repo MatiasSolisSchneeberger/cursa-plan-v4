@@ -844,7 +844,7 @@ export async function getMateriaDetalle(
 		console.error("Error al obtener fechas de exámenes:", datesError)
 	}
 
-	const fechasExamenes = (datesData || []).map((d: any) => d.fecha as string)
+	const fechasExamenes = (datesData || []).map(({ fecha }: { fecha: string }) => fecha)
 
 	return {
 		id: Number(typedRow.materia?.id || 0),

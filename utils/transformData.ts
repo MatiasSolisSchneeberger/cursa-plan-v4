@@ -1,6 +1,6 @@
 import type { CarreraJSON, Condicion, Requisito } from '../types/carrera';
 
-// --- FUNCIÓN AUXILIAR PARA AGRUPAR CORRELATIVAS ---
+// --- ESTRUCTURAS DE DATOS RAW ---
 export interface CorrelativaRaw {
     tipo_requisito: string;
     condicion: string;
@@ -15,6 +15,53 @@ export interface CorrelativaRaw {
     notas?: string;
 }
 
+export interface RawMateriaPlan {
+    id: number;
+    anio: number;
+    nro_periodo: number;
+    nro_optativa?: number | null;
+    periodo?: { id: number; slug: string; nombre: string } | null;
+    orientacion?: { id: number; slug: string; nombre: string } | null;
+    materia: { id: number; slug: string; nombre: string };
+    correlativas: CorrelativaRaw[];
+}
+
+export interface RawPlan {
+    id: number;
+    anio_inicio: number;
+    anio_fin?: number | null;
+    materias_plan: RawMateriaPlan[];
+}
+
+export interface RawCarreraData {
+    id: number;
+    nombre: string;
+    icon?: string | null;
+    planes: RawPlan[];
+}
+
+interface PeriodoMapItem {
+    id: number;
+    nroPeriodo: number;
+    tipoPeriodo: { id: number; slug: string; nombre: string };
+    materias: Array<{
+        id: number;
+        idMateriaPlan: number;
+        nombre: string;
+        slug: string;
+        esOptativa: boolean;
+        nroOptativa?: number | null;
+        orientacion?: { nombre: string; slug: string } | null;
+        correlativas: ReturnType<typeof formatearCorrelativas>;
+    }>;
+}
+
+interface AnioMapItem {
+    anio: number;
+    periodosMap: Map<string, PeriodoMapItem>;
+}
+
+// --- FUNCIÓN AUXILIAR PARA AGRUPAR CORRELATIVAS ---
 export const formatearCorrelativas = (correlativasRaw: CorrelativaRaw[]) => {
     // Mapa principal: Clave = "cursar" | "rendir"
     const gruposPrincipales = new Map();
@@ -69,7 +116,6 @@ export const formatearCorrelativas = (correlativasRaw: CorrelativaRaw[]) => {
             nuevoRequisito = { nota: item.notas };
         }
 
-
         // 3. Crear el sub-grupo si no existe y agregar el requisito
         if (keyInterna && estructuraBase && nuevoRequisito) {
             if (!grupo.condicionesMap.has(keyInterna)) {
@@ -81,25 +127,27 @@ export const formatearCorrelativas = (correlativasRaw: CorrelativaRaw[]) => {
     });
 
     // 4. Transformar los Mapas a Arrays para el JSON final
-    return Array.from(gruposPrincipales.values()).map(({ tipo, condicionesMap }: any) => ({
-        tipo,
-        condiciones: Array.from(condicionesMap.values())
-    }));
+    return Array.from(gruposPrincipales.values()).map((grupo) => {
+        const g = grupo as { tipo: string; condicionesMap: Map<string, Condicion> };
+        return {
+            tipo: g.tipo,
+            condiciones: Array.from(g.condicionesMap.values())
+        };
+    });
 };
 
-
 // --- TRANSFORMADOR PRINCIPAL ---
-export const transformarDatos = (data: any): CarreraJSON => {
+export const transformarDatos = (data: RawCarreraData): CarreraJSON => {
     return {
         carrera: data.nombre,
         id: data.id,
-        icon: data.icon,
-        planes: data.planes.map(({ id, anio_inicio, anio_fin, materias_plan }: any) => {
+        icon: data.icon || undefined,
+        planes: data.planes.map(({ id, anio_inicio, anio_fin, materias_plan }) => {
 
-            const aniosMap = new Map();
+            const aniosMap = new Map<number, AnioMapItem>();
             const orientacionesSet = new Map();
 
-            materias_plan.forEach((item: any) => {
+            materias_plan.forEach((item) => {
 
                 // A. Orientaciones
                 if (item.orientacion) {
@@ -114,9 +162,9 @@ export const transformarDatos = (data: any): CarreraJSON => {
 
                 // B. Años
                 if (!aniosMap.has(item.anio)) {
-                    aniosMap.set(item.anio, { anio: item.anio, periodosMap: new Map() });
+                    aniosMap.set(item.anio, { anio: item.anio, periodosMap: new Map<string, PeriodoMapItem>() });
                 }
-                const anioObj = aniosMap.get(item.anio);
+                const anioObj = aniosMap.get(item.anio)!;
 
                 // C. Periodos
                 const periodoId = item.periodo?.id || 0;
@@ -139,10 +187,10 @@ export const transformarDatos = (data: any): CarreraJSON => {
                     });
                 }
 
-                const periodoActual = anioObj.periodosMap.get(periodoKey);
+                const periodoActual = anioObj.periodosMap.get(periodoKey)!;
 
                 // Evitar duplicados por idMateriaPlan (el item del plan), no por materia.id
-                const materiaYaExiste = periodoActual.materias.some((m: any) => m.idMateriaPlan === item.id);
+                const materiaYaExiste = periodoActual.materias.some((m) => m.idMateriaPlan === item.id);
 
                 if (!materiaYaExiste) {
                     periodoActual.materias.push({
@@ -169,18 +217,18 @@ export const transformarDatos = (data: any): CarreraJSON => {
 
             // Ordenamiento final
             const anios = Array.from(aniosMap.values())
-                .sort((a: any, b: any) => a.anio - b.anio)
-                .map(({ anio, periodosMap }: any) => ({
+                .sort((a, b) => a.anio - b.anio)
+                .map(({ anio, periodosMap }) => ({
                     anio,
                     periodosMap,
                     periodos: Array.from(periodosMap.values())
-                        .sort((p1: any, p2: any) => p1.nroPeriodo - p2.nroPeriodo)
+                        .sort((p1, p2) => p1.nroPeriodo - p2.nroPeriodo)
                 }));
 
             return {
                 id,
                 anioInicio: anio_inicio,
-                anioFin: anio_fin,
+                anioFin: anio_fin || null,
                 listaOrientaciones: Array.from(orientacionesSet.values()),
                 anios: anios
             };

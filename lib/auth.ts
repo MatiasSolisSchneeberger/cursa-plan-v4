@@ -1,5 +1,6 @@
 "use server"
 
+import { cache } from "react"
 import { createClient } from "@/utils/supabase/server"
 import { cookies } from "next/headers"
 import type { Provider } from "@supabase/supabase-js"
@@ -224,7 +225,7 @@ export async function signOut(): Promise<AuthResponse> {
 /**
  * Obtiene el usuario autenticado actualmente y su perfil desde public.usuarios.
  */
-export async function getCurrentUser(): Promise<AuthResponse<{ user: Usuario | null }>> {
+export const getCurrentUser = cache(async (): Promise<AuthResponse<{ user: Usuario | null }>> => {
 	const cookieStore = await cookies()
 	const supabase = createClient(cookieStore)
 
@@ -262,7 +263,7 @@ export async function getCurrentUser(): Promise<AuthResponse<{ user: Usuario | n
 		success: true,
 		data: { user: userObj },
 	}
-}
+})
 
 /**
  * Envía un correo de recuperación de contraseña.

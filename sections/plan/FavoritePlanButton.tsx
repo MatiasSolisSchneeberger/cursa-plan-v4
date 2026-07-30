@@ -19,22 +19,18 @@ export function FavoritePlanButton({
 	userId = "",
 	className,
 }: FavoritePlanButtonProps) {
-	const [isFavorite, setIsFavorite] = React.useState<boolean>(initialIsFavorite)
+	const [isFavorite, setIsFavorite] = React.useState<boolean>(() => {
+		if (initialIsFavorite) return true
+		if (typeof window !== "undefined") {
+			try {
+				const saved = localStorage.getItem(`cursa_plan_fav_${planId}`)
+				if (saved !== null) return saved === "true"
+			} catch {}
+		}
+		return initialIsFavorite
+	})
 	const [isPending, startTransition] = React.useTransition()
 	const storageKey = `cursa_plan_fav_${planId}`
-
-	React.useEffect(() => {
-		try {
-			const saved = localStorage.getItem(storageKey)
-			if (saved !== null) {
-				setIsFavorite(saved === "true")
-			} else {
-				setIsFavorite(initialIsFavorite)
-			}
-		} catch (e) {
-			console.error("Error al cargar favorito desde localStorage:", e)
-		}
-	}, [initialIsFavorite, storageKey])
 
 	const handleToggle = () => {
 		const nextState = !isFavorite
