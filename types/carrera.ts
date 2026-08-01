@@ -64,10 +64,9 @@ export interface MateriaJSON {
 	idMateriaPlan: number
 	nombre: string
 	slug: string
-	creditos: number
 	esOptativa: boolean
-	nroOptativa: number | null
-	orientacion: {id?: number; nombre: string; slug: string} | null
+	nroOptativa?: number | null
+	orientacion?: {id?: number; nombre: string; slug: string} | null
 	estadoMateria?: string
 	correlativas: GrupoCorrelativa[]
 }
@@ -91,7 +90,7 @@ export interface AnioJSON {
 export interface PlanJSON {
 	id: number
 	anioInicio: number
-	anioFin: number
+	anioFin: number | null
 	listaOrientaciones: {nombre: string; slug: string; id: number}[]
 	anios: AnioJSON[]
 }
@@ -99,7 +98,7 @@ export interface PlanJSON {
 export interface CarreraJSON {
 	carrera: string
 	id: number
-	icon: string
+	icon?: string
 	planes: PlanJSON[]
 }
 

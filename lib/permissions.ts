@@ -48,6 +48,8 @@ export function isAdminRole(role?: string | null): boolean {
  */
 const ROUTE_PERMISSIONS: Record<string, string[]> = {
 	"/admin": ["super_admin", "admin", "gestor_carreras", "moderador", "auditor", "soporte"],
+	"/admin/carreras": ["super_admin", "admin", "gestor_carreras"],
+	"/admin/fechas-examenes": ["super_admin", "admin", "gestor_carreras"],
 	"/admin/roles": ["super_admin", "admin", "auditor"],
 	"/admin/permisos": ["super_admin", "admin", "gestor_carreras", "auditor"],
 	"/admin/usuarios": ["super_admin", "admin", "moderador", "soporte"],

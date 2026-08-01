@@ -13,12 +13,13 @@ import {
 import UserAvatar from "@/components/UserAvatar"
 import {signOut} from "@/lib/auth"
 import type {Usuario} from "@/types/auth"
+import type {PerfilUsuario} from "@/types/consultas"
 import {isAdminRole} from "@/lib/permissions"
 import {IconUser, IconSettings, IconHeart, IconLogout, IconShieldCheck, IconSelector} from "@tabler/icons-react"
 import {cn} from "@/lib/utils"
 
 interface UserDropdownProps {
-	user: Usuario | null | undefined
+	user: Usuario | PerfilUsuario | null | undefined
 	isSidebar?: boolean
 }
 
@@ -27,9 +28,9 @@ export default function UserDropdown({user, isSidebar = false}: UserDropdownProp
 
 	if (!user) return null
 
-	const fullName = user.fullName || user.full_name || "Usuario"
+	const fullName = ("fullName" in user && user.fullName) ? user.fullName : ("full_name" in user && user.full_name) ? user.full_name : "Usuario"
 	const username = user.username
-	const avatarUrl = user.avatarUrl || user.avatar_url
+	const avatarUrl = ("avatarUrl" in user && user.avatarUrl) ? user.avatarUrl : ("avatar_url" in user && user.avatar_url) ? user.avatar_url : null
 	const role = user.role || "user"
 
 	const normalizedUser: Usuario = {
@@ -37,10 +38,10 @@ export default function UserDropdown({user, isSidebar = false}: UserDropdownProp
 		username: username,
 		full_name: fullName,
 		avatar_url: avatarUrl,
-		updated_at: user.updated_at || null,
+		updated_at: ("updated_at" in user && user.updated_at) ? user.updated_at : null,
 		role: role,
-		icon: user.icon || null,
-		email: user.email || null,
+		icon: ("icon" in user && user.icon) ? user.icon : null,
+		email: ("email" in user && user.email) ? user.email : null,
 	}
 
 	const handleSignOut = async () => {

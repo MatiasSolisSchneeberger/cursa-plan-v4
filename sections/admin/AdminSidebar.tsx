@@ -17,6 +17,8 @@ import {
 import {
 	IconArrowLeft,
 	IconLayoutDashboard,
+	IconCalendar,
+	IconSchool,
 	IconShieldLock,
 	IconKey,
 	IconUsers,
@@ -43,6 +45,16 @@ export default function AdminSidebar({userRole = "super_admin", user}: AdminSide
 			href: "/admin",
 			icon: IconLayoutDashboard,
 			exact: true,
+		},
+		{
+			title: "Carreras",
+			href: "/admin/carreras",
+			icon: IconSchool,
+		},
+		{
+			title: "Fechas de Exámenes",
+			href: "/admin/fechas-examenes",
+			icon: IconCalendar,
 		},
 	]
 

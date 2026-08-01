@@ -13,7 +13,7 @@ import {
 
 export default function AdminHeader() {
 	return (
-		<header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-border bg-background/95 backdrop-blur px-4 md:px-6 gap-4">
+		<header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-border bg-background/95 backdrop-blur py-2 px-4 md:px-6 gap-4">
 			{/* IZQUIERDA: Sidebar Trigger + Título de sección */}
 			<div className="flex items-center gap-3">
 				<SidebarTrigger className="h-9 w-9 text-muted-foreground hover:text-foreground" />

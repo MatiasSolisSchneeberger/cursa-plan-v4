@@ -7,6 +7,8 @@ export interface Usuario {
 	role: string;
 	icon: string | null;
 	email?: string | null;
+	fullName?: string | null;
+	avatarUrl?: string | null;
 }
 
 export interface SignUpData {

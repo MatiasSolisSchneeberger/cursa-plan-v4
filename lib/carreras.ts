@@ -499,7 +499,6 @@ export async function getPlanEstudio(
 				idMateriaPlan: Number(item.id),
 				nombre: item.materia.nombre,
 				slug: item.materia.slug,
-				creditos: 0,
 				esOptativa: !!item.nro_optativa,
 				nroOptativa: item.nro_optativa ? Number(item.nro_optativa) : null,
 				orientacion:
