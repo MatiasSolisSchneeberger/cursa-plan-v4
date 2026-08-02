@@ -206,6 +206,18 @@ export interface DatosSeguimientoPlan {
 }
 
 // 6. Detalle de Materia
+export interface ResolucionDetalle {
+	id: number;
+	nombre: string;
+	url: string | null;
+}
+
+export interface FechaExamenDetalle {
+	id: number;
+	fecha: string;
+	resolucion: ResolucionDetalle | null;
+}
+
 export interface DatosMateriaDetalle {
 	id: number;
 	idMateriaPlan: number;
@@ -217,7 +229,7 @@ export interface DatosMateriaDetalle {
 	anio: number;
 	nroPeriodo: number;
 	periodo: { id: number; slug: string; nombre: string } | null;
-	fechasExamenes: string[];
+	fechasExamenes: FechaExamenDetalle[];
 	plan: {
 		id: number;
 		anioInicio: number;

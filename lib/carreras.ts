@@ -836,14 +836,28 @@ export async function getMateriaDetalle(
 
 	const {data: datesData, error: datesError} = await staticSupabase
 		.from("fechas_examenes")
-		.select("fecha")
+		.select("id, fecha, resolucion:resoluciones(id, nombre, url)")
 		.eq("materia_id", Number(typedRow.materia?.id || 0))
 
 	if (datesError) {
 		console.error("Error al obtener fechas de exámenes:", datesError)
 	}
 
-	const fechasExamenes = (datesData || []).map(({ fecha }: { fecha: string }) => fecha)
+	const fechasExamenes = (datesData || []).map(({id, fecha, resolucion}) => {
+		const resObj = Array.isArray(resolucion) ? resolucion[0] : resolucion
+		return {
+			id: Number(id),
+			fecha: fecha as string,
+			resolucion:
+				resObj && resObj.nombre ?
+					{
+						id: Number(resObj.id),
+						nombre: resObj.nombre as string,
+						url: (resObj.url as string | null) || null,
+					}
+				:	null,
+		}
+	})
 
 	return {
 		id: Number(typedRow.materia?.id || 0),

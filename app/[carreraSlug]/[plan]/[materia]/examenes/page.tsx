@@ -27,12 +27,28 @@ export default async function ExamenesPage({params}: PageProps) {
 	const hoy = new Date()
 	const hoyLocal = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate())
 
-	const fechasFuturas = (materia.fechasExamenes || [])
-		.map((fecha) => ({fecha, parsed: new Date(fecha + "T00:00:00")}))
-		.filter(({parsed}) => parsed >= hoyLocal)
+	// 1. Ordenar todas las fechas cronológicamente y asignar número de mesa
+	const fechasOrdenadas = (materia.fechasExamenes || [])
+		.map(({id, fecha, resolucion}) => ({
+			id,
+			fecha,
+			resolucion,
+			parsed: new Date(fecha + "T00:00:00"),
+		}))
 		.sort(({parsed: a}, {parsed: b}) => a.getTime() - b.getTime())
+		.map(({id, fecha, resolucion, parsed}, index) => ({
+			id,
+			fecha,
+			resolucion,
+			parsed,
+			mesaNumero: index + 1,
+		}))
 
-	const proximaFechaStr = fechasFuturas[0]?.fecha || null
+	// 2. Separar fechas próximas (hoy o futuro) y fechas pasadas
+	const fechasProximas = fechasOrdenadas.filter(({parsed}) => parsed >= hoyLocal)
+	const fechasPasadas = fechasOrdenadas.filter(({parsed}) => parsed < hoyLocal)
+
+	const proximaFechaStr = fechasProximas[0]?.fecha || null
 
 	return (
 		<section className="flex flex-col gap-6 py-6 max-w-7xl px-3 sm:px-4 md:px-5 mx-auto w-full animate-in fade-in duration-200">
@@ -67,25 +83,64 @@ export default async function ExamenesPage({params}: PageProps) {
 					</ItemActions>
 				</Item>
 
-				{materia.fechasExamenes.length === 0 ?
+				{fechasOrdenadas.length === 0 ? (
 					<Card>
 						<CardContent className="flex items-center gap-3 py-6">
 							<IconCalendarOff className="size-5 text-muted-foreground" />
 							<span className="text-muted-foreground">No hay fechas de exámenes programadas en este momento.</span>
 						</CardContent>
 					</Card>
-				:	<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
-						{materia.fechasExamenes.map((fecha, idx) => (
-							<ExamenCard
-								key={idx}
-								fecha={fecha}
-								materiaNombre={materia.nombre}
-								mesaNumero={idx + 1}
-								esProxima={fecha === proximaFechaStr}
-							/>
-						))}
+				) : (
+					<div className="flex flex-col gap-8">
+						{/* Sección Próximas Fechas */}
+						<div className="flex flex-col gap-4">
+							<h2 className="text-lg font-semibold tracking-tight">Próximas Mesas</h2>
+							{fechasProximas.length === 0 ? (
+								<Card>
+									<CardContent className="flex items-center gap-3 py-6">
+										<IconCalendarOff className="size-5 text-muted-foreground" />
+										<span className="text-muted-foreground">No hay próximas fechas de exámenes programadas.</span>
+									</CardContent>
+								</Card>
+							) : (
+								<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
+									{fechasProximas.map(({fecha, resolucion, mesaNumero}) => (
+										<ExamenCard
+											key={fecha}
+											fecha={fecha}
+											materiaNombre={materia.nombre}
+											mesaNumero={mesaNumero}
+											esProxima={fecha === proximaFechaStr}
+											resolucion={resolucion}
+										/>
+									))}
+								</div>
+							)}
+						</div>
+
+						{/* Sección Fechas Pasadas */}
+						{fechasPasadas.length > 0 && (
+							<div className="flex flex-col gap-4 pt-4 border-t border-border">
+								<div>
+									<h2 className="text-lg font-semibold tracking-tight text-muted-foreground">Mesas Anteriores</h2>
+									<p className="text-xs text-muted-foreground">Fechas de exámenes pasadas.</p>
+								</div>
+								<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start opacity-80 hover:opacity-100 transition-opacity">
+									{fechasPasadas.map(({fecha, resolucion, mesaNumero}) => (
+										<ExamenCard
+											key={fecha}
+											fecha={fecha}
+											materiaNombre={materia.nombre}
+											mesaNumero={mesaNumero}
+											esProxima={false}
+											resolucion={resolucion}
+										/>
+									))}
+								</div>
+							</div>
+						)}
 					</div>
-				}
+				)}
 			</div>
 		</section>
 	)
