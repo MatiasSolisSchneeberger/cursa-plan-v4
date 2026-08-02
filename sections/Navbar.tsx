@@ -22,7 +22,7 @@ import {
 import {Button, buttonVariants} from "@/components/ui/button"
 import {ThemeButton} from "@/components/ToggleTheme"
 import {cn, acortarNombreCarrera} from "@/lib/utils"
-import {getNavbarLinks} from "@/lib/Navigation"
+import {getNavbarLinks} from "@/lib/navigation"
 import NavUser from "@/components/NavUser"
 import NavUserSkeleton from "@/components/NavUserSkeleton"
 import {Suspense} from "react"
