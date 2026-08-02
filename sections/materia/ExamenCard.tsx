@@ -3,18 +3,25 @@ import Link from "next/link"
 import {Card, CardHeader, CardTitle, CardDescription, CardAction, CardContent, CardFooter} from "@/components/ui/card"
 import {Badge} from "@/components/ui/badge"
 import {Alert, AlertTitle, AlertDescription} from "@/components/ui/alert"
-import {Item, ItemContent, ItemMedia, ItemTitle, ItemDescription, ItemActions} from "@/components/ui/item"
+import {Item, ItemContent, ItemMedia, ItemTitle, ItemActions} from "@/components/ui/item"
 import {Button} from "@/components/ui/button"
-import {IconCalendar, IconFileText, IconExternalLink, IconAlertCircle, IconAlertTriangle} from "@tabler/icons-react"
+import {Tooltip, TooltipContent, TooltipTrigger} from "@/components/ui/tooltip"
+import {IconFileText, IconExternalLink, IconAlertCircle, IconAlertTriangle} from "@tabler/icons-react"
 import {parseLocalExamen, calcularDiasHabiles, calcularDiasCalendario} from "@/utils/fechaProxima"
 import {GoogleCalendar} from "@/assets/google-calendar"
+
+export interface ResolucionInfo {
+	id?: number
+	nombre?: string | null
+	url?: string | null
+}
 
 interface ExamenCardProps {
 	fecha: string
 	materiaNombre: string
 	mesaNumero: number
 	esProxima: boolean
-	resolucionNombre?: string
+	resolucion?: ResolucionInfo | null
 }
 
 function getGoogleCalendarLink(materiaNombre: string, fechaStr: string) {
@@ -37,7 +44,7 @@ export function ExamenCard({
 	materiaNombre,
 	mesaNumero,
 	esProxima,
-	resolucionNombre = "Res. CD 142/18",
+	resolucion,
 }: ExamenCardProps) {
 	const hoy = new Date()
 	const hoyLocal = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate())
@@ -75,6 +82,9 @@ export function ExamenCard({
 		weekday: "long",
 	})
 
+	const resNombre = resolucion?.nombre || "Sin resolución"
+	const hasUrl = Boolean(resolucion?.url && resolucion.url.trim().length > 0)
+
 	return (
 		<Card className="w-full">
 			<CardHeader>
@@ -92,19 +102,41 @@ export function ExamenCard({
 						<IconFileText />
 					</ItemMedia>
 					<ItemContent>
-						<ItemTitle>{resolucionNombre}</ItemTitle>
+						<ItemTitle>{resNombre}</ItemTitle>
 					</ItemContent>
 					<ItemActions>
-						<Button
-							variant="ghost"
-							size="sm"
-							render={
-								<Link href="#" target="_blank" title="Ver resolución de la materia">
-									Ver
-									<IconExternalLink />
-								</Link>
-							}
-						/>
+						{hasUrl ? (
+							<Button
+								variant="ghost"
+								size="sm"
+								render={
+									<Link
+										href={resolucion!.url!}
+										target="_blank"
+										rel="noopener noreferrer"
+										title="Ver resolución de la materia">
+										Ver
+										<IconExternalLink />
+									</Link>
+								}
+							/>
+						) : (
+							<Tooltip>
+								<TooltipTrigger
+									render={
+										<span tabIndex={0} className="inline-flex cursor-not-allowed">
+											<Button variant="ghost" size="sm" disabled className="pointer-events-none">
+												Ver
+												<IconExternalLink />
+											</Button>
+										</span>
+									}
+								/>
+								<TooltipContent side="top">
+									No disponible. Si estás interesado, consultá en la facultad.
+								</TooltipContent>
+							</Tooltip>
+						)}
 					</ItemActions>
 				</Item>
 

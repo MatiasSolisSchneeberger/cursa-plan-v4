@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { IconBox } from "@/components/ui/icon-box"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { IconSearch, IconBook, IconCalendarEvent, IconChevronLeft, IconChevronRight } from "@tabler/icons-react"
 import FechaExamenModal from "@/sections/admin/fechas-examenes/FechaExamenModal"
@@ -55,7 +56,7 @@ export default function FechasExamenesTable({ data }: FechasExamenesTableProps) 
 		return duplicates
 	}, [data.rows])
 
-	// Filtrar materias por búsqueda
+	// Filtrar materias por término de búsqueda
 	const filteredRows = useMemo(() => {
 		if (!searchQuery.trim()) return data.rows
 
@@ -75,7 +76,7 @@ export default function FechasExamenesTable({ data }: FechasExamenesTableProps) 
 		setCurrentPage(1)
 	}
 
-	// Paginación de a 20 materias por página
+	// Paginación
 	const totalPages = Math.ceil(filteredRows.length / PAGE_SIZE) || 1
 
 	const paginatedRows = useMemo(() => {
@@ -96,9 +97,9 @@ export default function FechasExamenesTable({ data }: FechasExamenesTableProps) 
 			{/* STATS & SEARCH BAR */}
 			<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 				<div className="flex items-center gap-3">
-					<div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary border border-primary/20">
-						<IconCalendarEvent className="size-5" />
-					</div>
+					<IconBox>
+						<IconCalendarEvent />
+					</IconBox>
 					<div>
 						<h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
 							Planilla de Fechas de Exámenes

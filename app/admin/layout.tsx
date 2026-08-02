@@ -98,9 +98,9 @@ async function AdminLayoutContent({children}: {children: React.ReactNode}) {
 	return (
 		<SidebarProvider>
 			<AdminSidebar userRole={user.role} user={user} />
-			<main className="relative flex-1 min-w-0 min-h-screen bg-background flex flex-col">
+			<main className="relative flex-1 min-w-0 min-h-screen bg-background flex flex-col *:not-first:py-4 *:not-first:px-6">
 				<AdminHeader />
-				<div className="p-4 md:p-8 max-w-7xl mx-auto w-full flex-1">{children}</div>
+				{children}
 			</main>
 		</SidebarProvider>
 	)
