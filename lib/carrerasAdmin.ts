@@ -12,12 +12,40 @@ export interface CarreraAdminItem {
 	slug: string
 	icon: string
 	planesCount: number
+	active: boolean
+	resolucion_id: number | null
 }
 
 export interface CarreraInput {
 	nombre: string
 	slug: string
 	icon: string
+	active?: boolean
+	resolucion_id?: number | null
+}
+
+export interface PlanAdminSummary {
+	id: number
+	anio_inicio: number
+	anio_fin: number | null
+	materiasCount: number
+}
+
+export interface CarreraAdminDetail {
+	id: number
+	nombre: string
+	slug: string
+	icon: string
+	active: boolean
+	resolucion_id: number | null
+	planes: PlanAdminSummary[]
+}
+
+export interface ResolucionItem {
+	id: number
+	nombre: string
+	fecha: string
+	url?: string | null
 }
 
 export interface ActionResponse<T = undefined> {
@@ -32,6 +60,8 @@ interface DBCarreraRow {
 	nombre: string
 	slug: string
 	icon: string | null
+	active: boolean | null
+	resolucion_id: number | null
 	planes: { id: number }[] | null
 }
 
@@ -50,6 +80,8 @@ export async function getAdminCarreras(): Promise<CarreraAdminItem[]> {
 			nombre,
 			slug,
 			icon,
+			active,
+			resolucion_id,
 			planes:plan_estudio(id)
 		`
 		)
@@ -62,13 +94,15 @@ export async function getAdminCarreras(): Promise<CarreraAdminItem[]> {
 
 	const rawCarreras = (data || []) as unknown as DBCarreraRow[]
 
-	return rawCarreras.map(({ id, nombre, slug, icon, planes }: DBCarreraRow) => {
+	return rawCarreras.map(({ id, nombre, slug, icon, active, resolucion_id, planes }: DBCarreraRow) => {
 		const rawPlanes = Array.isArray(planes) ? planes : []
 		return {
 			id: Number(id),
 			nombre: nombre || "",
 			slug: slug || "",
 			icon: icon || "device-imac",
+			active: active ?? true,
+			resolucion_id: resolucion_id || null,
 			planesCount: rawPlanes.length,
 		}
 	})
@@ -113,6 +147,10 @@ export async function createCarrera(input: CarreraInput): Promise<ActionResponse
 			nombre: nombreTrimmed,
 			slug: slugTrimmed,
 			icon: iconTrimmed,
+			active: input.active ?? true,
+			resolucion_id: input.resolucion_id ?? null,
+			created_at: new Date().toISOString(),
+			updated_at: new Date().toISOString(),
 		})
 
 	if (error) {
@@ -183,6 +221,9 @@ export async function updateCarrera(id: number, input: CarreraInput): Promise<Ac
 			nombre: nombreTrimmed,
 			slug: slugTrimmed,
 			icon: iconTrimmed,
+			active: input.active ?? true,
+			resolucion_id: input.resolucion_id ?? null,
+			updated_at: new Date().toISOString(),
 		})
 		.eq("id", id)
 
@@ -260,5 +301,157 @@ export async function deleteCarrera(id: number): Promise<ActionResponse> {
 	return {
 		success: true,
 		message: "Carrera eliminada exitosamente.",
+	}
+}
+
+/**
+ * Obtiene el detalle de una carrera por su slug.
+ */
+export async function getAdminCarreraBySlug(slug: string): Promise<CarreraAdminDetail | null> {
+	const cookieStore = await cookies()
+	const supabase = createClient(cookieStore)
+
+	const { data, error } = await supabase
+		.from("carreras")
+		.select(`
+			id,
+			nombre,
+			slug,
+			icon,
+			active,
+			resolucion_id,
+			planes:plan_estudio(
+				id,
+				anio_inicio,
+				anio_fin,
+				materias:materia_plan(id)
+			)
+		`)
+		.eq("slug", slug)
+		.single()
+
+	if (error) {
+		console.error("Error al obtener carrera por slug para admin:", error)
+		return null
+	}
+
+	interface DBPlanItem {
+		id: number
+		anio_inicio: number
+		anio_fin: number | null
+		materias: { id: number }[] | null
+	}
+
+	const rawPlanes = Array.isArray(data.planes) ? data.planes : []
+	const planesMapped = rawPlanes.map(({ id, anio_inicio, anio_fin, materias }: DBPlanItem) => {
+		const rawMaterias = Array.isArray(materias) ? materias : []
+		return {
+			id: Number(id),
+			anio_inicio: Number(anio_inicio),
+			anio_fin: anio_fin ? Number(anio_fin) : null,
+			materiasCount: rawMaterias.length,
+		}
+	})
+
+	return {
+		id: Number(data.id),
+		nombre: data.nombre || "",
+		slug: data.slug || "",
+		icon: data.icon || "device-imac",
+		active: data.active ?? true,
+		resolucion_id: data.resolucion_id || null,
+		planes: planesMapped,
+	}
+}
+
+/**
+ * Obtiene todas las resoluciones de la base de datos.
+ */
+export async function getResolucionesCatalog(): Promise<ResolucionItem[]> {
+	const cookieStore = await cookies()
+	const supabase = createClient(cookieStore)
+
+	const { data, error } = await supabase
+		.from("resoluciones")
+		.select("id, nombre, fecha, url")
+		.order("fecha", { ascending: false })
+
+	if (error) {
+		console.error("Error al obtener catálogo de resoluciones:", error)
+		return []
+	}
+
+	return (data || []).map(({ id, nombre, fecha, url }) => ({
+		id: Number(id),
+		nombre: nombre || "",
+		fecha: fecha || "",
+		url: url || null,
+	}))
+}
+
+/**
+ * Crea una nueva resolución en la base de datos.
+ */
+export async function createResolucion(input: {
+	nombre: string
+	fecha: string
+	url?: string | null
+}): Promise<ActionResponse<ResolucionItem>> {
+	const userRes = await getCurrentUser()
+	if (!userRes.success || !userRes.data?.user) {
+		return {
+			success: false,
+			error: "No autenticado. Debes iniciar sesión para realizar esta acción.",
+		}
+	}
+
+	if (!isAdminRole(userRes.data.user.role)) {
+		return {
+			success: false,
+			error: "Acceso denegado. Se requieren privilegios de administrador.",
+		}
+	}
+
+	const nombreTrimmed = input.nombre.trim()
+	const fechaTrimmed = input.fecha.trim()
+	const urlTrimmed = input.url?.trim() || null
+
+	if (!nombreTrimmed || !fechaTrimmed) {
+		return {
+			success: false,
+			error: "El nombre y la fecha de la resolución son obligatorios.",
+		}
+	}
+
+	const cookieStore = await cookies()
+	const supabase = createClient(cookieStore)
+
+	const { data, error } = await supabase
+		.from("resoluciones")
+		.insert({
+			nombre: nombreTrimmed,
+			fecha: fechaTrimmed,
+			url: urlTrimmed,
+		})
+		.select("id, nombre, fecha, url")
+		.single()
+
+	if (error) {
+		console.error("Error al crear resolución:", error)
+		return {
+			success: false,
+			error: `Error al crear resolución: ${error.message}`,
+		}
+	}
+
+	return {
+		success: true,
+		message: "Resolución creada exitosamente.",
+		data: {
+			id: Number(data.id),
+			nombre: data.nombre,
+			fecha: data.fecha,
+			url: data.url,
+		},
 	}
 }

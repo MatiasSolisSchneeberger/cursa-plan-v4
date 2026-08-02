@@ -36,7 +36,6 @@ export default function CarrerasAdminView({data}: CarrerasAdminViewProps) {
 	const [currentPage, setCurrentPage] = useState(1)
 
 	// Estado para modales
-	const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
 	const [carreraToEdit, setCarreraToEdit] = useState<CarreraAdminItem | null>(null)
 	const [carreraToDelete, setCarreraToDelete] = useState<CarreraAdminItem | null>(null)
 
@@ -98,7 +97,7 @@ export default function CarrerasAdminView({data}: CarrerasAdminViewProps) {
 						/>
 					</div>
 
-					<Button onClick={() => setIsCreateModalOpen(true)} size="sm" className="text-xs gap-1.5 shrink-0">
+					<Button onClick={() => router.push("/admin/carreras/nueva-carrera")} size="sm" className="text-xs gap-1.5 shrink-0">
 						<IconPlus className="size-4" />
 						Nueva Carrera
 					</Button>
@@ -128,8 +127,8 @@ export default function CarrerasAdminView({data}: CarrerasAdminViewProps) {
 										</div>
 									</TableCell>
 								</TableRow>
-							:	paginatedRows.map(({id, nombre, slug, icon, planesCount}) => {
-									const currentItem: CarreraAdminItem = {id, nombre, slug, icon, planesCount}
+							:	paginatedRows.map(({id, nombre, slug, icon, active, resolucion_id, planesCount}) => {
+									const currentItem: CarreraAdminItem = {id, nombre, slug, icon, active, resolucion_id, planesCount}
 									return (
 										<TableRow key={id} className={`hover:bg-muted/30 transition-colors theme-${slug}`}>
 											{/* COLUMNA ICONO */}
@@ -224,16 +223,7 @@ export default function CarrerasAdminView({data}: CarrerasAdminViewProps) {
 				)}
 			</Card>
 
-			{/* MODAL DE CREACIÓN */}
-			{isCreateModalOpen && (
-				<CarreraModal
-					key="create-carrera-modal"
-					isOpen={isCreateModalOpen}
-					onClose={() => setIsCreateModalOpen(false)}
-					carrera={null}
-					onSuccess={handleActionSuccess}
-				/>
-			)}
+
 
 			{/* MODAL DE EDICIÓN */}
 			{carreraToEdit && (
