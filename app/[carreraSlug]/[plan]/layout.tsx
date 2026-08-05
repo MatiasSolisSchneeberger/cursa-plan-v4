@@ -10,6 +10,8 @@ import {getCarreras, getPlanEstudio} from "@/lib/carreras"
 import {getCurrentUser} from "@/lib/auth"
 import HeaderBreadcrumb from "@/components/HeaderBreadcrumb"
 import { Separator } from "@/components/ui/separator"
+import MateriaSearchDialog from "@/components/MateriaSearchDialog"
+import { getMateriasPlanSearchData } from "@/lib/carreras"
 
 interface LayoutProps {
 	children: React.ReactNode
@@ -32,10 +34,11 @@ async function CarreraPlanContent({
 	const resolvedParams = await params
 	const {carreraSlug, plan} = resolvedParams
 
-	const [allCarreras, planEstudio, userRes] = await Promise.all([
+	const [allCarreras, planEstudio, userRes, searchData] = await Promise.all([
 		getCarreras(),
 		getPlanEstudio(plan, carreraSlug),
 		getCurrentUser(),
+		getMateriasPlanSearchData(),
 	])
 
 	const {carrera, anioInicio, anios} = planEstudio
@@ -78,7 +81,12 @@ async function CarreraPlanContent({
 						currentPlanYear={anioInicio}
 						anios={anios}
 					/>
-					<div className="ml-auto">
+					<div className="ml-auto flex items-center gap-2">
+						<MateriaSearchDialog
+							initialCarreraSlug={carreraSlug}
+							initialPlanYear={anioInicio}
+							initialSearchData={searchData}
+						/>
 						<ThemeButton />
 					</div>
 				</header>

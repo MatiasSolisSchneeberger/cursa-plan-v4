@@ -27,9 +27,14 @@ import NavUser from "@/components/NavUser"
 import NavUserSkeleton from "@/components/NavUserSkeleton"
 import {Suspense} from "react"
 import {Separator} from "@/components/ui/separator"
+import MateriaSearchDialog from "@/components/MateriaSearchDialog"
+import {getMateriasPlanSearchData} from "@/lib/carreras"
 
 export default async function Navbar() {
-	const links = await getNavbarLinks()
+	const [links, searchData] = await Promise.all([
+		getNavbarLinks(),
+		getMateriasPlanSearchData(),
+	])
 
 	return (
 		<header className="sticky top-0 z-40 pt-2 w-full">
@@ -86,6 +91,7 @@ export default async function Navbar() {
 				</article>
 				{/* DERECHA: Acciones */}
 				<article className="flex items-center gap-2">
+					<MateriaSearchDialog initialSearchData={searchData} />
 					<div>
 						<ThemeButton />
 					</div>

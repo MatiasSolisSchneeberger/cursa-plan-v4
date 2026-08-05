@@ -34,6 +34,9 @@ import type {
 	CarreraFavoritaConAvance,
 	ResumenPerfilDashboard,
 	CarreraPerfilDashboardData,
+	MateriaPlanSearchItem,
+	CarreraFilterOption,
+	SearchDataResponse,
 } from "@/types/consultas"
 
 // Client estático de Supabase para consultas públicas cacheables.
@@ -1329,5 +1332,110 @@ export const getDatosPerfilCarrera = cache(async (userId: string, carreraSlug: s
 		materiasCursando,
 	}
 })
+
+/**
+ * Obtiene todas las materias_plan con sus respectivas carreras y planes para el modal de búsqueda rápida.
+ * Utiliza "use cache" y cacheLife("hours") para máximo rendimiento.
+ */
+export async function getMateriasPlanSearchData(): Promise<SearchDataResponse> {
+	"use cache"
+	cacheLife("hours")
+
+	const {data, error} = await staticSupabase
+		.from("materia_plan")
+		.select(
+			`
+			id,
+			materia:materias!inner (
+				id,
+				nombre,
+				slug
+			),
+			plan:plan_estudio!inner (
+				id,
+				anio_inicio,
+				carreras:carrera_id!inner (
+					id,
+					nombre,
+					slug,
+					icon
+				)
+			)
+		`,
+		)
+		.order("id", {ascending: true})
+
+	if (error) {
+		console.error("Error al obtener materias_plan para búsqueda:", error)
+		throw new Error(error.message)
+	}
+
+	interface RawSearchRow {
+		id: number
+		materia: {
+			id: number
+			nombre: string
+			slug: string
+		} | null
+		plan: {
+			id: number
+			anio_inicio: number
+			carreras: {
+				id: number
+				nombre: string
+				slug: string
+				icon: string
+			} | null
+		} | null
+	}
+
+	const rows = (data || []) as unknown as RawSearchRow[]
+
+	const materiasMap = new Map<string, MateriaPlanSearchItem>()
+	const carrerasMap = new Map<string, CarreraFilterOption>()
+	const planesSet = new Set<number>()
+
+	rows.forEach(({id, materia, plan}) => {
+		if (!materia || !plan || !plan.carreras) return
+
+		const {nombre: materiaNombre, slug: materiaSlug} = materia
+		const {anio_inicio: planAnio, carreras} = plan
+		const {id: carreraId, nombre: carreraNombre, slug: carreraSlug, icon: carreraIcon} = carreras
+
+		const item: MateriaPlanSearchItem = {
+			idMateriaPlan: Number(id),
+			materiaNombre,
+			materiaSlug,
+			carreraNombre,
+			carreraSlug,
+			carreraIcon: carreraIcon || "book",
+			planAnio: Number(planAnio),
+		}
+
+		materiasMap.set(`${id}`, item)
+
+		if (!carrerasMap.has(carreraSlug)) {
+			carrerasMap.set(carreraSlug, {
+				id: Number(carreraId),
+				nombre: carreraNombre,
+				slug: carreraSlug,
+				icon: carreraIcon || "book",
+			})
+		}
+
+		planesSet.add(Number(planAnio))
+	})
+
+	const materias = Array.from(materiasMap.values())
+	const carreras = Array.from(carrerasMap.values()).sort(({nombre: a}, {nombre: b}) => a.localeCompare(b))
+	const planes = Array.from(planesSet.values()).sort((a, b) => b - a)
+
+	return {
+		materias,
+		carreras,
+		planes,
+	}
+}
+
 
 

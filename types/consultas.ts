@@ -312,3 +312,28 @@ export interface CarreraPerfilDashboardData {
 	materiasCursando: MateriaCursando[];
 }
 
+// 9. Interfaces para Búsqueda Modal de Materias Plan
+export interface MateriaPlanSearchItem {
+	idMateriaPlan: number;
+	materiaNombre: string;
+	materiaSlug: string;
+	carreraNombre: string;
+	carreraSlug: string;
+	carreraIcon: string;
+	planAnio: number;
+}
+
+export interface CarreraFilterOption {
+	id: number;
+	nombre: string;
+	slug: string;
+	icon: string;
+}
+
+export interface SearchDataResponse {
+	materias: MateriaPlanSearchItem[];
+	carreras: CarreraFilterOption[];
+	planes: number[];
+}
+
+

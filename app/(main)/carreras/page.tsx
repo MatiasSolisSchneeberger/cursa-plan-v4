@@ -1,6 +1,6 @@
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs"
 import {getCarreras} from "@/lib/carreras"
-import CardCarrera, {CardCarreraSkeleton} from "@/sections/carreras/CardCarrera"
+import CardCarrera, {CardCarreraSkeleton} from "@/components/CardCarrera"
 import {Skeleton} from "@/components/ui/skeleton"
 import {Suspense} from "react"
 
@@ -70,9 +70,7 @@ async function CarrerasContent() {
 											hasMaterias: p.materia_plan && p.materia_plan.length > 0,
 										}))
 										.sort((a, b) => b.anio - a.anio) || []
-								return (
-									<CardCarrera key={id} icon={icon} slug={slug} carrera={nombre} planes={formattedPlanes} />
-								)
+								return <CardCarrera key={id} icon={icon} slug={slug} carrera={nombre} planes={formattedPlanes} />
 							})}
 					</TabsContent>
 				)
@@ -93,7 +91,7 @@ function CarrerasSkeleton() {
 				</div>
 			</div>
 			<div className="relative grid w-full grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-				{Array.from({ length: 6 }).map((_, i) => (
+				{Array.from({length: 6}).map((_, i) => (
 					<CardCarreraSkeleton key={i} />
 				))}
 			</div>

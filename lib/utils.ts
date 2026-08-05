@@ -35,3 +35,14 @@ export function generarSlug(str: string): string {
     .replace(/-+/g, "-")
 }
 
+/**
+ * Normaliza un texto convirtiéndolo a minúsculas y removiendo acentos/diacríticos.
+ */
+export function normalizeText(str: string): string {
+  if (!str) return ""
+  return str
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
+}
