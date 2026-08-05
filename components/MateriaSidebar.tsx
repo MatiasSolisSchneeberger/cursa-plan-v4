@@ -104,12 +104,11 @@ export default function MateriaSidebar({
 
 	const materiaNombreDisplay = currentMateria ? currentMateria.nombre : currentMateriaSlug
 
-	// URLs de subpáginas internas de la materia
+	// URLs de secciones de la materia
 	const baseUrl = `/${carreraSlug}/${plan}/${currentMateriaSlug}`
-	const urlInformacion = baseUrl
-	const urlCorrelativas = `${baseUrl}/correlativas`
-	const urlExamenes = `${baseUrl}/examenes`
-	const urlRecursos = `${baseUrl}/recursos`
+	const urlInformacion = `${baseUrl}#informacion`
+	const urlCorrelativas = `${baseUrl}#correlativas`
+	const urlExamenes = `${baseUrl}#examenes`
 
 	return (
 		<Sidebar>
@@ -208,12 +207,6 @@ export default function MateriaSidebar({
 							<SidebarMenuItem>
 								<SidebarLink href={urlExamenes} icon={<IconCalendar className="size-4" />}>
 									Mesas de Exámenes
-								</SidebarLink>
-							</SidebarMenuItem>
-
-							<SidebarMenuItem>
-								<SidebarLink href={urlRecursos} icon={<IconFolder className="size-4" />}>
-									Recursos
 								</SidebarLink>
 							</SidebarMenuItem>
 						</SidebarMenu>
