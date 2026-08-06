@@ -7,6 +7,7 @@ import {Button} from "@/components/ui/button"
 import {MateriaEstadoSelect} from "@/components/MateriaEstadoSelect"
 import {MateriaCorrelativas} from "@/sections/plan/MateriaCorrelativas"
 import {getMateriaAvailability} from "@/utils/materiaUtils"
+import {rutaMateria} from "@/lib/rutas"
 
 import type {MateriaJSON} from "@/types/carrera"
 import type {EstadoMateria} from "@/types/materiaTypes"
@@ -97,7 +98,7 @@ export function MateriaCard({
 			</CardContent>
 			<CardFooter>
 				<Button
-					render={<Link href={`/${carreraSlug}/${planIdOrYear}/${materia.slug}`} />}
+					render={<Link href={rutaMateria(carreraSlug, planIdOrYear, materia.slug)} />}
 					variant="default"
 					className="w-full"
 					size="sm">

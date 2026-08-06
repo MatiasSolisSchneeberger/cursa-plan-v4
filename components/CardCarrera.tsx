@@ -7,6 +7,7 @@ import Icon from "@/components/Icon"
 import {Tooltip, TooltipTrigger, TooltipContent} from "@/components/ui/tooltip"
 import {IconArrowRight, IconHeartFilled} from "@tabler/icons-react"
 import {cn} from "@/lib/utils"
+import {rutaPlan} from "@/lib/rutas"
 import {Skeleton} from "@/components/ui/skeleton"
 
 export interface PlanEstudio {
@@ -91,7 +92,7 @@ export default function CardCarrera({
 									size="sm"
 									className="text-[11px] h-7 px-2.5 hover:border-primary/50 hover:text-primary transition-colors"
 									render={
-										<Link href={`/${slug}/${anio}`}>
+										<Link href={rutaPlan(slug, anio)}>
 											{isLiked && <IconHeartFilled className="size-3 text-rose-500 mr-1" />}
 											Plan {anio}
 										</Link>
@@ -110,7 +111,7 @@ export default function CardCarrera({
 						{validPlanes.slice(0, 2).map(({anio}) => (
 							<Button
 								key={anio}
-								render={<Link href={`/${slug}/${anio}`} />}
+								render={<Link href={rutaPlan(slug, anio)} />}
 								variant="ghost"
 								size="sm"
 								className="justify-between text-xs font-bold text-primary group border border-border/40 hover:border-primary/50 px-2.5">
@@ -121,7 +122,7 @@ export default function CardCarrera({
 					</div>
 				: validPlanes.length === 1 ?
 					<Button
-						render={<Link href={`/${slug}/${validPlanes[0].anio}`} />}
+						render={<Link href={rutaPlan(slug, validPlanes[0].anio)} />}
 						variant="ghost"
 						size="sm"
 						className="w-full justify-between text-xs font-bold text-primary group border border-border/40 hover:border-primary/50 px-2.5">

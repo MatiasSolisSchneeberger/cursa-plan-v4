@@ -12,10 +12,12 @@ import {
 	IconMenu2,
 	IconNews,
 	IconUsers,
+	IconShieldCheck,
 } from "@tabler/icons-react"
 import Icon from "@/components/Icon"
 import {Carrera} from "@/types/consultas"
 import {getCarreras} from "@/lib/carreras"
+import {rutaPlan} from "@/lib/rutas"
 
 export interface BaseLink {
 	label: string
@@ -50,7 +52,7 @@ export async function getNavbarLinks(): Promise<Links[]> {
 				const planParam = lastPlan ? lastPlan.anio_inicio : ""
 				return {
 					label: nombre,
-					href: `/${slug}/${planParam}`,
+					href: rutaPlan(slug, planParam),
 					icon: <Icon icon={icon} className="text-primary size-4 shrink-0" />,
 					slug,
 				}
@@ -76,8 +78,8 @@ export async function getNavbarLinks(): Promise<Links[]> {
 					icon: <IconNews className="text-primary size-4 shrink-0" />,
 				},
 				{
-					label: "Sobre Nosotros",
-					href: "/sobre-nosotros",
+					label: "Acerca de",
+					href: "/acerca-de",
 					icon: <IconInfoCircle className="text-primary size-4 shrink-0" />,
 				},
 				{
@@ -94,6 +96,11 @@ export async function getNavbarLinks(): Promise<Links[]> {
 					label: "Términos y Condiciones",
 					href: "/terminos-y-condiciones",
 					icon: <IconFile className="text-primary size-4 shrink-0" />,
+				},
+				{
+					label: "Aviso Legal",
+					href: "/avisos-legales",
+					icon: <IconShieldCheck className="text-primary size-4 shrink-0" />,
 				},
 				{
 					label: "Política de Privacidad",

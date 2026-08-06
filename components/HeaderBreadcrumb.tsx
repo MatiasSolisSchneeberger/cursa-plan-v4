@@ -30,6 +30,7 @@ import type {Carrera} from "@/types/consultas"
 import type {AnioJSON} from "@/types/consultas"
 import type {MateriaJSON} from "@/types/carrera"
 import {acortarNombreCarrera} from "@/lib/utils"
+import {rutaPlan, rutaMateria} from "@/lib/rutas"
 import Icon from "./Icon"
 
 interface HeaderBreadcrumbProps {
@@ -133,7 +134,7 @@ export default function HeaderBreadcrumb({allCarreras, currentCarrera, currentPl
 																{planes?.map(({anio_inicio, id}) => (
 																	<DropdownMenuItem
 																		key={id}
-																		render={<Link href={`/${slug}/${anio_inicio}`}>Plan {anio_inicio}</Link>}
+																		render={<Link href={rutaPlan(slug, anio_inicio)}>Plan {anio_inicio}</Link>}
 																	/>
 																))}
 															</DropdownMenuGroup>
@@ -145,7 +146,7 @@ export default function HeaderBreadcrumb({allCarreras, currentCarrera, currentPl
 											return (
 												<DropdownMenuItem
 													key={id}
-													render={<Link href={`/${slug}/${primaryPlan.anio_inicio}`} />}
+													render={<Link href={rutaPlan(slug, primaryPlan.anio_inicio)} />}
 													className={`theme-${slug}`}>
 													<Icon icon={icon} className="text-primary" />
 													<span className="truncate">{nombreCorto}</span>
@@ -181,7 +182,7 @@ export default function HeaderBreadcrumb({allCarreras, currentCarrera, currentPl
 													className={
 														anio_inicio === currentPlanYear ? "font-semibold bg-accent text-accent-foreground" : ""
 													}
-													render={<Link href={`/${currentCarrera.slug}/${anio_inicio}`} />}>
+													render={<Link href={rutaPlan(currentCarrera.slug, anio_inicio)} />}>
 													Plan {anio_inicio}
 												</DropdownMenuItem>
 											),
@@ -225,7 +226,7 @@ export default function HeaderBreadcrumb({allCarreras, currentCarrera, currentPl
 														<DropdownMenuItem
 															key={m.idMateriaPlan}
 															className={`pl-4 ${m.slug === currentMateriaSlug ? "font-semibold bg-accent text-accent-foreground" : ""}`}
-															render={<Link href={`/${currentCarrera.slug}/${currentPlanYear}/${m.slug}`} />}>
+															render={<Link href={rutaMateria(currentCarrera.slug, currentPlanYear, m.slug)} />}>
 															<span className="truncate">{m.nombre}</span>
 														</DropdownMenuItem>
 													)),
@@ -279,7 +280,7 @@ export default function HeaderBreadcrumb({allCarreras, currentCarrera, currentPl
 																{planes?.map(({anio_inicio, id}) => (
 																	<DropdownMenuItem
 																		key={id}
-																		render={<Link href={`/${slug}/${anio_inicio}`}>Plan {anio_inicio}</Link>}
+																		render={<Link href={rutaPlan(slug, anio_inicio)}>Plan {anio_inicio}</Link>}
 																	/>
 																))}
 															</DropdownMenuGroup>
@@ -291,7 +292,7 @@ export default function HeaderBreadcrumb({allCarreras, currentCarrera, currentPl
 											return (
 												<DropdownMenuItem
 													key={id}
-													render={<Link href={`/${slug}/${primaryPlan.anio_inicio}`} />}
+													render={<Link href={rutaPlan(slug, primaryPlan.anio_inicio)} />}
 													className={`theme-${slug}`}>
 													<Icon icon={icon} className="text-primary" />
 													<span className="truncate">{nombreCorto}</span>
@@ -327,7 +328,7 @@ export default function HeaderBreadcrumb({allCarreras, currentCarrera, currentPl
 													className={
 														anio_inicio === currentPlanYear ? "font-semibold bg-accent text-accent-foreground" : ""
 													}
-													render={<Link href={`/${currentCarrera.slug}/${anio_inicio}`} />}>
+													render={<Link href={rutaPlan(currentCarrera.slug, anio_inicio)} />}>
 													Plan {anio_inicio}
 												</DropdownMenuItem>
 											),

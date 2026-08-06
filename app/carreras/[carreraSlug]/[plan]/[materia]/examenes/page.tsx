@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation"
+import { rutaMateria } from "@/lib/rutas"
 
 interface PageProps {
 	params: Promise<{
@@ -8,7 +9,7 @@ interface PageProps {
 	}>
 }
 
-export default async function RecursosPage({ params }: PageProps) {
+export default async function ExamenesPage({ params }: PageProps) {
 	const { carreraSlug, plan, materia } = await params
-	redirect(`/${carreraSlug}/${plan}/${materia}`)
+	redirect(`${rutaMateria(carreraSlug, plan, materia)}#examenes`)
 }

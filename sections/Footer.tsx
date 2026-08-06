@@ -36,6 +36,11 @@ export default function Footer() {
 								Contacto
 							</Link>
 						</li>
+						<li>
+							<Link href="/errores" className="hover:text-primary transition-colors">
+								Reportar un error
+							</Link>
+						</li>
 					</ul>
 				</div>
 

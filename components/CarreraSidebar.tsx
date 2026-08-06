@@ -37,6 +37,7 @@ import {
 	esOptativaGenericaUnica,
 	type MateriaConPeriodo,
 } from "@/lib/carreras"
+import {rutaPlan, rutaMateria} from "@/lib/rutas"
 import IconCarrera from "@/components/Icon"
 import SidebarLink from "./SidebarLink"
 import SidebarSubLink from "./SidebarSubLink"
@@ -97,7 +98,7 @@ export default async function AppSidebar({carreraSlug, plan}: AppSidebarProps) {
 													key={id}
 													render={
 														<Link
-															href={`/${carreraSlug}/${anio_inicio}`}
+															href={rutaPlan(carreraSlug, anio_inicio)}
 															className="flex flex-row items-center justify-between w-full">
 															<span>Plan {anio_inicio}</span>
 															{isSelected && <IconCheck className="size-4 text-primary" />}
@@ -125,7 +126,7 @@ export default async function AppSidebar({carreraSlug, plan}: AppSidebarProps) {
 							</SidebarLink>
 						</SidebarMenuItem>
 						<SidebarMenuItem>
-							<SidebarLink href={`/${carreraSlug}/${plan}`} icon={<IconHome className="size-4" />}>
+							<SidebarLink href={rutaPlan(carreraSlug, plan)} icon={<IconHome className="size-4" />}>
 								Inicio de la Carrera
 							</SidebarLink>
 						</SidebarMenuItem>
@@ -180,7 +181,7 @@ export default async function AppSidebar({carreraSlug, plan}: AppSidebarProps) {
 																	<SidebarFolder key={periodoId} title={periodoNombre}>
 																		{periodoMaterias.map(({ idMateriaPlan, nombre: materiaNombre, slug: materiaSlug }) => (
 																			<SidebarMenuSubItem key={idMateriaPlan}>
-																				<SidebarSubLink href={`/${carreraSlug}/${plan}/${materiaSlug}`}>
+																				<SidebarSubLink href={rutaMateria(carreraSlug, plan, materiaSlug)}>
 																					<span className="truncate" title={materiaNombre}>
 																						{materiaNombre}
 																					</span>
@@ -195,7 +196,7 @@ export default async function AppSidebar({carreraSlug, plan}: AppSidebarProps) {
 																	esOptativaGenericaUnica(optMaterias) ? (
 																		optMaterias.map(({ idMateriaPlan, nombre: materiaNombre, slug: materiaSlug }) => (
 																			<SidebarMenuSubItem key={idMateriaPlan}>
-																				<SidebarSubLink href={`/${carreraSlug}/${plan}/${materiaSlug}`}>
+																				<SidebarSubLink href={rutaMateria(carreraSlug, plan, materiaSlug)}>
 																					<span className="truncate" title={materiaNombre}>
 																						{materiaNombre}
 																					</span>
@@ -206,7 +207,7 @@ export default async function AppSidebar({carreraSlug, plan}: AppSidebarProps) {
 																		<SidebarFolder key={optNro} title={`Optativa ${optNro}`}>
 																			{optMaterias.map(({ idMateriaPlan, nombre: materiaNombre, slug: materiaSlug }) => (
 																				<SidebarMenuSubItem key={idMateriaPlan}>
-																					<SidebarSubLink href={`/${carreraSlug}/${plan}/${materiaSlug}`}>
+																					<SidebarSubLink href={rutaMateria(carreraSlug, plan, materiaSlug)}>
 																						<span className="truncate" title={materiaNombre}>
 																							{materiaNombre}
 																						</span>
@@ -237,7 +238,7 @@ export default async function AppSidebar({carreraSlug, plan}: AppSidebarProps) {
 																	{/* Required materias */}
 																	{materiasComunes.map(({ idMateriaPlan, nombre: materiaNombre, slug: materiaSlug }) => (
 																		<SidebarMenuSubItem key={idMateriaPlan}>
-																			<SidebarSubLink href={`/${carreraSlug}/${plan}/${materiaSlug}`}>
+																			<SidebarSubLink href={rutaMateria(carreraSlug, plan, materiaSlug)}>
 																				<span className="truncate" title={materiaNombre}>
 																					{materiaNombre}
 																				</span>
@@ -250,7 +251,7 @@ export default async function AppSidebar({carreraSlug, plan}: AppSidebarProps) {
 																		esOptativaGenericaUnica(optMaterias) ? (
 																			optMaterias.map(({ idMateriaPlan, nombre: materiaNombre, slug: materiaSlug }) => (
 																				<SidebarMenuSubItem key={idMateriaPlan}>
-																					<SidebarSubLink href={`/${carreraSlug}/${plan}/${materiaSlug}`}>
+																					<SidebarSubLink href={rutaMateria(carreraSlug, plan, materiaSlug)}>
 																						<span className="truncate" title={materiaNombre}>
 																							{materiaNombre}
 																						</span>
@@ -261,7 +262,7 @@ export default async function AppSidebar({carreraSlug, plan}: AppSidebarProps) {
 																			<SidebarFolder key={optNro} title={`Optativa ${optNro}`}>
 																				{optMaterias.map(({ idMateriaPlan, nombre: materiaNombre, slug: materiaSlug }) => (
 																					<SidebarMenuSubItem key={idMateriaPlan}>
-																						<SidebarSubLink href={`/${carreraSlug}/${plan}/${materiaSlug}`}>
+																						<SidebarSubLink href={rutaMateria(carreraSlug, plan, materiaSlug)}>
 																							<span className="truncate" title={materiaNombre}>
 																								{materiaNombre}
 																							</span>

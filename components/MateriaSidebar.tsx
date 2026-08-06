@@ -3,6 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
+import { rutaMateria } from "@/lib/rutas"
 import {
 	Sidebar,
 	SidebarContent,
@@ -105,7 +106,7 @@ export default function MateriaSidebar({
 	const materiaNombreDisplay = currentMateria ? currentMateria.nombre : currentMateriaSlug
 
 	// URLs de secciones de la materia
-	const baseUrl = `/${carreraSlug}/${plan}/${currentMateriaSlug}`
+	const baseUrl = rutaMateria(carreraSlug, plan, currentMateriaSlug)
 	const urlInformacion = `${baseUrl}#informacion`
 	const urlCorrelativas = `${baseUrl}#correlativas`
 	const urlExamenes = `${baseUrl}#examenes`
@@ -151,7 +152,7 @@ export default function MateriaSidebar({
 														className={isSelected ? "font-semibold bg-accent text-accent-foreground" : ""}
 														render={
 															<Link
-																href={`/${carreraSlug}/${plan}/${slug}`}
+																href={rutaMateria(carreraSlug, plan, slug)}
 																className="flex flex-row items-center justify-between w-full">
 																<span className="truncate">{nombre}</span>
 																{isSelected && <IconCheck className="size-4 text-primary shrink-0 ml-2" />}

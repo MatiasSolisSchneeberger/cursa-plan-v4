@@ -4,6 +4,7 @@ import { cookies } from "next/headers"
 import { createClient } from "@/utils/supabase/server"
 import { getMateriaDetalle } from "@/lib/carreras"
 import { getCurrentUser } from "@/lib/auth"
+import { rutaPlan, rutaMateria } from "@/lib/rutas"
 import { MateriaEstadoSelector } from "@/sections/materia/MateriaEstadoSelector"
 import { ExamenCard } from "@/sections/materia/ExamenCard"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -121,7 +122,7 @@ export default async function MateriaDetailPage({ params }: PageProps) {
 		<section className="flex flex-col gap-8 py-6 max-w-7xl px-3 sm:px-4 md:px-5 mx-auto w-full animate-in fade-in duration-200">
 			{/* Botón Volver */}
 			<div className="flex items-center gap-2">
-				<Button variant="ghost" size="sm" render={<Link href={`/${carreraSlug}/${plan}`} />}>
+				<Button variant="ghost" size="sm" render={<Link href={rutaPlan(carreraSlug, plan)} />}>
 					<IconArrowLeft className="size-4 mr-1" />
 					Volver al Plan
 				</Button>
@@ -216,7 +217,7 @@ export default async function MateriaDetailPage({ params }: PageProps) {
 							) : (
 								<ItemGroup className="gap-3">
 									{cursarGroup.aprobados.map(({ id, slug, nombre }) => (
-										<Item key={id} variant="outline" render={<Link href={`/${carreraSlug}/${plan}/${slug}`} />}>
+										<Item key={id} variant="outline" render={<Link href={rutaMateria(carreraSlug, plan, slug)} />}>
 											<ItemMedia>
 												<IconCircleCheck className="size-5 text-green-500" />
 											</ItemMedia>
@@ -231,7 +232,7 @@ export default async function MateriaDetailPage({ params }: PageProps) {
 									))}
 
 									{cursarGroup.regulares.map(({ id, slug, nombre }) => (
-										<Item key={id} variant="outline" render={<Link href={`/${carreraSlug}/${plan}/${slug}`} />}>
+										<Item key={id} variant="outline" render={<Link href={rutaMateria(carreraSlug, plan, slug)} />}>
 											<ItemMedia>
 												<IconCircle className="size-5 text-yellow-500" />
 											</ItemMedia>
@@ -291,7 +292,7 @@ export default async function MateriaDetailPage({ params }: PageProps) {
 							) : (
 								<ItemGroup className="gap-3">
 									{rendirGroup.aprobados.map(({ id, slug, nombre }) => (
-										<Item key={id} variant="outline" render={<Link href={`/${carreraSlug}/${plan}/${slug}`} />}>
+										<Item key={id} variant="outline" render={<Link href={rutaMateria(carreraSlug, plan, slug)} />}>
 											<ItemMedia>
 												<IconCircleCheck className="size-5 text-green-500" />
 											</ItemMedia>
@@ -306,7 +307,7 @@ export default async function MateriaDetailPage({ params }: PageProps) {
 									))}
 
 									{rendirGroup.regulares.map(({ id, slug, nombre }) => (
-										<Item key={id} variant="outline" render={<Link href={`/${carreraSlug}/${plan}/${slug}`} />}>
+										<Item key={id} variant="outline" render={<Link href={rutaMateria(carreraSlug, plan, slug)} />}>
 											<ItemMedia>
 												<IconCircle className="size-5 text-yellow-500" />
 											</ItemMedia>

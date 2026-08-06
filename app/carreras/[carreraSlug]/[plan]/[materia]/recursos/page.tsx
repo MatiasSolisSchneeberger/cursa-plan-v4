@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation"
+import { rutaMateria } from "@/lib/rutas"
 
 interface PageProps {
 	params: Promise<{
@@ -8,7 +9,7 @@ interface PageProps {
 	}>
 }
 
-export default async function CorrelativasPage({ params }: PageProps) {
+export default async function RecursosPage({ params }: PageProps) {
 	const { carreraSlug, plan, materia } = await params
-	redirect(`/${carreraSlug}/${plan}/${materia}#correlativas`)
+	redirect(rutaMateria(carreraSlug, plan, materia))
 }

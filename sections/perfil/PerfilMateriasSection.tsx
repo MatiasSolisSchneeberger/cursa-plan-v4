@@ -8,6 +8,7 @@ import IconCarrera from "@/components/Icon"
 import { IconBooks, IconChevronRight } from "@tabler/icons-react"
 import type { MateriaCursando } from "@/types/consultas"
 import { cn } from "@/lib/utils"
+import { rutaMateria } from "@/lib/rutas"
 
 interface PerfilMateriasSectionProps {
 	materiasCursando: MateriaCursando[]
@@ -69,7 +70,7 @@ export default function PerfilMateriasSection({ materiasCursando }: PerfilMateri
 
 								<CardFooter className="pt-3 border-t border-border">
 									<Button variant="ghost" size="sm" className="w-full justify-between text-xs" render={
-										<Link href={`/${carreraSlug}/${planAnio}/${slug}`}>
+										<Link href={rutaMateria(carreraSlug, planAnio, slug)}>
 											<span>Ir a la Materia</span>
 											<IconChevronRight data-icon="inline-end" />
 										</Link>

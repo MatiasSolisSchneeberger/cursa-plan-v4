@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import IconCarrera from "@/components/Icon"
 import { IconArrowLeft, IconSchool } from "@tabler/icons-react"
 import { cn } from "@/lib/utils"
+import { rutaPlan } from "@/lib/rutas"
 
 interface CarreraHeaderSectionProps {
 	carrera: {
@@ -91,7 +92,7 @@ export default function CarreraHeaderSection({ carrera, planAnio, user }: Carrer
 					)}
 
 					<Button variant="default" size="sm" render={
-						<Link href={`/${slug}/${planAnio}`} className="flex items-center gap-2">
+						<Link href={rutaPlan(slug, planAnio)} className="flex items-center gap-2">
 							<IconSchool data-icon="inline-start" />
 							<span>Ver Plan de Estudios Completo</span>
 						</Link>

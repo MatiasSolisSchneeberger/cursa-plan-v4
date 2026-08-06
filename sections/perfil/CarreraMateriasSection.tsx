@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { IconBooks, IconChevronRight, IconBook } from "@tabler/icons-react"
 import type { MateriaCursando } from "@/types/consultas"
 import { cn } from "@/lib/utils"
+import { rutaPlan, rutaMateria } from "@/lib/rutas"
 
 interface CarreraMateriasSectionProps {
 	carreraNombre: string
@@ -61,7 +62,7 @@ export default function CarreraMateriasSection({
 
 								<CardFooter className="pt-3 border-t border-border">
 									<Button variant="outline" size="sm" className="w-full justify-between" render={
-										<Link href={`/${carreraSlug}/${planAnio}/${slug}`}>
+										<Link href={rutaMateria(carreraSlug, planAnio, slug)}>
 											<span>Ver Ficha de Materia</span>
 											<IconChevronRight data-icon="inline-end" />
 										</Link>
@@ -81,7 +82,7 @@ export default function CarreraMateriasSection({
 						</p>
 					</div>
 					<Button variant="outline" size="sm" className="mt-2" render={
-						<Link href={`/${carreraSlug}/${planAnio}`}>Ir al Plan de Estudios</Link>
+						<Link href={rutaPlan(carreraSlug, planAnio)}>Ir al Plan de Estudios</Link>
 					} />
 				</Card>
 			)}
