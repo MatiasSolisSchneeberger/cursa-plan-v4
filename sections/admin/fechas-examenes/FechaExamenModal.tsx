@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
 import { IconCalendar, IconFileText, IconTrash, IconLoader2, IconAlertCircle, IconLink, IconAlertTriangle } from "@tabler/icons-react"
+import { FieldGroup, Field, FieldLabel, FieldDescription } from "@/components/ui/field"
 import { upsertFechaExamen, deleteFechaExamen } from "@/lib/fechasExamenesActions"
 import type { MateriaPlanillaRow, TurnoInfo, FechaExamenItem, ResolucionItem } from "@/lib/fechasExamenesAdmin"
 
@@ -202,141 +203,143 @@ export default function FechaExamenModal({
 						</Alert>
 					)}
 
-					<form onSubmit={handleSubmitForm} className="space-y-5 py-2">
-						{/* FECHA DEL EXAMEN */}
-						<div className="space-y-1.5">
-							<Label htmlFor="fecha" className="text-xs font-semibold flex items-center gap-1.5">
-								<IconCalendar className="size-4 text-primary" />
-								Fecha del Examen
-							</Label>
-							<Input
-								id="fecha"
-								type="date"
-								value={fecha}
-								onChange={(e) => setFecha(e.target.value)}
-								required
-								className="text-xs"
-							/>
-							{turno.fechaInicio && turno.fechaFin && (
-								<p className="text-[11px] text-muted-foreground">
-									Rango del turno: {turno.fechaInicio} al {turno.fechaFin}
-								</p>
-							)}
-						</div>
+					<form onSubmit={handleSubmitForm} className="py-2">
+						<FieldGroup className="gap-4">
+							{/* FECHA DEL EXAMEN */}
+							<Field>
+								<FieldLabel htmlFor="fecha" className="text-xs font-semibold flex items-center gap-1.5">
+									<IconCalendar className="size-4 text-primary" />
+									Fecha del Examen
+								</FieldLabel>
+								<Input
+									id="fecha"
+									type="date"
+									value={fecha}
+									onChange={(e) => setFecha(e.target.value)}
+									required
+									className="text-xs"
+								/>
+								{turno.fechaInicio && turno.fechaFin && (
+									<FieldDescription className="text-[11px]">
+										Rango del turno: {turno.fechaInicio} al {turno.fechaFin}
+									</FieldDescription>
+								)}
+							</Field>
 
-						{/* GESTION DE RESOLUCION */}
-						<div className="space-y-3 pt-2 border-t border-border">
-							<Label className="text-xs font-semibold flex items-center gap-1.5">
-								<IconFileText className="size-4 text-primary" />
-								Resolución de la Materia
-							</Label>
+							{/* GESTION DE RESOLUCION */}
+							<Field className="pt-2 border-t border-border">
+								<FieldLabel className="text-xs font-semibold flex items-center gap-1.5 mb-2">
+									<IconFileText className="size-4 text-primary" />
+									Resolución de la Materia
+								</FieldLabel>
 
-							{/* MODO DE SELECCION */}
-							<div className="grid grid-cols-3 gap-2">
-								<button
-									type="button"
-									onClick={() => setResolucionMode("none")}
-									className={`px-2.5 py-1.5 rounded-md text-xs border font-medium transition-all text-center ${
-										resolucionMode === "none"
-											? "border-primary bg-primary/10 text-primary font-bold shadow-2xs"
-											: "border-input bg-background hover:bg-muted text-muted-foreground"
-									}`}>
-									Sin resolución
-								</button>
-								<button
-									type="button"
-									onClick={() => setResolucionMode("existing")}
-									className={`px-2.5 py-1.5 rounded-md text-xs border font-medium transition-all text-center ${
-										resolucionMode === "existing"
-											? "border-primary bg-primary/10 text-primary font-bold shadow-2xs"
-											: "border-input bg-background hover:bg-muted text-muted-foreground"
-									}`}>
-									Existente
-								</button>
-								<button
-									type="button"
-									onClick={() => setResolucionMode("new")}
-									className={`px-2.5 py-1.5 rounded-md text-xs border font-medium transition-all text-center ${
-										resolucionMode === "new"
-											? "border-primary bg-primary/10 text-primary font-bold shadow-2xs"
-											: "border-input bg-background hover:bg-muted text-muted-foreground"
-									}`}>
-									+ Crear nueva
-								</button>
-							</div>
-
-							{/* MODO: SELECCIONAR EXISTENTE */}
-							{resolucionMode === "existing" && (
-								<div className="space-y-1.5 pt-1">
-									<Label htmlFor="select-resolucion" className="text-[11px] text-muted-foreground">
-										Seleccionar resolución de la lista:
-									</Label>
-									<select
-										id="select-resolucion"
-										value={selectedResolucionId}
-										onChange={(e) => setSelectedResolucionId(e.target.value)}
-										className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-xs shadow-2xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
-										<option value="">-- Seleccionar resolución --</option>
-										{resolucionesList.map((res) => (
-											<option key={res.id} value={res.id}>
-												{res.nombre} ({res.fecha}) {res.url ? "• [con URL]" : ""}
-											</option>
-										))}
-									</select>
+								{/* MODO DE SELECCION */}
+								<div className="grid grid-cols-3 gap-2 mb-2">
+									<button
+										type="button"
+										onClick={() => setResolucionMode("none")}
+										className={`px-2.5 py-1.5 rounded-md text-xs border font-medium transition-all text-center ${
+											resolucionMode === "none"
+												? "border-primary bg-primary/10 text-primary font-bold shadow-2xs"
+												: "border-input bg-background hover:bg-muted text-muted-foreground"
+										}`}>
+										Sin resolución
+									</button>
+									<button
+										type="button"
+										onClick={() => setResolucionMode("existing")}
+										className={`px-2.5 py-1.5 rounded-md text-xs border font-medium transition-all text-center ${
+											resolucionMode === "existing"
+												? "border-primary bg-primary/10 text-primary font-bold shadow-2xs"
+												: "border-input bg-background hover:bg-muted text-muted-foreground"
+										}`}>
+										Existente
+									</button>
+									<button
+										type="button"
+										onClick={() => setResolucionMode("new")}
+										className={`px-2.5 py-1.5 rounded-md text-xs border font-medium transition-all text-center ${
+											resolucionMode === "new"
+												? "border-primary bg-primary/10 text-primary font-bold shadow-2xs"
+												: "border-input bg-background hover:bg-muted text-muted-foreground"
+										}`}>
+										+ Crear nueva
+									</button>
 								</div>
-							)}
 
-							{/* MODO: CREAR NUEVA */}
-							{resolucionMode === "new" && (
-								<div className="space-y-3 p-3 rounded-lg bg-muted/40 border border-border pt-2">
-									<div className="space-y-1">
-										<Label htmlFor="nueva-nombre" className="text-[11px] font-semibold">
-											Nombre / Código de la Resolución *
-										</Label>
-										<Input
-											id="nueva-nombre"
-											type="text"
-											placeholder="Ej: RES - 2026 - 1120 - D-EXA # UNNE"
-											value={nuevaResolucionNombre}
-											onChange={(e) => setNuevaResolucionNombre(e.target.value)}
-											required={resolucionMode === "new"}
-											className="text-xs"
-										/>
-									</div>
+								{/* MODO: SELECCIONAR EXISTENTE */}
+								{resolucionMode === "existing" && (
+									<Field className="pt-1">
+										<FieldLabel htmlFor="select-resolucion" className="text-[11px] text-muted-foreground">
+											Seleccionar resolución de la lista:
+										</FieldLabel>
+										<select
+											id="select-resolucion"
+											value={selectedResolucionId}
+											onChange={(e) => setSelectedResolucionId(e.target.value)}
+											className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-xs shadow-2xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+											<option value="">-- Seleccionar resolución --</option>
+											{resolucionesList.map((res) => (
+												<option key={res.id} value={res.id}>
+													{res.nombre} ({res.fecha}) {res.url ? "• [con URL]" : ""}
+												</option>
+											))}
+										</select>
+									</Field>
+								)}
 
-									<div className="space-y-1">
-										<Label htmlFor="nueva-url" className="text-[11px] font-semibold flex items-center gap-1">
-											<IconLink className="size-3.5 text-muted-foreground" />
-											URL de la Resolución (PDF / Web)
-										</Label>
-										<Input
-											id="nueva-url"
-											type="url"
-											placeholder="https://exa.unne.edu.ar/.../RES.pdf"
-											value={nuevaResolucionUrl}
-											onChange={(e) => setNuevaResolucionUrl(e.target.value)}
-											className="text-xs"
-										/>
-										<p className="text-[10px] text-muted-foreground">
-											Si la dejas en blanco, la resolución se guardará sin enlace.
-										</p>
-									</div>
+								{/* MODO: CREAR NUEVA */}
+								{resolucionMode === "new" && (
+									<FieldGroup className="p-3 rounded-lg bg-muted/40 border border-border gap-3">
+										<Field>
+											<FieldLabel htmlFor="nueva-nombre" className="text-[11px] font-semibold">
+												Nombre / Código de la Resolución *
+											</FieldLabel>
+											<Input
+												id="nueva-nombre"
+												type="text"
+												placeholder="Ej: RES - 2026 - 1120 - D-EXA # UNNE"
+												value={nuevaResolucionNombre}
+												onChange={(e) => setNuevaResolucionNombre(e.target.value)}
+												required={resolucionMode === "new"}
+												className="text-xs"
+											/>
+										</Field>
 
-									<div className="space-y-1">
-										<Label htmlFor="nueva-fecha" className="text-[11px] font-semibold">
-											Fecha de la Resolución (Opcional)
-										</Label>
-										<Input
-											id="nueva-fecha"
-											type="date"
-											value={nuevaResolucionFecha}
-											onChange={(e) => setNuevaResolucionFecha(e.target.value)}
-											className="text-xs"
-										/>
-									</div>
-								</div>
-							)}
-						</div>
+										<Field>
+											<FieldLabel htmlFor="nueva-url" className="text-[11px] font-semibold flex items-center gap-1">
+												<IconLink className="size-3.5 text-muted-foreground" />
+												URL de la Resolución (PDF / Web)
+											</FieldLabel>
+											<Input
+												id="nueva-url"
+												type="url"
+												placeholder="https://exa.unne.edu.ar/.../RES.pdf"
+												value={nuevaResolucionUrl}
+												onChange={(e) => setNuevaResolucionUrl(e.target.value)}
+												className="text-xs"
+											/>
+											<FieldDescription className="text-[10px]">
+												Si la dejas en blanco, la resolución se guardará sin enlace.
+											</FieldDescription>
+										</Field>
+
+										<Field>
+											<FieldLabel htmlFor="nueva-fecha" className="text-[11px] font-semibold">
+												Fecha de la Resolución (Opcional)
+											</FieldLabel>
+											<Input
+												id="nueva-fecha"
+												type="date"
+												value={nuevaResolucionFecha}
+												onChange={(e) => setNuevaResolucionFecha(e.target.value)}
+												className="text-xs"
+											/>
+										</Field>
+									</FieldGroup>
+								)}
+							</Field>
+						</FieldGroup>
 
 						{/* FOOTER */}
 						<DialogFooter className="pt-4 flex flex-col-reverse sm:flex-row sm:justify-between gap-2 border-t">

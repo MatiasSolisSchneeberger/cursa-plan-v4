@@ -94,23 +94,31 @@ export default function FechasExamenesTable({ data }: FechasExamenesTableProps) 
 
 	return (
 		<div className="space-y-6">
-			{/* STATS & SEARCH BAR */}
-			<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+			{/* HEADER PRINCIPAL CON BOTON DE VOLVER */}
+			<header className="flex items-center justify-between">
 				<div className="flex items-center gap-3">
-					<IconBox>
-						<IconCalendarEvent />
-					</IconBox>
+					<Button
+						variant="ghost"
+						size="icon"
+						onClick={() => router.push("/admin")}
+						className="size-9 rounded-md border border-border text-muted-foreground hover:text-foreground">
+						<IconChevronLeft className="size-5" />
+					</Button>
 					<div>
-						<h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-							Planilla de Fechas de Exámenes
+						<h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl flex items-center gap-2">
+							<IconCalendarEvent className="size-6 text-primary" />
+							Gestión de Fechas de Exámenes
 						</h1>
 						<p className="text-xs text-muted-foreground">
 							{totalMaterias} materias registradas • {materiasConFechas} con fechas asignadas
 						</p>
 					</div>
 				</div>
+			</header>
 
-				<div className="relative w-full sm:w-72">
+			{/* CARD DE ACCIONES (BUSCADOR & METRICAS) */}
+			<Card className="border border-border bg-card shadow-xs p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+				<div className="relative flex-1 w-full sm:w-80">
 					<IconSearch className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
 					<Input
 						type="text"
@@ -120,9 +128,12 @@ export default function FechasExamenesTable({ data }: FechasExamenesTableProps) 
 						className="pl-9 text-xs"
 					/>
 				</div>
-			</div>
+				<div className="text-xs text-muted-foreground font-medium">
+					Fechas configuradas: <strong className="text-foreground">{materiasConFechas}/{totalMaterias}</strong>
+				</div>
+			</Card>
 
-			{/* TABLE CARD */}
+			{/* CARD DE TABLA DE FECHAS */}
 			<Card className="border border-border shadow-xs overflow-hidden">
 				<CardContent className="p-0">
 					<div className="relative w-full overflow-x-auto">
@@ -136,15 +147,15 @@ export default function FechasExamenesTable({ data }: FechasExamenesTableProps) 
 									<TableHead className="min-w-[160px] font-semibold text-foreground py-3 border-r border-border">
 										Carrera(s)
 									</TableHead>
-									{data.turnos.map((turno) => (
+									{data.turnos.map(({ numero, fechaInicio, fechaFin }) => (
 										<TableHead
-											key={turno.numero}
+											key={numero}
 											className="min-w-[110px] text-center font-semibold text-foreground py-3 border-r border-border border-dashed last:border-r-0">
 											<div className="flex flex-col items-center gap-0.5">
-												<span className="font-bold text-xs">{turno.numero}° Turno</span>
-												{turno.fechaInicio && turno.fechaFin && (
+												<span className="font-bold text-xs">{numero}° Turno</span>
+												{fechaInicio && fechaFin && (
 													<span className="text-[10px] font-normal text-muted-foreground">
-														{formatDateDisplay(turno.fechaInicio).slice(0, 5)} - {formatDateDisplay(turno.fechaFin).slice(0, 5)}
+														{formatDateDisplay(fechaInicio).slice(0, 5)} - {formatDateDisplay(fechaFin).slice(0, 5)}
 													</span>
 												)}
 											</div>
@@ -180,12 +191,12 @@ export default function FechasExamenesTable({ data }: FechasExamenesTableProps) 
 												<TableCell className="py-2.5 border-r border-border">
 													{isDuplicateName && row.carreras.length > 0 ? (
 														<div className="flex flex-col items-start gap-1">
-															{row.carreras.map((c) => (
+															{row.carreras.map(({ id, nombre }) => (
 																<Badge
-																	key={c.id}
+																	key={id}
 																	variant="secondary"
 																	className="text-[10px] py-0 px-1.5 font-normal leading-tight">
-																	{c.nombre}
+																	{nombre}
 																</Badge>
 															))}
 														</div>

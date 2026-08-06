@@ -25,6 +25,7 @@ import {
 	IconExternalLink,
 } from "@tabler/icons-react"
 import { createResolucion, type ResolucionItem } from "@/lib/carrerasAdmin"
+import { FieldGroup, Field, FieldLabel } from "@/components/ui/field"
 
 interface ResolucionSelectorModalProps {
 	isOpen: boolean
@@ -220,50 +221,52 @@ export default function ResolucionSelectorModal({
 								</Alert>
 							)}
 
-							<div className="space-y-1.5">
-								<Label htmlFor="res-nombre" className="text-xs font-semibold">
-									Nombre de la Resolución <span className="text-destructive">*</span>
-								</Label>
-								<Input
-									id="res-nombre"
-									type="text"
-									placeholder="Ej: Res. Min. N° 1245/2021"
-									value={nombre}
-									onChange={(e) => setNombre(e.target.value)}
-									disabled={loading}
-									className="text-xs"
-									autoFocus
-								/>
-							</div>
+							<FieldGroup className="gap-3">
+								<Field>
+									<FieldLabel htmlFor="res-nombre" className="text-xs font-semibold">
+										Nombre de la Resolución <span className="text-destructive">*</span>
+									</FieldLabel>
+									<Input
+										id="res-nombre"
+										type="text"
+										placeholder="Ej: Res. Min. N° 1245/2021"
+										value={nombre}
+										onChange={(e) => setNombre(e.target.value)}
+										disabled={loading}
+										className="text-xs"
+										autoFocus
+									/>
+								</Field>
 
-							<div className="space-y-1.5">
-								<Label htmlFor="res-fecha" className="text-xs font-semibold">
-									Fecha de Emisión <span className="text-destructive">*</span>
-								</Label>
-								<Input
-									id="res-fecha"
-									type="date"
-									value={fecha}
-									onChange={(e) => setFecha(e.target.value)}
-									disabled={loading}
-									className="text-xs"
-								/>
-							</div>
+								<Field>
+									<FieldLabel htmlFor="res-fecha" className="text-xs font-semibold">
+										Fecha de Emisión <span className="text-destructive">*</span>
+									</FieldLabel>
+									<Input
+										id="res-fecha"
+										type="date"
+										value={fecha}
+										onChange={(e) => setFecha(e.target.value)}
+										disabled={loading}
+										className="text-xs"
+									/>
+								</Field>
 
-							<div className="space-y-1.5">
-								<Label htmlFor="res-url" className="text-xs font-semibold">
-									URL del Documento (Opcional)
-								</Label>
-								<Input
-									id="res-url"
-									type="url"
-									placeholder="Ej: https://example.com/resolucion.pdf"
-									value={url}
-									onChange={(e) => setUrl(e.target.value)}
-									disabled={loading}
-									className="text-xs"
-								/>
-							</div>
+								<Field>
+									<FieldLabel htmlFor="res-url" className="text-xs font-semibold">
+										URL del Documento (Opcional)
+									</FieldLabel>
+									<Input
+										id="res-url"
+										type="url"
+										placeholder="Ej: https://example.com/resolucion.pdf"
+										value={url}
+										onChange={(e) => setUrl(e.target.value)}
+										disabled={loading}
+										className="text-xs"
+									/>
+								</Field>
+							</FieldGroup>
 
 							<DialogFooter className="pt-2">
 								<Button type="button" variant="outline" size="sm" onClick={onClose} disabled={loading} className="text-xs">

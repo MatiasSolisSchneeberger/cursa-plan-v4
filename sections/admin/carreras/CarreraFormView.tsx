@@ -1,13 +1,13 @@
 "use client"
 
 import * as React from "react"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+import {useState} from "react"
+import {useRouter} from "next/navigation"
+import {Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter} from "@/components/ui/card"
+import {Button} from "@/components/ui/button"
+import {Input} from "@/components/ui/input"
+import {Label} from "@/components/ui/label"
+import {Alert, AlertDescription} from "@/components/ui/alert"
 import Icon from "@/components/Icon"
 import {
 	IconSchool,
@@ -18,15 +18,12 @@ import {
 	IconFileText,
 	IconFileAlert,
 } from "@tabler/icons-react"
-import { generarSlug } from "@/lib/utils"
-import {
-	createCarrera,
-	updateCarrera,
-	type CarreraAdminDetail,
-	type ResolucionItem,
-} from "@/lib/carrerasAdmin"
+import {generarSlug} from "@/lib/utils"
+import {createCarrera, updateCarrera, type CarreraAdminDetail, type ResolucionItem} from "@/lib/carrerasAdmin"
 import PlanesAdminTable from "./PlanesAdminTable"
 import ResolucionSelectorModal from "./ResolucionSelectorModal"
+
+import {FieldGroup, Field, FieldLabel, FieldDescription} from "@/components/ui/field"
 
 interface CarreraFormViewProps {
 	isNew: boolean
@@ -35,46 +32,42 @@ interface CarreraFormViewProps {
 }
 
 const PRESET_ICONS = [
-	{ id: "device-imac", label: "Computadora / Sistemas" },
-	{ id: "code", label: "Código / Programación" },
-	{ id: "robot", label: "Robótica / IA" },
-	{ id: "cpu", label: "Procesador / Electrónica" },
-	{ id: "atom", label: "Física / Ciencias" },
-	{ id: "math", label: "Matemática" },
-	{ id: "geometry", label: "Geometría / Dibujo Técnico" },
-	{ id: "microscope", label: "Microscopio / Bioquímica" },
-	{ id: "flask", label: "Química / Laboratorio" },
-	{ id: "flask-2-filled", label: "Química II" },
-	{ id: "test-pipe", label: "Tubo de Ensayo" },
-	{ id: "seedling", label: "Agronomía / Biología" },
-	{ id: "butterfly", label: "Biodiversidad / Botánica" },
-	{ id: "telescope", label: "Telescopio / Óptica" },
-	{ id: "bolt", label: "Electricidad / Energía" },
-	{ id: "ruler", label: "Regla / Diseño" },
-	{ id: "briefcase", label: "Administración / Negocios" },
-	{ id: "calculator", label: "Contabilidad / Finanzas" },
-	{ id: "dna", label: "Genética / Biotecnología" },
-	{ id: "book", label: "Educación / Lectura" },
-	{ id: "bulb", label: "Ideas / Innovación" },
-	{ id: "rocket", label: "Aeroespacial / Tecnología" },
-	{ id: "trophy", label: "Logros / Excelencia" },
-	{ id: "headphones", label: "Audio / Sonido" },
-	{ id: "coffee", label: "General" },
-	{ id: "flame", label: "Termodinámica" },
-	{ id: "planet", label: "Astronomía" },
-	{ id: "mood-nerd", label: "Avatar Nerd" },
-	{ id: "mood-smile", label: "Avatar Sonrisa" },
-	{ id: "mood-happy", label: "Avatar Feliz" },
-	{ id: "mood-crazy-happy", label: "Avatar Súper Feliz" },
-	{ id: "ghost", label: "Avatar Fantasma" },
-	{ id: "alien", label: "Avatar Alien" },
+	{id: "device-imac", label: "Computadora / Sistemas"},
+	{id: "code", label: "Código / Programación"},
+	{id: "robot", label: "Robótica / IA"},
+	{id: "cpu", label: "Procesador / Electrónica"},
+	{id: "atom", label: "Física / Ciencias"},
+	{id: "math", label: "Matemática"},
+	{id: "geometry", label: "Geometría / Dibujo Técnico"},
+	{id: "microscope", label: "Microscopio / Bioquímica"},
+	{id: "flask", label: "Química / Laboratorio"},
+	{id: "flask-2-filled", label: "Química II"},
+	{id: "test-pipe", label: "Tubo de Ensayo"},
+	{id: "seedling", label: "Agronomía / Biología"},
+	{id: "butterfly", label: "Biodiversidad / Botánica"},
+	{id: "telescope", label: "Telescopio / Óptica"},
+	{id: "bolt", label: "Electricidad / Energía"},
+	{id: "ruler", label: "Regla / Diseño"},
+	{id: "briefcase", label: "Administración / Negocios"},
+	{id: "calculator", label: "Contabilidad / Finanzas"},
+	{id: "dna", label: "Genética / Biotecnología"},
+	{id: "book", label: "Educación / Lectura"},
+	{id: "bulb", label: "Ideas / Innovación"},
+	{id: "rocket", label: "Aeroespacial / Tecnología"},
+	{id: "trophy", label: "Logros / Excelencia"},
+	{id: "headphones", label: "Audio / Sonido"},
+	{id: "coffee", label: "General"},
+	{id: "flame", label: "Termodinámica"},
+	{id: "planet", label: "Astronomía"},
+	{id: "mood-nerd", label: "Avatar Nerd"},
+	{id: "mood-smile", label: "Avatar Sonrisa"},
+	{id: "mood-happy", label: "Avatar Feliz"},
+	{id: "mood-crazy-happy", label: "Avatar Súper Feliz"},
+	{id: "ghost", label: "Avatar Fantasma"},
+	{id: "alien", label: "Avatar Alien"},
 ]
 
-export default function CarreraFormView({
-	isNew,
-	initialData,
-	initialResoluciones,
-}: CarreraFormViewProps) {
+export default function CarreraFormView({isNew, initialData, initialResoluciones}: CarreraFormViewProps) {
 	const router = useRouter()
 	const [nombre, setNombre] = useState(initialData?.nombre || "")
 	const [slug, setSlug] = useState(initialData?.slug || "")
@@ -93,7 +86,7 @@ export default function CarreraFormView({
 	// Resolver la resolución seleccionada
 	const selectedResolucion = React.useMemo(() => {
 		if (resolucionId === null) return null
-		return resolucionesCatalog.find(({ id }) => id === resolucionId) || null
+		return resolucionesCatalog.find(({id}) => id === resolucionId) || null
 	}, [resolucionId, resolucionesCatalog])
 
 	const handleNombreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -135,9 +128,7 @@ export default function CarreraFormView({
 			resolucion_id: resolucionId,
 		}
 
-		const result = isNew
-			? await createCarrera(payload)
-			: await updateCarrera(initialData!.id, payload)
+		const result = isNew ? await createCarrera(payload) : await updateCarrera(initialData!.id, payload)
 
 		setLoading(false)
 
@@ -156,7 +147,7 @@ export default function CarreraFormView({
 	}
 
 	return (
-		<div className="flex flex-col gap-6 max-w-4xl mx-auto">
+		<div className="flex flex-col gap-6 w-full mx-auto">
 			{/* CABECERA & VOLVER */}
 			<header className="flex items-center justify-between">
 				<div className="flex items-center gap-3">
@@ -164,8 +155,7 @@ export default function CarreraFormView({
 						variant="ghost"
 						size="icon"
 						onClick={() => router.push("/admin/carreras")}
-						className="size-9 rounded-md border border-border text-muted-foreground hover:text-foreground"
-					>
+						className="size-9 rounded-md border border-border text-muted-foreground hover:text-foreground">
 						<IconChevronLeft className="size-5" />
 					</Button>
 					<div>
@@ -174,31 +164,31 @@ export default function CarreraFormView({
 							{isNew ? "Nueva Carrera" : `Editar: ${initialData?.nombre}`}
 						</h1>
 						<p className="text-xs text-muted-foreground">
-							{isNew
-								? "Crea una nueva carrera en el sistema con sus datos de resolución."
-								: "Modifica los datos principales y gestiona los planes de la carrera."}
+							{isNew ?
+								"Crea una nueva carrera en el sistema con sus datos de resolución."
+							:	"Modifica los datos principales y gestiona los planes de la carrera."}
 						</p>
 					</div>
 				</div>
 			</header>
 
-			{/* MENSAJES DE ESTADO */}
-			{errorMessage && (
-				<Alert variant="destructive" className="py-3 text-xs flex items-center gap-2">
-					<IconAlertCircle className="size-4 shrink-0" />
-					<AlertDescription>{errorMessage}</AlertDescription>
-				</Alert>
-			)}
-
-			{successMessage && (
-				<Alert className="py-3 text-xs flex items-center gap-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-none">
-					<IconCheck className="size-4 shrink-0" />
-					<AlertDescription>{successMessage}</AlertDescription>
-				</Alert>
-			)}
-
-			{/* CARD DE DATOS GENERALES */}
 			<Card className="border border-border bg-card shadow-xs">
+				{/* MENSAJES DE ESTADO */}
+				{errorMessage && (
+					<Alert variant="destructive" className="py-3 text-xs flex items-center gap-2">
+						<IconAlertCircle className="size-4 shrink-0" />
+						<AlertDescription>{errorMessage}</AlertDescription>
+					</Alert>
+				)}
+
+				{successMessage && (
+					<Alert className="py-3 text-xs flex items-center gap-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-none">
+						<IconCheck className="size-4 shrink-0" />
+						<AlertDescription>{successMessage}</AlertDescription>
+					</Alert>
+				)}
+
+				{/* CARD DE DATOS GENERALES */}
 				<CardHeader className="border-b border-border/50 pb-4">
 					<CardTitle className="text-sm font-bold">Datos Generales</CardTitle>
 					<CardDescription className="text-[11px] text-muted-foreground">
@@ -210,12 +200,12 @@ export default function CarreraFormView({
 					<CardContent className="p-6 space-y-6">
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 							{/* COLUMNA FORMULARIO */}
-							<div className="space-y-4">
+							<FieldGroup className="gap-4">
 								{/* NOMBRE */}
-								<div className="space-y-1.5">
-									<Label htmlFor="carrera-nombre" className="text-xs font-semibold">
+								<Field>
+									<FieldLabel htmlFor="carrera-nombre" className="text-xs font-semibold">
 										Nombre de la Carrera <span className="text-destructive">*</span>
-									</Label>
+									</FieldLabel>
 									<Input
 										id="carrera-nombre"
 										type="text"
@@ -226,14 +216,12 @@ export default function CarreraFormView({
 										className="text-xs"
 										autoFocus
 									/>
-								</div>
+								</Field>
 
 								{/* SLUG (SOLO LECTURA) */}
-								<div className="space-y-1.5">
+								<Field>
 									<div className="flex items-center justify-between">
-										<Label className="text-xs font-semibold text-muted-foreground">
-											Slug URL (Solo Lectura)
-										</Label>
+										<FieldLabel className="text-xs font-semibold text-muted-foreground">Slug URL (Solo Lectura)</FieldLabel>
 										<span className="text-[10px] text-muted-foreground">Autogenerado</span>
 									</div>
 									<Input
@@ -242,29 +230,23 @@ export default function CarreraFormView({
 										disabled
 										className="text-xs font-mono text-muted-foreground bg-muted/30 border-muted"
 									/>
-									<p className="text-[10px] text-muted-foreground font-mono truncate">
+									<FieldDescription className="text-[10px] font-mono truncate">
 										Ruta: /carreras/<span className="text-foreground font-bold">{slug || "..."}</span>
-									</p>
-								</div>
+									</FieldDescription>
+								</Field>
 
 								{/* RESOLUCIÓN (CON MODAL SELECTOR) */}
-								<div className="space-y-1.5">
-									<Label className="text-xs font-semibold">
-										Resolución Asociada
-									</Label>
+								<Field>
+									<FieldLabel className="text-xs font-semibold">Resolución Asociada</FieldLabel>
 									<div className="flex items-start gap-2">
 										<div className="flex-1 min-w-0">
-											{selectedResolucion ? (
+											{selectedResolucion ?
 												<div className="p-2.5 rounded-md border border-border bg-muted/20 flex items-center justify-between gap-3">
 													<div className="flex items-center gap-2 min-w-0">
 														<IconFileText className="size-4 text-primary shrink-0" />
 														<div className="min-w-0">
-															<p className="text-xs font-bold text-foreground truncate">
-																{selectedResolucion.nombre}
-															</p>
-															<p className="text-[10px] text-muted-foreground">
-																Emisión: {selectedResolucion.fecha}
-															</p>
+															<p className="text-xs font-bold text-foreground truncate">{selectedResolucion.nombre}</p>
+															<p className="text-[10px] text-muted-foreground">Emisión: {selectedResolucion.fecha}</p>
 														</div>
 													</div>
 													{selectedResolucion.url && (
@@ -272,18 +254,16 @@ export default function CarreraFormView({
 															href={selectedResolucion.url}
 															target="_blank"
 															rel="noopener noreferrer"
-															className="text-[10px] font-bold text-primary hover:underline"
-														>
+															className="text-[10px] font-bold text-primary hover:underline">
 															Ver PDF
 														</a>
 													)}
 												</div>
-											) : (
-												<div className="p-2.5 rounded-md border border-dashed border-border bg-muted/5 flex items-center gap-2 text-muted-foreground">
+											:	<div className="p-2.5 rounded-md border border-dashed border-border bg-muted/5 flex items-center gap-2 text-muted-foreground">
 													<IconFileAlert className="size-4 text-muted-foreground/60" />
 													<span className="text-xs">Sin resolución asignada</span>
 												</div>
-											)}
+											}
 										</div>
 										<Button
 											type="button"
@@ -291,16 +271,15 @@ export default function CarreraFormView({
 											size="sm"
 											onClick={() => setIsResolucionModalOpen(true)}
 											disabled={loading}
-											className="text-xs shrink-0"
-										>
+											className="text-xs shrink-0">
 											Seleccionar
 										</Button>
 									</div>
-								</div>
+								</Field>
 
 								{/* ESTADO ACTIVO */}
-								<div className="space-y-1.5 pt-2">
-									<Label className="text-xs font-semibold block mb-2">Estado de Carrera</Label>
+								<Field className="pt-2">
+									<FieldLabel className="text-xs font-semibold block mb-2">Estado de Carrera</FieldLabel>
 									<label className="relative inline-flex items-center cursor-pointer select-none">
 										<input
 											type="checkbox"
@@ -309,92 +288,87 @@ export default function CarreraFormView({
 											disabled={loading}
 											className="sr-only peer"
 										/>
-										<div className="w-9 h-5 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-border after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+										<div className="w-9 h-5 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-background after:border-border after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
 										<span className="ml-2.5 text-xs font-medium text-foreground">
 											{active ? "Activa (Pública en el sitio)" : "Inactiva (Oculta para alumnos)"}
 										</span>
 									</label>
-								</div>
-							</div>
+								</Field>
+							</FieldGroup>
 
 							{/* COLUMNA SELECCIÓN DE ICONO */}
-							<div className="space-y-3">
-								<Label className="text-xs font-semibold">Ícono Representativo</Label>
-								<div className="flex items-center gap-3 p-3 rounded-md border border-border bg-muted/20">
-									<div className="flex size-11 items-center justify-center rounded-lg bg-primary/10 text-primary border border-primary/20 shrink-0">
-										<Icon icon={icon} className="size-6" />
-									</div>
-									<div className="flex-1 min-w-0">
-										<p className="text-xs font-bold text-foreground capitalize truncate">{icon}</p>
-										<p className="text-[10px] text-muted-foreground">Vista previa del ícono seleccionado</p>
-									</div>
-								</div>
-								
-								<div className="p-2 border border-border rounded-md bg-muted/10">
-									<div className="max-h-48 overflow-y-auto scrollbar-none">
-										<div className="grid grid-cols-6 gap-1.5">
-											{PRESET_ICONS.map(({ id, label }) => {
-												const isSelected = icon === id
-												return (
-													<button
-														key={id}
-														type="button"
-														title={label}
-														onClick={() => setIcon(id)}
-														disabled={loading}
-														className={`flex items-center justify-center p-2.5 rounded-md transition-all border ${
-															isSelected
-																? "border-primary bg-primary/15 text-primary shadow-xs"
-																: "border-border hover:bg-muted text-muted-foreground hover:text-foreground"
-														}`}
-													>
-														<Icon icon={id} className="size-5" />
-													</button>
-												)
-											})}
+							<FieldGroup className="gap-3">
+								<Field>
+									<FieldLabel className="text-xs font-semibold">Ícono Representativo</FieldLabel>
+									<div className="flex items-center gap-3 p-3 rounded-md border border-border bg-muted/20">
+										<div className="flex size-11 items-center justify-center rounded-lg bg-primary/10 text-primary border border-primary/20 shrink-0">
+											<Icon icon={icon} className="size-6" />
+										</div>
+										<div className="flex-1 min-w-0">
+											<p className="text-xs font-bold text-foreground capitalize truncate">{icon}</p>
+											<p className="text-[10px] text-muted-foreground">Vista previa del ícono seleccionado</p>
 										</div>
 									</div>
-								</div>
-							</div>
-						</div>
 
-						{/* BOTONES ACCION GUARDAR */}
-						<div className="flex items-center justify-end gap-2 pt-4 border-t border-border/50">
-							<Button
-								type="button"
-								variant="outline"
-								size="sm"
-								onClick={() => router.push("/admin/carreras")}
-								disabled={loading}
-								className="text-xs"
-							>
-								Cancelar
-							</Button>
-							<Button type="submit" size="sm" disabled={loading} className="text-xs gap-1.5">
-								{loading ? (
-									<>
-										<IconLoader2 className="size-3.5 animate-spin" />
-										Guardando...
-									</>
-								) : (
-									<>
-										<IconCheck className="size-3.5" />
-										{isNew ? "Crear Carrera" : "Guardar Cambios"}
-									</>
-								)}
-							</Button>
+									<div className="p-2 border border-border rounded-md bg-muted/10 mt-3">
+										<div className="max-h-48 overflow-y-auto scrollbar-none">
+											<div className="grid grid-cols-6 gap-1.5">
+												{PRESET_ICONS.map(({id, label}) => {
+													const isSelected = icon === id
+													return (
+														<button
+															key={id}
+															type="button"
+															title={label}
+															onClick={() => setIcon(id)}
+															disabled={loading}
+															className={`flex items-center justify-center p-2.5 rounded-md transition-all border ${
+																isSelected ?
+																	"border-primary bg-primary/15 text-primary shadow-xs"
+																:	"border-border hover:bg-muted text-muted-foreground hover:text-foreground"
+															}`}>
+															<Icon icon={id} className="size-5" />
+														</button>
+													)
+												})}
+											</div>
+										</div>
+									</div>
+								</Field>
+							</FieldGroup>
 						</div>
 					</CardContent>
+
+					{/* FOOTER CON BOTONES CANCELAR Y GUARDAR */}
+					<CardFooter className="flex items-center justify-end gap-2 px-6 py-4 border-t border-border/50 bg-muted/20">
+						<Button
+							type="button"
+							variant="outline"
+							size="sm"
+							onClick={() => router.push("/admin/carreras")}
+							disabled={loading}
+							className="text-xs">
+							Cancelar
+						</Button>
+						<Button type="submit" size="sm" disabled={loading} className="text-xs gap-1.5">
+							{loading ?
+								<>
+									<IconLoader2 className="size-3.5 animate-spin" />
+									Guardando...
+								</>
+							:	<>
+									<IconCheck className="size-3.5" />
+									{isNew ? "Crear Carrera" : "Guardar Cambios"}
+								</>
+							}
+						</Button>
+					</CardFooter>
 				</form>
 			</Card>
 
 			{/* SECCIÓN INFERIOR: PLANES DE ESTUDIO */}
 			<div className="mt-2">
-				<PlanesAdminTable
-					planes={initialData?.planes || []}
-					carreraSlug={slug}
-					isNew={isNew}
-				/>
+				<PlanesAdminTable planes={initialData?.planes || []} carreraSlug={slug} isNew={isNew} />
 			</div>
 
 			{/* MODAL SECTOR DE RESOLUCIÓN */}

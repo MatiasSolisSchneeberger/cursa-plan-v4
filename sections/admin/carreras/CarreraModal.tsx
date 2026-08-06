@@ -11,6 +11,7 @@ import {IconLoader2, IconAlertCircle, IconCheck, IconSchool} from "@tabler/icons
 import Icon from "@/components/Icon"
 import {generarSlug} from "@/lib/utils"
 import {createCarrera, updateCarrera, type CarreraAdminItem} from "@/lib/carrerasAdmin"
+import {FieldGroup, Field, FieldLabel, FieldDescription} from "@/components/ui/field"
 
 interface CarreraModalProps {
 	isOpen: boolean
@@ -137,82 +138,84 @@ export default function CarreraModal({isOpen, onClose, carrera, onSuccess}: Carr
 						</Alert>
 					)}
 
-					{/* CAMPO NOMBRE */}
-					<div className="space-y-1.5">
-						<Label htmlFor="nombre-carrera" className="text-xs font-semibold">
-							Nombre de la Carrera <span className="text-destructive">*</span>
-						</Label>
-						<Input
-							id="nombre-carrera"
-							type="text"
-							placeholder="Ej: Ingeniería en Sistemas de Información"
-							value={nombre}
-							onChange={handleNombreChange}
-							disabled={loading}
-							className="text-xs"
-							autoFocus
-						/>
-					</div>
+					<FieldGroup className="gap-4">
+						{/* CAMPO NOMBRE */}
+						<Field>
+							<FieldLabel htmlFor="nombre-carrera" className="text-xs font-semibold">
+								Nombre de la Carrera <span className="text-destructive">*</span>
+							</FieldLabel>
+							<Input
+								id="nombre-carrera"
+								type="text"
+								placeholder="Ej: Ingeniería en Sistemas de Información"
+								value={nombre}
+								onChange={handleNombreChange}
+								disabled={loading}
+								className="text-xs"
+								autoFocus
+							/>
+						</Field>
 
-					{/* CAMPO SLUG (GENERADO AUTOMÁTICAMENTE / EDITABLE) */}
-					<div className="space-y-1.5">
-						<div className="flex items-center justify-between">
-							<Label htmlFor="slug-carrera" className="text-xs font-semibold">
-								Slug URL <span className="text-destructive">*</span>
-							</Label>
-							<span className="text-[10px] text-muted-foreground">Generado automáticamente</span>
-						</div>
-						<Input
-							id="slug-carrera"
-							type="text"
-							placeholder="ej: ingenieria-en-sistemas-de-informacion"
-							value={slug}
-							onChange={handleSlugChange}
-							disabled={loading}
-							className="text-xs font-mono text-muted-foreground"
-						/>
-						<p className="text-[10px] text-muted-foreground">
-							Ruta final: <span className="font-mono text-foreground">/{slug || "slug-carrera"}</span>
-						</p>
-					</div>
+						{/* CAMPO SLUG (GENERADO AUTOMÁTICAMENTE / EDITABLE) */}
+						<Field>
+							<div className="flex items-center justify-between">
+								<FieldLabel htmlFor="slug-carrera" className="text-xs font-semibold">
+									Slug URL <span className="text-destructive">*</span>
+								</FieldLabel>
+								<span className="text-[10px] text-muted-foreground">Generado automáticamente</span>
+							</div>
+							<Input
+								id="slug-carrera"
+								type="text"
+								placeholder="ej: ingenieria-en-sistemas-de-informacion"
+								value={slug}
+								onChange={handleSlugChange}
+								disabled={loading}
+								className="text-xs font-mono text-muted-foreground"
+							/>
+							<FieldDescription className="text-[10px]">
+								Ruta final: <span className="font-mono text-foreground">/{slug || "slug-carrera"}</span>
+							</FieldDescription>
+						</Field>
 
-					{/* SELECCIÓN DE ÍCONO CON PREVIEW */}
-					<div className="space-y-1.5">
-						<Label className="text-xs font-semibold">Ícono de la Carrera</Label>
-						<div className="flex items-center gap-3 p-2.5 rounded-md border border-border bg-muted/30">
-							<div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary border border-primary/20 shrink-0">
-								<Icon icon={icon} className="size-6" />
-							</div>
-							<div className="flex-1 min-w-0">
-								<p className="text-xs font-medium text-foreground capitalize truncate">{icon}</p>
-								<p className="text-[10px] text-muted-foreground">Vista previa del ícono seleccionado</p>
-							</div>
-						</div>
-						<div className="p-2 border border-border rounded-md bg-muted/10">
-							<div className=" max-h-36 overflow-y-auto scrollbar-none scroll-fade scroll-fade-10">
-								<div className="grid grid-cols-7 gap-1.5">
-									{PRESET_ICONS.map(({id, label}) => {
-										const isSelected = icon === id
-										return (
-											<button
-												key={id}
-												type="button"
-												title={label}
-												onClick={() => setIcon(id)}
-												disabled={loading}
-												className={`flex items-center justify-center p-2 rounded-md transition-all border ${
-													isSelected ?
-														"border-primary bg-primary/15 text-primary shadow-xs"
-													:	"border-border hover:bg-muted text-muted-foreground hover:text-foreground"
-												}`}>
-												<Icon icon={id} className="size-5" />
-											</button>
-										)
-									})}
+						{/* SELECCIÓN DE ÍCONO CON PREVIEW */}
+						<Field>
+							<FieldLabel className="text-xs font-semibold">Ícono de la Carrera</FieldLabel>
+							<div className="flex items-center gap-3 p-2.5 rounded-md border border-border bg-muted/30">
+								<div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary border border-primary/20 shrink-0">
+									<Icon icon={icon} className="size-6" />
+								</div>
+								<div className="flex-1 min-w-0">
+									<p className="text-xs font-medium text-foreground capitalize truncate">{icon}</p>
+									<p className="text-[10px] text-muted-foreground">Vista previa del ícono seleccionado</p>
 								</div>
 							</div>
-						</div>
-					</div>
+							<div className="p-2 border border-border rounded-md bg-muted/10 mt-2">
+								<div className=" max-h-36 overflow-y-auto scrollbar-none scroll-fade scroll-fade-10">
+									<div className="grid grid-cols-7 gap-1.5">
+										{PRESET_ICONS.map(({id, label}) => {
+											const isSelected = icon === id
+											return (
+												<button
+													key={id}
+													type="button"
+													title={label}
+													onClick={() => setIcon(id)}
+													disabled={loading}
+													className={`flex items-center justify-center p-2 rounded-md transition-all border ${
+														isSelected ?
+															"border-primary bg-primary/15 text-primary shadow-xs"
+														:	"border-border hover:bg-muted text-muted-foreground hover:text-foreground"
+													}`}>
+													<Icon icon={id} className="size-5" />
+												</button>
+											)
+										})}
+									</div>
+								</div>
+							</div>
+						</Field>
+					</FieldGroup>
 
 					<DialogFooter className="pt-3 gap-2 sm:gap-0">
 						<Button type="button" variant="outline" size="sm" onClick={onClose} disabled={loading} className="text-xs">

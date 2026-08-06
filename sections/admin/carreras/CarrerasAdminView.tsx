@@ -20,7 +20,6 @@ import {
 	IconBooks,
 } from "@tabler/icons-react"
 import Icon from "@/components/Icon"
-import CarreraModal from "@/sections/admin/carreras/CarreraModal"
 import DeleteCarreraModal from "@/sections/admin/carreras/DeleteCarreraModal"
 import type {CarreraAdminItem} from "@/lib/carrerasAdmin"
 
@@ -35,8 +34,7 @@ export default function CarrerasAdminView({data}: CarrerasAdminViewProps) {
 	const [searchQuery, setSearchQuery] = useState("")
 	const [currentPage, setCurrentPage] = useState(1)
 
-	// Estado para modales
-	const [carreraToEdit, setCarreraToEdit] = useState<CarreraAdminItem | null>(null)
+	// Estado para modal de eliminacion
 	const [carreraToDelete, setCarreraToDelete] = useState<CarreraAdminItem | null>(null)
 
 	// Filtrar carreras por término de búsqueda
@@ -69,40 +67,48 @@ export default function CarrerasAdminView({data}: CarrerasAdminViewProps) {
 
 	return (
 		<section className="flex flex-col gap-6">
-			{/* CONTENEDOR PRINCIPAL / CARD */}
-			<header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between ">
+			{/* HEADER PRINCIPAL CON BOTON DE VOLVER */}
+			<header className="flex items-center justify-between">
 				<div className="flex items-center gap-3">
-					<IconBox>
-						<IconSchool />
-					</IconBox>
-					<div>
-						<CardTitle className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-							Gestión de Carreras
-						</CardTitle>
-						<CardDescription className="text-xs text-muted-foreground">
-							{data.length} {data.length === 1 ? "carrera registrada" : "carreras registradas"} en el sistema
-						</CardDescription>
-					</div>
-				</div>
-
-				<div className="flex items-center gap-3 w-full sm:w-auto">
-					<div className="relative flex-1 sm:w-64">
-						<IconSearch className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-						<Input
-							type="text"
-							placeholder="Buscar carrera o slug..."
-							value={searchQuery}
-							onChange={handleSearchChange}
-							className="pl-9 text-xs"
-						/>
-					</div>
-
-					<Button onClick={() => router.push("/admin/carreras/nueva-carrera")} size="sm" className="text-xs gap-1.5 shrink-0">
-						<IconPlus className="size-4" />
-						Nueva Carrera
+					<Button
+						variant="ghost"
+						size="icon"
+						onClick={() => router.push("/")}
+						className="size-9 rounded-md border border-border text-muted-foreground hover:text-foreground">
+						<IconChevronLeft className="size-5" />
 					</Button>
+					<div>
+						<h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl flex items-center gap-2">
+							<IconSchool className="size-6 text-primary" />
+							Gestión de Carreras
+						</h1>
+						<p className="text-xs text-muted-foreground">
+							{data.length} {data.length === 1 ? "carrera registrada" : "carreras registradas"} en el sistema
+						</p>
+					</div>
 				</div>
 			</header>
+
+			{/* CARD DE ACCIONES EN CARRERA */}
+			<Card className="border border-border bg-card shadow-xs p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+				<div className="relative flex-1 w-full sm:w-80">
+					<IconSearch className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+					<Input
+						type="text"
+						placeholder="Buscar carrera por nombre o slug..."
+						value={searchQuery}
+						onChange={handleSearchChange}
+						className="pl-9 text-xs"
+					/>
+				</div>
+
+				<Button onClick={() => router.push("/admin/carreras/nueva-carrera")} size="sm" className="text-xs gap-1.5 w-full sm:w-auto shrink-0">
+					<IconPlus className="size-4" />
+					Nueva Carrera
+				</Button>
+			</Card>
+
+			{/* CARD DE TABLA DE CARRERAS */}
 			<Card className="py-0 border border-border shadow-xs gap-0 overflow-hidden">
 				{/* TABLA DE CARRERAS */}
 				<CardContent className="p-0 relative w-full overflow-x-auto scroll-fade scrollbar-none">
@@ -130,7 +136,10 @@ export default function CarrerasAdminView({data}: CarrerasAdminViewProps) {
 							:	paginatedRows.map(({id, nombre, slug, icon, active, resolucion_id, planesCount}) => {
 									const currentItem: CarreraAdminItem = {id, nombre, slug, icon, active, resolucion_id, planesCount}
 									return (
-										<TableRow key={id} className={`hover:bg-muted/30 transition-colors theme-${slug}`}>
+										<TableRow 
+											key={id} 
+											onClick={() => router.push(`/admin/carreras/${slug}`)}
+											className={`hover:bg-muted/30 transition-colors cursor-pointer theme-${slug}`}>
 											{/* COLUMNA ICONO */}
 											<TableCell className="py-3 pl-4 text-center">
 												<IconBox size="sm">
@@ -160,7 +169,10 @@ export default function CarrerasAdminView({data}: CarrerasAdminViewProps) {
 													<Button
 														variant="ghost"
 														size="icon"
-														onClick={() => setCarreraToEdit(currentItem)}
+														onClick={(e) => {
+															e.stopPropagation()
+															router.push(`/admin/carreras/${slug}`)
+														}}
 														title="Editar carrera"
 														className="size-8 text-muted-foreground hover:text-foreground hover:bg-muted">
 														<IconEdit className="size-4" />
@@ -168,7 +180,10 @@ export default function CarrerasAdminView({data}: CarrerasAdminViewProps) {
 													<Button
 														variant="ghost"
 														size="icon"
-														onClick={() => setCarreraToDelete(currentItem)}
+														onClick={(e) => {
+															e.stopPropagation()
+															setCarreraToDelete(currentItem)
+														}}
 														title="Eliminar carrera"
 														className="size-8 text-destructive/80 hover:text-destructive hover:bg-destructive/10">
 														<IconTrash className="size-4" />
@@ -224,17 +239,6 @@ export default function CarrerasAdminView({data}: CarrerasAdminViewProps) {
 			</Card>
 
 
-
-			{/* MODAL DE EDICIÓN */}
-			{carreraToEdit && (
-				<CarreraModal
-					key={`edit-carrera-modal-${carreraToEdit.id}`}
-					isOpen={!!carreraToEdit}
-					onClose={() => setCarreraToEdit(null)}
-					carrera={carreraToEdit}
-					onSuccess={handleActionSuccess}
-				/>
-			)}
 
 			{/* MODAL DE ELIMINACIÓN */}
 			<DeleteCarreraModal

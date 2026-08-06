@@ -41,12 +41,6 @@ export default function AdminSidebar({userRole = "super_admin", user}: AdminSide
 
 	const mainNavigation = [
 		{
-			title: "Resumen General",
-			href: "/admin",
-			icon: IconLayoutDashboard,
-			exact: true,
-		},
-		{
 			title: "Carreras",
 			href: "/admin/carreras",
 			icon: IconSchool,
@@ -55,43 +49,6 @@ export default function AdminSidebar({userRole = "super_admin", user}: AdminSide
 			title: "Fechas de Exámenes",
 			href: "/admin/fechas-examenes",
 			icon: IconCalendar,
-		},
-	]
-
-	const permissionsNavigation = [
-		{
-			title: "Roles del Sistema",
-			href: "/admin/roles",
-			icon: IconShieldLock,
-			badge: "5 Roles",
-		},
-		{
-			title: "Catálogo de Permisos",
-			href: "/admin/permisos",
-			icon: IconKey,
-			badge: "32 Permisos",
-		},
-	]
-
-	const accessNavigation = [
-		{
-			title: "Usuarios Admin",
-			href: "/admin/usuarios",
-			icon: IconUsers,
-			badge: "12 Activos",
-		},
-		{
-			title: "Auditoría de Accesos",
-			href: "/admin/auditoria",
-			icon: IconHistory,
-		},
-	]
-
-	const systemNavigation = [
-		{
-			title: "Políticas de Seguridad",
-			href: "/admin/configuracion",
-			icon: IconAdjustmentsHorizontal,
 		},
 	]
 
@@ -129,159 +86,31 @@ export default function AdminSidebar({userRole = "super_admin", user}: AdminSide
 
 			{/* CONTENIDO DE NAVEGACIÓN */}
 			<SidebarContent className="px-2 py-1">
-				{/* DASHBOARD PRINCIPAL */}
 				<SidebarGroup>
 					<SidebarGroupLabel className="text-[11px] font-bold tracking-wider text-muted-foreground uppercase">
-						General
+						Administración
 					</SidebarGroupLabel>
 					<SidebarGroupContent>
 						<SidebarMenu>
-							{mainNavigation.map((item) => {
-								const Icon = item.icon
-								const active = isItemActive(item.href, item.exact)
-								const hasAccess = canRoleAccessRoute(userRole, item.href)
+							{mainNavigation.map(({ title, href, icon: Icon }) => {
+								const active = isItemActive(href)
+								const hasAccess = canRoleAccessRoute(userRole, href)
 								return (
-									<SidebarMenuItem key={item.href}>
+									<SidebarMenuItem key={href}>
 										<SidebarMenuButton
 											isActive={active}
 											disabled={!hasAccess}
 											render={
 												<Link
-													href={hasAccess ? item.href : "#"}
+													href={hasAccess ? href : "#"}
 													className={cn(
 														"flex items-center justify-between gap-2.5",
 														!hasAccess && "opacity-50 cursor-not-allowed",
 													)}>
 													<div className="flex items-center gap-2.5">
 														<Icon className={cn("size-4", active ? "text-primary" : "text-muted-foreground")} />
-														<span className="font-medium text-sm">{item.title}</span>
+														<span className="font-medium text-sm">{title}</span>
 													</div>
-												</Link>
-											}
-										/>
-									</SidebarMenuItem>
-								)
-							})}
-						</SidebarMenu>
-					</SidebarGroupContent>
-				</SidebarGroup>
-
-				{/* SECCIÓN PERMISOS Y ROLES */}
-				<SidebarGroup>
-					<SidebarGroupLabel className="text-[11px] font-bold tracking-wider text-muted-foreground uppercase">
-						Control de Accesos
-					</SidebarGroupLabel>
-					<SidebarGroupContent>
-						<SidebarMenu>
-							{permissionsNavigation.map((item) => {
-								const Icon = item.icon
-								const active = isItemActive(item.href)
-								const hasAccess = canRoleAccessRoute(userRole, item.href)
-								return (
-									<SidebarMenuItem key={item.href}>
-										<SidebarMenuButton
-											isActive={active}
-											disabled={!hasAccess}
-											render={
-												<Link
-													href={hasAccess ? item.href : "#"}
-													className={cn(
-														"flex items-center justify-between gap-2.5",
-														!hasAccess && "opacity-50 cursor-not-allowed",
-													)}>
-													<div className="flex items-center gap-2.5">
-														<Icon className={cn("size-4", active ? "text-primary" : "text-muted-foreground")} />
-														<span className="font-medium text-sm">{item.title}</span>
-													</div>
-													{hasAccess ?
-														item.badge && (
-															<span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-secondary text-secondary-foreground">
-																{item.badge}
-															</span>
-														)
-													:	<IconLock className="size-3.5 text-muted-foreground" />}
-												</Link>
-											}
-										/>
-									</SidebarMenuItem>
-								)
-							})}
-						</SidebarMenu>
-					</SidebarGroupContent>
-				</SidebarGroup>
-
-				{/* SECCIÓN USUARIOS Y AUDITORÍA */}
-				<SidebarGroup>
-					<SidebarGroupLabel className="text-[11px] font-bold tracking-wider text-muted-foreground uppercase">
-						Gestión & Logs
-					</SidebarGroupLabel>
-					<SidebarGroupContent>
-						<SidebarMenu>
-							{accessNavigation.map((item) => {
-								const Icon = item.icon
-								const active = isItemActive(item.href)
-								const hasAccess = canRoleAccessRoute(userRole, item.href)
-								return (
-									<SidebarMenuItem key={item.href}>
-										<SidebarMenuButton
-											isActive={active}
-											disabled={!hasAccess}
-											render={
-												<Link
-													href={hasAccess ? item.href : "#"}
-													className={cn(
-														"flex items-center justify-between gap-2.5",
-														!hasAccess && "opacity-50 cursor-not-allowed",
-													)}>
-													<div className="flex items-center gap-2.5">
-														<Icon className={cn("size-4", active ? "text-primary" : "text-muted-foreground")} />
-														<span className="font-medium text-sm">{item.title}</span>
-													</div>
-													{hasAccess ?
-														item.badge && (
-															<span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-secondary text-secondary-foreground">
-																{item.badge}
-															</span>
-														)
-													:	<IconLock className="size-3.5 text-muted-foreground" />}
-												</Link>
-											}
-										/>
-									</SidebarMenuItem>
-								)
-							})}
-						</SidebarMenu>
-					</SidebarGroupContent>
-				</SidebarGroup>
-
-				{/* SECCIÓN SEGURIDAD */}
-				<SidebarGroup>
-					<SidebarGroupLabel className="text-[11px] font-bold tracking-wider text-muted-foreground uppercase">
-						Seguridad
-					</SidebarGroupLabel>
-					<SidebarGroupContent>
-						<SidebarMenu>
-							{systemNavigation.map((item) => {
-								const Icon = item.icon
-								const active = isItemActive(item.href)
-								const hasAccess = canRoleAccessRoute(userRole, item.href)
-								return (
-									<SidebarMenuItem key={item.href}>
-										<SidebarMenuButton
-											isActive={active}
-											disabled={!hasAccess}
-											render={
-												<Link
-													href={hasAccess ? item.href : "#"}
-													className={cn(
-														"flex items-center justify-between gap-2.5",
-														!hasAccess && "opacity-50 cursor-not-allowed",
-													)}>
-													<div className="flex items-center gap-2.5">
-														<Icon className={cn("size-4", active ? "text-primary" : "text-muted-foreground")} />
-														<span className="font-medium text-sm">{item.title}</span>
-													</div>
-													{!hasAccess && <IconLock className="size-3.5 text-muted-foreground" />}
 												</Link>
 											}
 										/>
