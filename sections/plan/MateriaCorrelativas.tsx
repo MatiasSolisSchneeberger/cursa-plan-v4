@@ -2,8 +2,8 @@ import * as React from "react"
 import {
 	IconChevronRight,
 	IconInfoCircle,
-	IconCircleCheck,
-	IconCircle,
+	IconCircleLetterA,
+	IconCircleLetterR,
 	IconChevronDown,
 	IconGitBranch,
 } from "@tabler/icons-react"
@@ -55,8 +55,8 @@ export function MateriaCorrelativas({correlativas}: MateriaCorrelativasProps) {
 					<Item key={`mat-${idx}`} variant="outline">
 						<ItemMedia variant="icon">
 							{m.condicionStr === "aprobado" ?
-								<IconCircleCheck className="text-green-500" />
-							:	<IconCircle className="text-yellow-500" />}
+								<IconCircleLetterA className="text-success" />
+							:	<IconCircleLetterR className="text-warning" />}
 						</ItemMedia>
 						<ItemContent>
 							<ItemTitle>{m.req.nombre}</ItemTitle>

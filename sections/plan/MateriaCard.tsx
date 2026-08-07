@@ -15,6 +15,8 @@ import {
 	IconCheck,
 	IconLock,
 	IconBook,
+	IconCircleLetterA,
+	IconCircleLetterR,
 } from "@tabler/icons-react"
 
 interface MateriaCardProps {

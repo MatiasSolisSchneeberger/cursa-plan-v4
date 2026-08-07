@@ -48,7 +48,7 @@ export default function HeaderBreadcrumb({allCarreras, currentCarrera, currentPl
 
 	// Parse current path segments
 	const segments = pathname.split("/").filter(Boolean)
-	const currentMateriaSlug = segments[2] || null
+	const currentMateriaSlug = segments[3] || null
 
 	// Flatten all materias from years/periods
 	const allMaterias = React.useMemo(() => {
@@ -134,7 +134,8 @@ export default function HeaderBreadcrumb({allCarreras, currentCarrera, currentPl
 																{planes?.map(({anio_inicio, id}) => (
 																	<DropdownMenuItem
 																		key={id}
-																		render={<Link href={rutaPlan(slug, anio_inicio)}>Plan {anio_inicio}</Link>}
+																		className={`theme-${slug}`}
+														render={<Link href={rutaPlan(slug, anio_inicio)}>Plan {anio_inicio}</Link>}
 																	/>
 																))}
 															</DropdownMenuGroup>
@@ -280,7 +281,8 @@ export default function HeaderBreadcrumb({allCarreras, currentCarrera, currentPl
 																{planes?.map(({anio_inicio, id}) => (
 																	<DropdownMenuItem
 																		key={id}
-																		render={<Link href={rutaPlan(slug, anio_inicio)}>Plan {anio_inicio}</Link>}
+																		className={`theme-${slug}`}
+														render={<Link href={rutaPlan(slug, anio_inicio)}>Plan {anio_inicio}</Link>}
 																	/>
 																))}
 															</DropdownMenuGroup>
