@@ -42,6 +42,7 @@ next-env.d.ts
 
 .agents/
 .docs/
+.claude/
 .vscode/
 estructura.md
 skills-lock.json
