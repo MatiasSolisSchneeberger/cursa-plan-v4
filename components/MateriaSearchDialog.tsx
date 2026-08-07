@@ -192,7 +192,7 @@ export default function MateriaSearchDialog({
 	const handleSelectMateria = React.useCallback(
 		({ carreraSlug, planAnio, materiaSlug }: MateriaPlanSearchItem) => {
 			setIsOpen(false)
-			router.push(`/${carreraSlug}/${planAnio}/${materiaSlug}`)
+			router.push(`/carreras/${carreraSlug}/${planAnio}/${materiaSlug}`)
 		},
 		[router],
 	)
