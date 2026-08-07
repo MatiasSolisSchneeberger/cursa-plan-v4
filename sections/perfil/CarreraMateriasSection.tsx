@@ -26,7 +26,7 @@ export default function CarreraMateriasSection({
 		<section className="flex flex-col gap-4">
 			<header className="flex items-center justify-between">
 				<div className="flex items-center gap-2">
-					<IconBooks className="size-5 text-amber-500" />
+					<IconBooks className="size-5 text-warning" />
 					<h2 className="text-xl font-bold tracking-tight text-foreground">
 						Materias en Cursada ({carreraNombre})
 					</h2>
@@ -43,7 +43,7 @@ export default function CarreraMateriasSection({
 							<Card className="flex flex-col justify-between hover:border-amber-500/50 transition-all h-full">
 								<CardHeader className="pb-3">
 									<div className="flex items-start justify-between gap-2">
-										<Badge variant="outline" className="text-[10px] bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20">
+										<Badge variant="outline" className="text-[10px] bg-warning/10 text-warning border-warning/20">
 											En cursada
 										</Badge>
 										<span className="text-xs font-semibold text-muted-foreground">

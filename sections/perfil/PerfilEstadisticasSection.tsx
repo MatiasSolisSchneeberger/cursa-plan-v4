@@ -24,7 +24,7 @@ export default function PerfilEstadisticasSection({ stats }: PerfilEstadisticasS
 			<Card className="p-6 bg-card border border-border">
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-6 divide-y md:divide-y-0 md:divide-x divide-border">
 					<article className="flex flex-col items-center text-center p-4">
-						<span className="size-12 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center mb-3">
+						<span className="size-12 rounded-full bg-success/10 text-success flex items-center justify-center mb-3">
 							<IconCircleCheck className="size-6" />
 						</span>
 						<p className="text-3xl font-extrabold text-foreground">{totalMateriasAprobadas}</p>
@@ -35,7 +35,7 @@ export default function PerfilEstadisticasSection({ stats }: PerfilEstadisticasS
 					</article>
 
 					<article className="flex flex-col items-center text-center p-4 pt-6 md:pt-4">
-						<span className="size-12 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center mb-3">
+						<span className="size-12 rounded-full bg-info/10 text-info flex items-center justify-center mb-3">
 							<IconClock className="size-6" />
 						</span>
 						<p className="text-3xl font-extrabold text-foreground">{totalMateriasRegulares}</p>
@@ -46,7 +46,7 @@ export default function PerfilEstadisticasSection({ stats }: PerfilEstadisticasS
 					</article>
 
 					<article className="flex flex-col items-center text-center p-4 pt-6 md:pt-4">
-						<span className="size-12 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center mb-3">
+						<span className="size-12 rounded-full bg-warning/10 text-warning flex items-center justify-center mb-3">
 							<IconBooks className="size-6" />
 						</span>
 						<p className="text-3xl font-extrabold text-foreground">{totalMateriasCursando}</p>

@@ -24,7 +24,7 @@ export default function PerfilCarrerasSection({ carrerasFavoritas }: PerfilCarre
 		<section className="flex flex-col gap-4">
 			<header className="flex items-center justify-between">
 				<div className="flex items-center gap-2">
-					<IconHeart className="size-5 text-rose-500" />
+					<IconHeart className="size-5 text-destructive" />
 					<h2 className="text-xl font-bold tracking-tight text-foreground">Carreras Favoritas</h2>
 				</div>
 				<Badge variant="outline" className="text-xs font-normal">
@@ -80,11 +80,11 @@ export default function PerfilCarrerasSection({ carrerasFavoritas }: PerfilCarre
 
 									<footer className="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-border/50">
 										<span className="flex items-center gap-1">
-											<IconBooks className="size-3.5 text-amber-500" />
+											<IconBooks className="size-3.5 text-warning" />
 											{cursando} en cursada
 										</span>
 										<span className="flex items-center gap-1">
-											<IconClock className="size-3.5 text-blue-500" />
+											<IconClock className="size-3.5 text-info" />
 											{regulares} regulares
 										</span>
 									</footer>

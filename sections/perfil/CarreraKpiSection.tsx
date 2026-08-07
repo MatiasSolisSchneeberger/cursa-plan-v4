@@ -25,7 +25,7 @@ export default function CarreraKpiSection({
 					<CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
 						Aprobadas
 					</CardTitle>
-					<IconCircleCheck className="size-4 text-emerald-500" />
+					<IconCircleCheck className="size-4 text-success" />
 				</CardHeader>
 				<CardContent>
 					<p className="text-2xl font-bold text-foreground">{aprobadas}</p>
@@ -38,7 +38,7 @@ export default function CarreraKpiSection({
 					<CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
 						Cursando
 					</CardTitle>
-					<IconBooks className="size-4 text-amber-500" />
+					<IconBooks className="size-4 text-warning" />
 				</CardHeader>
 				<CardContent>
 					<p className="text-2xl font-bold text-foreground">{cursando}</p>
@@ -51,7 +51,7 @@ export default function CarreraKpiSection({
 					<CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
 						Regulares
 					</CardTitle>
-					<IconClock className="size-4 text-blue-500" />
+					<IconClock className="size-4 text-info" />
 				</CardHeader>
 				<CardContent>
 					<p className="text-2xl font-bold text-foreground">{regulares}</p>
