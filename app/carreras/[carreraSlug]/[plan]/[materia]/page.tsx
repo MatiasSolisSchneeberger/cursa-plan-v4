@@ -15,8 +15,8 @@ import {
 	IconCalendar,
 	IconSchool,
 	IconArrowLeft,
-	IconCircleCheck,
-	IconCircle,
+	IconCircleLetterA,
+	IconCircleLetterR,
 	IconChevronRight,
 	IconAlertCircle,
 	IconCalendarOff,
@@ -163,7 +163,7 @@ export default async function MateriaDetailPage({ params }: PageProps) {
 								<ItemContent>
 									<ItemTitle>Periodo</ItemTitle>
 									<ItemDescription className="font-semibold text-foreground">
-										{materia.periodo?.nombre || `${materia.nroPeriodo}º Periodo`}
+										{materia.periodo?.nombre ? `${materia.periodo.nombre} - ${materia.nroPeriodo}º Periodo` : `${materia.nroPeriodo}º Periodo`}
 									</ItemDescription>
 								</ItemContent>
 							</Item>
@@ -205,7 +205,7 @@ export default async function MateriaDetailPage({ params }: PageProps) {
 								<ItemGroup>
 									<Item variant="muted" size="sm">
 										<ItemMedia>
-											<IconCircleCheck className="size-5 text-green-500" />
+											<IconCircleLetterA className="size-5 text-success" />
 										</ItemMedia>
 										<ItemContent>
 											<ItemTitle className="text-muted-foreground font-normal">
@@ -219,7 +219,7 @@ export default async function MateriaDetailPage({ params }: PageProps) {
 									{cursarGroup.aprobados.map(({ id, slug, nombre }) => (
 										<Item key={id} variant="outline" render={<Link href={rutaMateria(carreraSlug, plan, slug)} />}>
 											<ItemMedia>
-												<IconCircleCheck className="size-5 text-green-500" />
+												<IconCircleLetterA className="size-5 text-success" />
 											</ItemMedia>
 											<ItemContent>
 												<ItemTitle>{nombre}</ItemTitle>
@@ -234,7 +234,7 @@ export default async function MateriaDetailPage({ params }: PageProps) {
 									{cursarGroup.regulares.map(({ id, slug, nombre }) => (
 										<Item key={id} variant="outline" render={<Link href={rutaMateria(carreraSlug, plan, slug)} />}>
 											<ItemMedia>
-												<IconCircle className="size-5 text-yellow-500" />
+												<IconCircleLetterR className="size-5 text-warning" />
 											</ItemMedia>
 											<ItemContent>
 												<ItemTitle>{nombre}</ItemTitle>
@@ -256,7 +256,7 @@ export default async function MateriaDetailPage({ params }: PageProps) {
 										return (
 											<Item key={idx} variant="muted">
 												<ItemMedia>
-													<IconInfoCircle className="size-5 text-blue-500" />
+													<IconInfoCircle className="size-5 text-info" />
 												</ItemMedia>
 												<ItemContent>
 													<ItemTitle>{text}</ItemTitle>
@@ -280,7 +280,7 @@ export default async function MateriaDetailPage({ params }: PageProps) {
 								<ItemGroup>
 									<Item variant="muted" size="sm">
 										<ItemMedia>
-											<IconCircleCheck className="size-5 text-green-500" />
+											<IconCircleLetterA className="size-5 text-success" />
 										</ItemMedia>
 										<ItemContent>
 											<ItemTitle className="text-muted-foreground font-normal">
@@ -294,7 +294,7 @@ export default async function MateriaDetailPage({ params }: PageProps) {
 									{rendirGroup.aprobados.map(({ id, slug, nombre }) => (
 										<Item key={id} variant="outline" render={<Link href={rutaMateria(carreraSlug, plan, slug)} />}>
 											<ItemMedia>
-												<IconCircleCheck className="size-5 text-green-500" />
+												<IconCircleLetterA className="size-5 text-success" />
 											</ItemMedia>
 											<ItemContent>
 												<ItemTitle>{nombre}</ItemTitle>
@@ -309,7 +309,7 @@ export default async function MateriaDetailPage({ params }: PageProps) {
 									{rendirGroup.regulares.map(({ id, slug, nombre }) => (
 										<Item key={id} variant="outline" render={<Link href={rutaMateria(carreraSlug, plan, slug)} />}>
 											<ItemMedia>
-												<IconCircle className="size-5 text-yellow-500" />
+												<IconCircleLetterR className="size-5 text-warning" />
 											</ItemMedia>
 											<ItemContent>
 												<ItemTitle>{nombre}</ItemTitle>
@@ -331,7 +331,7 @@ export default async function MateriaDetailPage({ params }: PageProps) {
 										return (
 											<Item key={idx} variant="muted">
 												<ItemMedia>
-													<IconInfoCircle className="size-5 text-blue-500" />
+													<IconInfoCircle className="size-5 text-info" />
 												</ItemMedia>
 												<ItemContent>
 													<ItemTitle>{text}</ItemTitle>
