@@ -710,6 +710,78 @@ export function processYearWithOrientations(yearMaterias: MateriaConPeriodo[]): 
 }
 
 /**
+ * Obtiene el rango de años que tienen eventos en el calendario académico.
+ * @returns Array de años ordenados de menor a mayor
+ */
+export async function getAniosCalendario(): Promise<number[]> {
+	"use cache"
+	cacheLife("days")
+
+	const [examenesMin, examenesMax, inscripcionesMin, inscripcionesMax, feriadosMin, feriadosMax, clasesMin, clasesMax] = await Promise.all([
+		staticSupabase
+			.from("turnos_examenes")
+			.select("fecha_inicio")
+			.order("fecha_inicio", { ascending: true })
+			.limit(1),
+		staticSupabase
+			.from("turnos_examenes")
+			.select("fecha_inicio")
+			.order("fecha_inicio", { ascending: false })
+			.limit(1),
+		staticSupabase
+			.from("inscripciones")
+			.select("fecha_inicio")
+			.order("fecha_inicio", { ascending: true })
+			.limit(1),
+		staticSupabase
+			.from("inscripciones")
+			.select("fecha_inicio")
+			.order("fecha_inicio", { ascending: false })
+			.limit(1),
+		staticSupabase
+			.from("feriados")
+			.select("fecha")
+			.order("fecha", { ascending: true })
+			.limit(1),
+		staticSupabase
+			.from("feriados")
+			.select("fecha")
+			.order("fecha", { ascending: false })
+			.limit(1),
+		staticSupabase
+			.from("calendario_clases")
+			.select("fecha_inicio")
+			.order("fecha_inicio", { ascending: true })
+			.limit(1),
+		staticSupabase
+			.from("calendario_clases")
+			.select("fecha_inicio")
+			.order("fecha_inicio", { ascending: false })
+			.limit(1),
+	])
+
+	const fechas: string[] = []
+	if (examenesMin.data?.[0]?.fecha_inicio) fechas.push(examenesMin.data[0].fecha_inicio)
+	if (examenesMax.data?.[0]?.fecha_inicio) fechas.push(examenesMax.data[0].fecha_inicio)
+	if (inscripcionesMin.data?.[0]?.fecha_inicio) fechas.push(inscripcionesMin.data[0].fecha_inicio)
+	if (inscripcionesMax.data?.[0]?.fecha_inicio) fechas.push(inscripcionesMax.data[0].fecha_inicio)
+	if (feriadosMin.data?.[0]?.fecha) fechas.push(feriadosMin.data[0].fecha)
+	if (feriadosMax.data?.[0]?.fecha) fechas.push(feriadosMax.data[0].fecha)
+	if (clasesMin.data?.[0]?.fecha_inicio) fechas.push(clasesMin.data[0].fecha_inicio)
+	if (clasesMax.data?.[0]?.fecha_inicio) fechas.push(clasesMax.data[0].fecha_inicio)
+
+	const anios = fechas
+		.map((f) => parseInt(f.split("-")[0], 10))
+		.filter((a) => !isNaN(a))
+
+	if (anios.length === 0) return []
+
+	const desde = Math.min(...anios)
+	const hasta = Math.max(...anios)
+	return Array.from({ length: hasta - desde + 1 }, (_, i) => desde + i)
+}
+
+/**
  * Obtiene los datos del calendario académico (exámenes, inscripciones, feriados y clases).
  * Las consultas se realizan en paralelo utilizando Promise.all para optimizar el rendimiento.
  *
