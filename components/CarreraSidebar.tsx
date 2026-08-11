@@ -1,4 +1,4 @@
-import Link from "next/link"
+﻿import Link from "next/link"
 import {
 	Sidebar,
 	SidebarContent,
@@ -43,6 +43,7 @@ import SidebarLink from "./SidebarLink"
 import SidebarSubLink from "./SidebarSubLink"
 import SidebarFolder from "./SidebarFolder"
 import UserDropdown from "@/components/UserDropdown"
+import LoginButton from "@/components/LoginButton"
 import {IconSelector, IconCheck, IconHome, IconFileText, IconBook, IconChevronRight, IconFolder, IconArrowLeft} from "@tabler/icons-react"
 import {acortarNombreCarrera, cn} from "@/lib/utils"
 import {getCurrentUser} from "@/lib/auth"
@@ -292,18 +293,21 @@ export default async function AppSidebar({carreraSlug, plan}: AppSidebarProps) {
 				{user ? (
 					<UserDropdown user={user} isSidebar />
 				) : (
-					<Button variant="outline" size="sm" className="w-full justify-between" render={
-						<Link href="/login">
-							<span>Iniciar Sesión</span>
-							<IconArrowLeft className="rotate-180 size-4" />
-						</Link>
-					} />
+					<LoginButtonCarrera />
 				)}
 			</SidebarFooter>
 		</Sidebar>
 	)
 }
 
+function LoginButtonCarrera() {
+	return (
+		<LoginButton variant="outline" size="sm" className="w-full justify-between">
+			<span>Iniciar Sesión</span>
+			<IconArrowLeft className="rotate-180 size-4" />
+		</LoginButton>
+	)
+}
 export function AppSidebarSkeleton() {
 	return (
 		<Sidebar className="animate-pulse">

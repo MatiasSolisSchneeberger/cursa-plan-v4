@@ -2,6 +2,7 @@ import { getCurrentUser } from "@/lib/auth"
 import { getDatosPerfilInicio } from "@/lib/carreras"
 import PerfilInicioClient from "@/sections/perfil/PerfilInicioClient"
 import { redirect } from "next/navigation"
+import { buildLoginUrl } from "@/utils/redirect"
 
 export const metadata = {
 	title: "Inicio | Mi Perfil - CursaPlan",
@@ -12,7 +13,7 @@ export default async function PerfilInicioPage() {
 	const userRes = await getCurrentUser()
 
 	if (!userRes.success || !userRes.data?.user) {
-		redirect("/login?next=/perfil")
+		redirect(buildLoginUrl("/perfil"))
 	}
 
 	const perfilData = await getDatosPerfilInicio(userRes.data.user.id)

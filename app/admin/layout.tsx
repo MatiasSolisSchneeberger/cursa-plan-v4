@@ -12,6 +12,7 @@ import {Badge} from "@/components/ui/badge"
 import {Skeleton} from "@/components/ui/skeleton"
 import {IconShieldOff, IconArrowLeft, IconLock} from "@tabler/icons-react"
 import {Alert, AlertTitle} from "@/components/ui/alert"
+import {buildLoginUrl} from "@/utils/redirect"
 
 export const metadata = {
 	title: "Panel de Administración | CursaPlan",
@@ -85,7 +86,7 @@ async function AdminLayoutContent({children}: {children: React.ReactNode}) {
 
 	// 1. Redireccionar si no hay sesión activa
 	if (!userRes.success || !userRes.data?.user) {
-		redirect("/login?next=/admin")
+		redirect(buildLoginUrl("/admin"))
 	}
 
 	const user = userRes.data.user

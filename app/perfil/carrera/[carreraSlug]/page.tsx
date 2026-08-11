@@ -5,6 +5,7 @@ import CarreraHeaderSection from "@/sections/perfil/CarreraHeaderSection"
 import CarreraProgressSection from "@/sections/perfil/CarreraProgressSection"
 import CarreraKpiSection from "@/sections/perfil/CarreraKpiSection"
 import CarreraMateriasSection from "@/sections/perfil/CarreraMateriasSection"
+import { buildLoginUrl } from "@/utils/redirect"
 
 interface PageProps {
 	params: Promise<{
@@ -25,7 +26,7 @@ export default async function CarreraDashboardPage({ params }: PageProps) {
 	const userRes = await getCurrentUser()
 
 	if (!userRes.success || !userRes.data?.user) {
-		redirect(`/login?next=/perfil/carrera/${carreraSlug}`)
+		redirect(buildLoginUrl(`/perfil/carrera/${carreraSlug}`))
 	}
 
 	const carreraData = await getDatosPerfilCarrera(userRes.data.user.id, carreraSlug)
