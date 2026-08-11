@@ -14,7 +14,7 @@ import {Checkbox} from "@/components/ui/checkbox"
 
 export default function LoginPage() {
 	const router = useRouter()
-	const [emailOrUsername, setEmailOrUsername] = useState("")
+	const [email, setEmail] = useState("")
 	const [password, setPassword] = useState("")
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<string | null>(null)
@@ -28,7 +28,7 @@ export default function LoginPage() {
 
 		try {
 			const res = await signInWithEmail({
-				emailOrUsername,
+				email,
 				password,
 			})
 
@@ -62,7 +62,6 @@ export default function LoginPage() {
 							<IconX />
 							<AlertTitle>Hubo un error</AlertTitle>
 							<AlertDescription>
-								Pasó algo, ni idea que
 								{error}
 							</AlertDescription>
 						</Alert>
@@ -76,13 +75,14 @@ export default function LoginPage() {
 					<form onSubmit={handleSubmit}>
 						<FieldGroup>
 							<Field>
-								<FieldLabel htmlFor="emailOrUsername">Correo electrónico o usuario</FieldLabel>
+								<FieldLabel htmlFor="email">Correo electrónico</FieldLabel>
 								<Input
-									id="emailOrUsername"
-									type="text"
-									placeholder="usuario@ejemplo.com o tu_usuario"
-									value={emailOrUsername}
-									onChange={(e) => setEmailOrUsername(e.target.value)}
+									id="email"
+									type="email"
+									placeholder="usuario@ejemplo.com"
+									value={email}
+									onChange={(e) => setEmail(e.target.value)}
+									autoComplete="email"
 									required
 								/>
 							</Field>
@@ -100,6 +100,7 @@ export default function LoginPage() {
 									type="password"
 									value={password}
 									onChange={(e) => setPassword(e.target.value)}
+									autoComplete="current-password"
 									required
 								/>
 							</Field>
