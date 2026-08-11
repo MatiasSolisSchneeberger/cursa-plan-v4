@@ -93,45 +93,25 @@ export async function signUp(data: SignUpData): Promise<AuthResponse<{ userId: s
 }
 
 /**
- * Inicia sesión de usuario por correo o nombre de usuario y contraseña.
+ * Inicia sesión de usuario por correo y contraseña.
  *
- * @param data - Credenciales de inicio de sesión (emailOrUsername, password)
+ * @param data - Credenciales de inicio de sesión (email, password)
  * @returns AuthResponse con el perfil del usuario autenticado
  */
 export async function signInWithEmail(data: SignInData): Promise<AuthResponse<{ user: Usuario | null }>> {
-	const { emailOrUsername, password } = data
+	const { email, password } = data
 
-	if (!emailOrUsername || !password) {
+	if (!email || !password) {
 		return {
 			success: false,
-			error: "Debes ingresar tu correo o nombre de usuario y tu contraseña.",
+			error: "Debes ingresar tu correo y tu contraseña.",
 		}
 	}
 
 	const cookieStore = await cookies()
 	const supabase = createClient(cookieStore)
 
-	const emailToUse = emailOrUsername.trim()
-
-	// Si no es un email (no contiene @), buscar el email correspondiente en public.usuarios
-	if (!emailToUse.includes("@")) {
-		const { data: userRow, error: findError } = await supabase
-			.from("usuarios")
-			.select("id")
-			.eq("username", emailToUse)
-			.maybeSingle()
-
-		if (findError || !userRow) {
-			return {
-				success: false,
-				error: "No se encontró ningún usuario con ese nombre de usuario.",
-			}
-		}
-
-		// Obtener email desde auth mediante la sesión actual o intentar autenticar
-		// Supabase Auth requiere email o teléfono para signInWithPassword.
-		// Si la tabla public.usuarios no almacena email directamente, podemos solicitar el email directamente.
-	}
+	const emailToUse = email.trim().toLowerCase()
 
 	const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
 		email: emailToUse,
@@ -139,11 +119,16 @@ export async function signInWithEmail(data: SignInData): Promise<AuthResponse<{ 
 	})
 
 	if (authError) {
+		const errorMessage = authError.message
+		if (errorMessage.includes("Email not confirmed")) {
+			return {
+				success: false,
+				error: "Tenés que confirmar tu correo antes de iniciar sesión. Revisá tu bandeja de entrada.",
+			}
+		}
 		return {
 			success: false,
-			error: authError.message === "Invalid login credentials"
-				? "Credenciales inválidas. Verifica tu correo/usuario y contraseña."
-				: authError.message,
+			error: "Credenciales inválidas. Verificá tu correo y contraseña.",
 		}
 	}
 
