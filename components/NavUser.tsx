@@ -3,6 +3,7 @@ import UserDropdown from "@/components/UserDropdown"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { IconLogin, IconUserPlus } from "@tabler/icons-react"
+import LoginButton from "@/components/LoginButton"
 
 export default async function NavUser() {
 	const { data } = await getCurrentUser()
@@ -12,15 +13,10 @@ export default async function NavUser() {
 		return (
 			<>
 				<div className="hidden flex-row gap-2 lg:flex">
-					<Button
-						variant="secondary"
-						render={
-							<Link href="/login">
-								<IconLogin />
-								Iniciar Sesión
-							</Link>
-						}
-					/>
+					<LoginButton variant="secondary">
+						<IconLogin />
+						Iniciar Sesión
+					</LoginButton>
 					<Button
 						variant="default"
 						render={
@@ -32,15 +28,9 @@ export default async function NavUser() {
 					/>
 				</div>
 				<div className="flex flex-row gap-2 lg:hidden">
-					<Button
-						size="icon-lg"
-						variant="secondary"
-						render={
-							<Link href="/login">
-								<IconLogin />
-							</Link>
-						}
-					/>
+					<LoginButton size="icon-lg" variant="secondary">
+						<IconLogin />
+					</LoginButton>
 					<Button
 						size="icon-lg"
 						variant="default"

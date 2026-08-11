@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import * as React from "react"
 import Link from "next/link"
@@ -28,6 +28,7 @@ import {
 } from "./ui/dropdown-menu"
 import { Button } from "./ui/button"
 import UserDropdown from "@/components/UserDropdown"
+import LoginButton from "@/components/LoginButton"
 import SidebarLink from "./SidebarLink"
 import {
 	IconArrowLeft,
@@ -220,17 +221,7 @@ export default function MateriaSidebar({
 				{user ? (
 					<UserDropdown user={user} isSidebar />
 				) : (
-					<Button
-						variant="outline"
-						size="sm"
-						className="w-full justify-between"
-						render={
-							<Link href="/login">
-								<span>Iniciar Sesión</span>
-								<IconArrowLeft className="rotate-180 size-4" />
-							</Link>
-						}
-					/>
+					<LoginButton variant="outline" size="sm" className="w-full justify-between"><span>Iniciar Sesión</span><IconArrowLeft className="rotate-180 size-4" /></LoginButton>
 				)}
 			</SidebarFooter>
 		</Sidebar>

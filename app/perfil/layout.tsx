@@ -6,6 +6,7 @@ import PerfilHeader from "@/components/PerfilHeader"
 import { getCurrentUser } from "@/lib/auth"
 import { getDatosPerfilInicio } from "@/lib/carreras"
 import { Skeleton } from "@/components/ui/skeleton"
+import { buildLoginUrl } from "@/utils/redirect"
 
 export const metadata = {
 	title: "Mi Perfil | CursaPlan",
@@ -16,7 +17,7 @@ async function PerfilLayoutContent({ children }: { children: React.ReactNode }) 
 	const userRes = await getCurrentUser()
 
 	if (!userRes.success || !userRes.data?.user) {
-		redirect("/login?next=/perfil")
+		redirect(buildLoginUrl("/perfil"))
 	}
 
 	const user = userRes.data.user

@@ -2,6 +2,7 @@ import { getCurrentUser } from "@/lib/auth"
 import ConfiguracionClient from "@/sections/perfil/ConfiguracionClient"
 import { redirect } from "next/navigation"
 import type { PerfilUsuario } from "@/types/consultas"
+import { buildLoginUrl } from "@/utils/redirect"
 
 export const metadata = {
 	title: "Configuración de Perfil | CursaPlan",
@@ -12,7 +13,7 @@ export default async function ConfiguracionPage() {
 	const userRes = await getCurrentUser()
 
 	if (!userRes.success || !userRes.data?.user) {
-		redirect("/login?next=/perfil/configuracion")
+		redirect(buildLoginUrl("/perfil/configuracion"))
 	}
 
 	const user = userRes.data.user
