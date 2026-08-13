@@ -14,9 +14,8 @@ export const createClient = (cookieStore: Awaited<ReturnType<typeof cookies>>) =
 				try {
 					cookiesToSet.forEach(({name, value, options}) => cookieStore.set(name, value, options))
 				} catch {
-					// The `setAll` method was called from a Server Component.
-					// This can be ignored if you have middleware refreshing
-					// user sessions.
+					// La llamada `setAll` se origina en un Server Component que no puede escribir cookies.
+					// Esto es seguro si hay un proxy en la raíz refrescando sesiones en cada navegación.
 				}
 			},
 		},
