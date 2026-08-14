@@ -162,7 +162,9 @@ export async function signInWithOAuth(provider: Provider, redirectTo?: string): 
 	const cookieStore = await cookies()
 	const supabase = createClient(cookieStore)
 
-	const origin = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+	const origin = process.env.VERCEL_URL
+		? `https://${process.env.VERCEL_URL}`
+		: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
 	const redirectUrl = redirectTo || `${origin}/auth/callback`
 
 	const { data, error } = await supabase.auth.signInWithOAuth({
@@ -266,7 +268,9 @@ export async function resetPassword(email: string): Promise<AuthResponse> {
 	const cookieStore = await cookies()
 	const supabase = createClient(cookieStore)
 
-	const origin = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+	const origin = process.env.VERCEL_URL
+		? `https://${process.env.VERCEL_URL}`
+		: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
 
 	const { error } = await supabase.auth.resetPasswordForEmail(email, {
 		redirectTo: `${origin}/auth/callback?next=/reset-password`,
