@@ -285,10 +285,11 @@ export default function MateriaSearchDialog({
 			<Button
 				variant="outline"
 				onClick={() => setIsOpen(true)}
-				className="relative h-10 w-full justify-start text-xs sm:text-sm text-muted-foreground sm:w-64 md:w-80 rounded-full bg-card hover:bg-accent border-border shadow-xs font-normal px-4"
+				className="relative h-10 sm:w-64 md:w-80 sm:justify-start justify-center text-xs sm:text-sm text-muted-foreground rounded-full bg-card hover:bg-accent border-border shadow-xs font-normal sm:px-4 px-0"
+				size="icon-lg"
 				aria-label="Buscar materias">
-				<IconSearch className="mr-2.5 size-4 shrink-0 text-muted-foreground" />
-				<span className="truncate">Buscar materias o carreras...</span>
+				<IconSearch className="sm:mr-2.5 size-4 shrink-0 text-muted-foreground" />
+				<span className="truncate hidden sm:inline">Buscar materias o carreras...</span>
 				<kbd className="pointer-events-none absolute right-3 top-2.5 hidden h-5 select-none items-center gap-0.5 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100 sm:flex">
 					{isMac ? "⌘" : "Ctrl+"}K
 				</kbd>

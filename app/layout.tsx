@@ -37,14 +37,13 @@ export default function RootLayout({
 			suppressHydrationWarning
 			lang="es"
 			className={cn(
-				"h-full",
 				"antialiased",
 				/*poppins.variable,*/
 				montserrat.variable,
 				jetbrainsMono.variable,
 				"font-sans",
 			)}>
-			<body suppressHydrationWarning className="h-full flex flex-col">
+			<body suppressHydrationWarning className="min-h-dvh flex flex-col">
 				<TooltipProvider>
 					<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
 						{children}

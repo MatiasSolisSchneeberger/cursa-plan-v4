@@ -32,7 +32,7 @@ export interface Subtab extends BaseLink {
 
 export type Links = (Subtab & {subtabs?: never}) | (BaseLink & {subtabs: Subtab[]; href?: string})
 
-export async function getNavbarLinks(): Promise<Links[]> {
+export async function getPrimaryNavbarLinks(): Promise<Links[]> {
 	const carreras = await getCarreras()
 
 	return [
@@ -43,7 +43,7 @@ export async function getNavbarLinks(): Promise<Links[]> {
 		},
 		{
 			label: "Carreras",
-			href: "/carreras",
+			icon: <IconBook className="text-primary size-4 shrink-0" />,
 			subtabs: carreras.map(({ nombre, slug, icon, planes }: Carrera) => {
 				const sortedPlanes = planes
 					? [...planes].sort((a, b) => a.anio_inicio - b.anio_inicio)
@@ -57,7 +57,6 @@ export async function getNavbarLinks(): Promise<Links[]> {
 					slug,
 				}
 			}),
-			icon: <IconBook className="text-primary size-4 shrink-0" />,
 		},
 		{
 			label: "Calendario",
@@ -69,51 +68,66 @@ export async function getNavbarLinks(): Promise<Links[]> {
 			href: "/mesas-examenes",
 			icon: <IconDevicesQuestion className="text-primary size-4 shrink-0" />,
 		},
+	]
+}
+
+export async function getSecondaryNavbarLinks(): Promise<Links[]> {
+	return [
+		{
+			label: "Novedades",
+			href: "/novedades",
+			icon: <IconNews className="text-primary size-4 shrink-0" />,
+		},
+		{
+			label: "Acerca de",
+			href: "/acerca-de",
+			icon: <IconInfoCircle className="text-primary size-4 shrink-0" />,
+		},
+		{
+			label: "Preguntas Frecuentes",
+			href: "/preguntas-frecuentes",
+			icon: <IconHelp className="text-primary size-4 shrink-0" />,
+		},
+		{
+			label: "Contacto",
+			href: "/contacto",
+			icon: <IconUsers className="text-primary size-4 shrink-0" />,
+		},
+		{
+			label: "Términos y Condiciones",
+			href: "/terminos-y-condiciones",
+			icon: <IconFile className="text-primary size-4 shrink-0" />,
+		},
+		{
+			label: "Aviso Legal",
+			href: "/avisos-legales",
+			icon: <IconShieldCheck className="text-primary size-4 shrink-0" />,
+		},
+		{
+			label: "Política de Privacidad",
+			href: "/politica-de-privacidad",
+			icon: <IconFilePencil className="text-primary size-4 shrink-0" />,
+		},
+		{
+			label: "Reportar error",
+			href: "/errores",
+			icon: <IconBug className="text-destructive size-4 shrink-0" />,
+		},
+	]
+}
+
+export async function getNavbarLinks(): Promise<Links[]> {
+	const [primary, secondary] = await Promise.all([
+		getPrimaryNavbarLinks(),
+		getSecondaryNavbarLinks(),
+	])
+
+	return [
+		...primary,
 		{
 			label: "Mas",
-			subtabs: [
-				{
-					label: "Novedades",
-					href: "/novedades",
-					icon: <IconNews className="text-primary size-4 shrink-0" />,
-				},
-				{
-					label: "Acerca de",
-					href: "/acerca-de",
-					icon: <IconInfoCircle className="text-primary size-4 shrink-0" />,
-				},
-				{
-					label: "Preguntas Frecuentes",
-					href: "/preguntas-frecuentes",
-					icon: <IconHelp className="text-primary size-4 shrink-0" />,
-				},
-				{
-					label: "Contacto",
-					href: "/contacto",
-					icon: <IconUsers className="text-primary size-4 shrink-0" />,
-				},
-				{
-					label: "Términos y Condiciones",
-					href: "/terminos-y-condiciones",
-					icon: <IconFile className="text-primary size-4 shrink-0" />,
-				},
-				{
-					label: "Aviso Legal",
-					href: "/avisos-legales",
-					icon: <IconShieldCheck className="text-primary size-4 shrink-0" />,
-				},
-				{
-					label: "Política de Privacidad",
-					href: "/politica-de-privacidad",
-					icon: <IconFilePencil className="text-primary size-4 shrink-0" />,
-				},
-				{
-					label: "Reportar error",
-					href: "/errores",
-					icon: <IconBug className="text-destructive size-4 shrink-0" />,
-				},
-			],
 			icon: <IconMenu2 className="text-primary size-4 shrink-0" />,
+			subtabs: secondary as Subtab[],
 		},
 	]
 }
