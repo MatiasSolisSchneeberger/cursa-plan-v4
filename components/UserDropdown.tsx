@@ -15,7 +15,7 @@ import {signOut} from "@/lib/auth"
 import type {Usuario} from "@/types/auth"
 import type {PerfilUsuario} from "@/types/consultas"
 import {isAdminRole} from "@/lib/permissions"
-import {IconUser, IconSettings, IconHeart, IconLogout, IconShieldCheck, IconSelector} from "@tabler/icons-react"
+import {IconUser, IconSettings, IconLogout, IconShieldCheck, IconSelector, IconBell} from "@tabler/icons-react"
 import {cn} from "@/lib/utils"
 
 interface UserDropdownProps {
@@ -106,12 +106,10 @@ export default function UserDropdown({user, isSidebar = false}: UserDropdownProp
 					)}
 					<DropdownMenuItem
 						render={
-							<Link
-								href="/carreras/favoritas"
-								className="flex flex-row items-center gap-2.5 w-full cursor-pointer py-1.5">
-								<IconHeart className="size-4 text-muted-foreground" />
-								<span>Mis carreras favoritas</span>
-							</Link>
+							<div className="flex flex-row items-center gap-2.5 w-full cursor-default py-1.5">
+								<IconBell className="size-4 text-muted-foreground" />
+								<span className="text-sm text-muted-foreground">No hay notificaciones</span>
+							</div>
 						}
 					/>
 				</DropdownMenuGroup>
