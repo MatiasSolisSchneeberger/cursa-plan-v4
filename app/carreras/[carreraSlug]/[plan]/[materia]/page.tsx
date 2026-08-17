@@ -2,8 +2,9 @@ import * as React from "react"
 import Link from "next/link"
 import { cookies } from "next/headers"
 import { createClient } from "@/utils/supabase/server"
-import { getMateriaDetalle } from "@/lib/carreras"
+import { getMateriaDetalle, getFeriados } from "@/lib/carreras"
 import { getCurrentUser } from "@/lib/auth"
+import { getHoyLocal, parseFechaLocal } from "@/utils/diasHabiles"
 import { rutaPlan, rutaMateria } from "@/lib/rutas"
 import { MateriaEstadoSelector } from "@/sections/materia/MateriaEstadoSelector"
 import { ExamenCard } from "@/sections/materia/ExamenCard"
@@ -60,8 +61,12 @@ export default async function MateriaDetailPage({ params }: PageProps) {
 	const resolvedParams = await params
 	const { carreraSlug, plan, materia: materiaSlug } = resolvedParams
 
-	// Obtener detalles de la materia
-	const materia = await getMateriaDetalle(carreraSlug, plan, materiaSlug)
+	// Obtener detalles de la materia y feriados en paralelo
+	const [materia, feriados] = await Promise.all([
+		getMateriaDetalle(carreraSlug, plan, materiaSlug),
+		getFeriados(),
+	])
+	const setFeriados = new Set(feriados)
 
 	// Obtener usuario autenticado y su estado actual para la materia
 	const userRes = await getCurrentUser()
@@ -95,15 +100,14 @@ export default async function MateriaDetailPage({ params }: PageProps) {
 		rendirGroup.aprobados.length > 0 || rendirGroup.regulares.length > 0 || rendirGroup.otros.length > 0
 
 	// Fechas de exámenes
-	const hoy = new Date()
-	const hoyLocal = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate())
+	const hoyLocal = getHoyLocal()
 
 	const fechasOrdenadas = (materia.fechasExamenes || [])
 		.map(({ id, fecha, resolucion }) => ({
 			id,
 			fecha,
 			resolucion,
-			parsed: new Date(fecha + "T00:00:00"),
+			parsed: parseFechaLocal(fecha),
 		}))
 		.sort(({ parsed: a }, { parsed: b }) => a.getTime() - b.getTime())
 		.map(({ id, fecha, resolucion, parsed }, index) => ({
@@ -140,7 +144,7 @@ export default async function MateriaDetailPage({ params }: PageProps) {
 							<MateriaEstadoSelector
 								materiaPlanId={materia.idMateriaPlan}
 								initialEstado={estadoActual}
-								userId={user?.id}
+								isAuthenticated={Boolean(user?.id)}
 							/>
 						</div>
 					</CardHeader>
@@ -394,6 +398,8 @@ export default async function MateriaDetailPage({ params }: PageProps) {
 												materiaNombre={materia.nombre}
 												mesaNumero={mesaNumero}
 												esProxima={fecha === proximaFechaStr}
+												hoy={hoyLocal}
+												feriados={setFeriados}
 												resolucion={resolucion}
 											/>
 										))}
@@ -416,6 +422,8 @@ export default async function MateriaDetailPage({ params }: PageProps) {
 												materiaNombre={materia.nombre}
 												mesaNumero={mesaNumero}
 												esProxima={false}
+												hoy={hoyLocal}
+												feriados={setFeriados}
 												resolucion={resolucion}
 											/>
 										))}

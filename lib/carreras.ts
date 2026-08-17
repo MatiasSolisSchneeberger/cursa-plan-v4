@@ -836,6 +836,25 @@ export async function getCalendario(
 }
 
 /**
+ * Obtiene todas las fechas de feriados y días no laborables.
+ * Se usan para el cálculo de días hábiles (cierre de inscripción a mesas).
+ * @returns Array de fechas en formato "YYYY-MM-DD"
+ */
+export async function getFeriados(): Promise<string[]> {
+	"use cache"
+	cacheLife("days")
+
+	const { data, error } = await staticSupabase.from("feriados").select("fecha")
+
+	if (error) {
+		console.error("Error al obtener feriados:", error)
+		return []
+	}
+
+	return (data || []).map(({ fecha }) => fecha as string)
+}
+
+/**
  * Obtiene el detalle de una materia dentro de un plan específico, incluyendo sus correlativas estructuradas.
  *
  * @param carreraSlug - Slug de la carrera
@@ -1125,6 +1144,27 @@ export const getDashboardUsuario = cache(async (userId: string): Promise<DatosDa
 })
 
 /**
+ * Consulta si un plan específico está en los favoritos del usuario.
+ */
+export const isPlanFavorito = cache(async (
+	userId: string,
+	planId: number | string
+): Promise<boolean> => {
+	const cookieStore = await cookies()
+	const supabase = createClient(cookieStore)
+
+	const {data, error} = await supabase
+		.from("carreras_fav")
+		.select("id")
+		.eq("user_id", userId)
+		.eq("plan_id", planId)
+		.maybeSingle()
+
+	if (error || !data) return false
+	return true
+})
+
+/**
  * Obtiene la malla curricular de un plan inyectándole el avance del usuario actual.
  * Realiza las consultas en paralelo utilizando Promise.all.
  *
@@ -1347,7 +1387,30 @@ export const getDatosPerfilCarrera = cache(async (userId: string, carreraSlug: s
 		return null
 	}
 
-	const planActivo = carreraData.planes[0]
+	const cookieStore = await cookies()
+	const supabase = createClient(cookieStore)
+
+	const { data: favData, error: favError } = await supabase
+		.from("carreras_fav")
+		.select("plan_id, plan:plan_estudio!inner(id, carrera_id)")
+		.eq("user_id", userId)
+		.eq("plan.carrera_id", carreraData.id)
+		.maybeSingle()
+
+	if (favError) {
+		console.error(`Error al obtener el plan favorito de la carrera ${carreraSlug}:`, favError)
+		throw favError
+	}
+
+	const planIdFavorito = favData?.plan_id
+	const planActivo = planIdFavorito
+		? carreraData.planes.find((p) => p.id === Number(planIdFavorito))
+		: undefined
+
+	if (!planActivo) {
+		return null
+	}
+
 	const planEstudioData = await getMiCarrera(userId, planActivo.id)
 
 	let totalMaterias = 0

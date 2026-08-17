@@ -1,9 +1,10 @@
 "use server"
 
 import {createClient} from "@/utils/supabase/server"
-import {cookies} from "next/headers"
+import {cookies, headers} from "next/headers"
 import {getCurrentUser} from "@/lib/auth"
 import {cache} from "react"
+import {z} from "zod"
 import type {EstadoMateria} from "@/types/materiaTypes"
 
 interface DatosActualizacionPerfil {
@@ -12,6 +13,32 @@ interface DatosActualizacionPerfil {
 	avatarUrl?: string;
 	icon?: string;
 }
+
+async function getUserIdAutenticado(): Promise<string | null> {
+	const userRes = await getCurrentUser()
+	return userRes.data?.user?.id ?? null
+}
+
+async function getClientIp(): Promise<string> {
+	const headersList = await headers()
+	const forwarded = headersList.get("x-forwarded-for")
+	return forwarded ? forwarded.split(",")[0].trim() : "unknown"
+}
+
+const contactoSchema = z.object({
+	nombre: z.string().trim().min(2).max(100),
+	email: z.string().trim().email().max(254),
+	mensaje: z.string().trim().min(10).max(2000),
+})
+
+const estadoMateriaSchema = z.enum(["Sin cursar", "Cursando", "Regular", "Aprobado", "Libre"])
+
+const perfilSchema = z.object({
+	username: z.string().trim().min(3).max(30).regex(/^[a-z0-9_.]+$/i).optional(),
+	fullName: z.string().trim().min(2).max(80).optional(),
+	avatarUrl: z.string().max(500).optional(),
+	icon: z.string().max(50).optional(),
+})
 
 interface AvanceQueryResponse {
 	id: number;
@@ -22,65 +49,82 @@ interface CarreraFavQueryResponse {
 }
 
 /**
- * Registra un mensaje de contacto enviado por el usuario.
+ * Registra un mensaje de contacto con validación y rate limit por IP.
  *
- * @param nombre - Nombre del contacto
- * @param email - Correo del contacto
- * @param mensaje - Contenido del mensaje
- * @returns true si se guardó con éxito, false en caso contrario
+ * @param nombre - Nombre del contacto (2-100 caracteres)
+ * @param email - Correo válido (≤254 caracteres)
+ * @param mensaje - Contenido (10-2000 caracteres)
+ * @returns {success, error?} - Distingue límite alcanzado de error
  */
 export async function setContacto(
 	nombre: string,
 	email: string,
 	mensaje: string
-): Promise<boolean> {
+): Promise<{success: boolean; error?: string}> {
+	// Validar entrada
+	const validation = contactoSchema.safeParse({nombre, email, mensaje})
+	if (!validation.success) {
+		return {success: false, error: "Datos inválidos"}
+	}
+
 	const cookieStore = await cookies()
 	const supabase = createClient(cookieStore)
+	const clientIp = await getClientIp()
 
+	// Chequear rate limit (RPC; fail-closed)
+	const {data: rateLimitOk, error: rateLimitError} = await supabase.rpc(
+		"check_rate_limit",
+		{
+			p_clave: clientIp,
+			p_accion: "contacto",
+			p_max: 5,
+			p_ventana_minutos: 60,
+		}
+	)
+
+	if (rateLimitError || !rateLimitOk) {
+		return {success: false, error: "Límite de intentos alcanzado. Intenta más tarde."}
+	}
+
+	// Insertar mensaje
 	const {error} = await supabase
 		.from("mensajes")
 		.insert({
-			nombre,
-			email,
-			mensaje,
+			nombre: validation.data.nombre,
+			email: validation.data.email,
+			mensaje: validation.data.mensaje,
 			leido: false,
 			etiqueta: "general",
 		})
 
 	if (error) {
 		console.error("Error al registrar mensaje de contacto:", error)
-		return false
+		return {success: false, error: "No se pudo guardar el mensaje"}
 	}
 
-	return true
+	return {success: true}
 }
 
 /**
- * Agrega o elimina un plan de la lista de favoritos de un usuario.
+ * Agrega o elimina un plan de la lista de favoritos del usuario autenticado.
  *
- * @param userId - ID del usuario
  * @param planId - ID del plan de estudio
  * @returns true si la operación tuvo éxito, false en caso contrario
  */
 export async function setToggleFavoritoPlan(
-	userId: string,
 	planId: number | string
 ): Promise<boolean> {
 	const cookieStore = await cookies()
 	const supabase = createClient(cookieStore)
 
-	let targetUserId = userId
-	if (!targetUserId) {
-		const userRes = await getCurrentUser()
-		if (!userRes.data?.user) return false
-		targetUserId = userRes.data.user.id
-	}
+	const userId = await getUserIdAutenticado()
+	if (!userId) return false
 
 	// Verificar si ya existe en favoritos
 	const {data, error: checkError} = await supabase
 		.from("carreras_fav")
 		.select("id")
-		.eq("user_id", targetUserId)
+		.eq("user_id", userId)
 		.eq("plan_id", planId)
 		.maybeSingle()
 
@@ -92,11 +136,12 @@ export async function setToggleFavoritoPlan(
 	const existingFav = data as unknown as CarreraFavQueryResponse | null
 
 	if (existingFav) {
-		// Eliminar de favoritos
+		// Eliminar de favoritos (acotado por usuario)
 		const {error: deleteError} = await supabase
 			.from("carreras_fav")
 			.delete()
 			.eq("id", existingFav.id)
+			.eq("user_id", userId)
 
 		if (deleteError) {
 			console.error("Error al eliminar de favoritos:", deleteError)
@@ -107,7 +152,7 @@ export async function setToggleFavoritoPlan(
 		const {error: insertError} = await supabase
 			.from("carreras_fav")
 			.insert({
-				user_id: targetUserId,
+				user_id: userId,
 				plan_id: planId,
 			})
 
@@ -120,65 +165,33 @@ export async function setToggleFavoritoPlan(
 	return true
 }
 
-/**
- * Consulta si un plan específico está en los favoritos del usuario.
- */
-export const isPlanFavorito = cache(async (
-	userId: string,
-	planId: number | string
-): Promise<boolean> => {
-	const cookieStore = await cookies()
-	const supabase = createClient(cookieStore)
-
-	let targetUserId = userId
-	if (!targetUserId) {
-		const userRes = await getCurrentUser()
-		if (!userRes.data?.user) return false
-		targetUserId = userRes.data.user.id
-	}
-
-	const {data, error} = await supabase
-		.from("carreras_fav")
-		.select("id")
-		.eq("user_id", targetUserId)
-		.eq("plan_id", planId)
-		.maybeSingle()
-
-	if (error || !data) return false
-	return true
-})
 
 /**
- * Actualiza el estado de avance de una materia para un usuario específico.
+ * Actualiza el estado de avance de una materia para el usuario autenticado.
  *
- * @param userId - ID del usuario
  * @param materiaPlanId - ID de la materia en el plan
  * @param estado - Nuevo estado ("Sin cursar", "Cursando", "Regular", "Aprobado", "Libre")
  * @returns true si se actualizó con éxito, false en caso contrario
  */
 export async function setEstadoMateria(
-	userId: string,
 	materiaPlanId: number,
 	estado: EstadoMateria
 ): Promise<boolean> {
 	const cookieStore = await cookies()
 	const supabase = createClient(cookieStore)
 
-	let targetUserId = userId
-	if (!targetUserId) {
-		const userRes = await getCurrentUser()
-		if (!userRes.data?.user) {
-			console.warn("setEstadoMateria: No authenticated user found.")
-			return false
-		}
-		targetUserId = userRes.data.user.id
-	}
+	const userId = await getUserIdAutenticado()
+	if (!userId) return false
+
+	// Validar estado
+	const estadoValidation = estadoMateriaSchema.safeParse(estado)
+	if (!estadoValidation.success) return false
 
 	// Buscar si existe un avance previo para esa materia y usuario
 	const {data, error: selectError} = await supabase
 		.from("avances")
 		.select("id")
-		.eq("user_id", targetUserId)
+		.eq("user_id", userId)
 		.eq("materia_plan_id", materiaPlanId)
 		.maybeSingle()
 
@@ -191,14 +204,15 @@ export async function setEstadoMateria(
 	const now = new Date().toISOString()
 
 	if (existingAdvance) {
-		// Actualizar avance existente
+		// Actualizar avance existente (acotado por usuario)
 		const {error: updateError} = await supabase
 			.from("avances")
 			.update({
-				estado: estado,
+				estado: estadoValidation.data,
 				updated_at: now,
 			})
 			.eq("id", existingAdvance.id)
+			.eq("user_id", userId)
 
 		if (updateError) {
 			console.error("Error al actualizar avance de materia:", updateError)
@@ -209,9 +223,9 @@ export async function setEstadoMateria(
 		const {error: insertError} = await supabase
 			.from("avances")
 			.insert({
-				user_id: targetUserId,
+				user_id: userId,
 				materia_plan_id: materiaPlanId,
-				estado: estado,
+				estado: estadoValidation.data,
 				updated_at: now,
 			})
 
@@ -225,27 +239,45 @@ export async function setEstadoMateria(
 }
 
 /**
- * Actualiza el perfil de un usuario en la tabla public.usuarios.
+ * Actualiza el perfil del usuario autenticado.
  *
- * @param userId - ID del usuario a actualizar
- * @param datos - Campos del perfil a modificar
+ * @param datos - Campos del perfil a modificar (username, fullName, avatarUrl, icon)
  * @returns true si la actualización tuvo éxito, false en caso contrario
  */
 export async function setPerfilUsuario(
-	userId: string,
 	datos: DatosActualizacionPerfil
 ): Promise<boolean> {
 	const cookieStore = await cookies()
 	const supabase = createClient(cookieStore)
 
+	const userId = await getUserIdAutenticado()
+	if (!userId) return false
+
+	// Validar datos
+	const validation = perfilSchema.safeParse(datos)
+	if (!validation.success) return false
+
+	// Si va a cambiar username, verificar que no esté en uso
+	if (validation.data.username) {
+		const {data: existingUser} = await supabase
+			.from("usuarios")
+			.select("id")
+			.eq("username", validation.data.username)
+			.maybeSingle()
+
+		if (existingUser && existingUser.id !== userId) {
+			return false
+		}
+	}
+
 	const updatePayload: Record<string, string> = {
 		updated_at: new Date().toISOString()
 	}
 
-	if (datos.username !== undefined) updatePayload.username = datos.username
-	if (datos.fullName !== undefined) updatePayload.full_name = datos.fullName
-	if (datos.avatarUrl !== undefined) updatePayload.avatar_url = datos.avatarUrl
-	if (datos.icon !== undefined) updatePayload.icon = datos.icon
+	if (validation.data.username !== undefined) updatePayload.username = validation.data.username
+	if (validation.data.fullName !== undefined) updatePayload.full_name = validation.data.fullName
+	if (validation.data.avatarUrl !== undefined) updatePayload.avatar_url = validation.data.avatarUrl
+	if (validation.data.icon !== undefined) updatePayload.icon = validation.data.icon
 
 	const {error} = await supabase
 		.from("usuarios")
