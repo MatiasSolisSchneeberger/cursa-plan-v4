@@ -3,7 +3,7 @@
 import { Card } from "@/components/ui/card"
 import { CalendarEvent } from "@/utils/transformEventos"
 import { claveDia, eventosDelDia, formatearRango } from "@/utils/calendario"
-import { calcularDiasCalendario } from "@/utils/fechaProxima"
+import { calcularDiasCalendario } from "@/utils/diasHabiles"
 
 interface HoyPanelProps {
   eventos: CalendarEvent[]

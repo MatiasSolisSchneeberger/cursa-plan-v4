@@ -7,7 +7,7 @@ import {Item, ItemContent, ItemMedia, ItemTitle, ItemActions} from "@/components
 import {Button} from "@/components/ui/button"
 import {Tooltip, TooltipContent, TooltipTrigger} from "@/components/ui/tooltip"
 import {IconFileText, IconExternalLink, IconAlertCircle, IconAlertTriangle} from "@tabler/icons-react"
-import {parseLocalExamen, calcularDiasHabiles, calcularDiasCalendario} from "@/utils/fechaProxima"
+import { parseFechaLocal, getEstadoInscripcion } from "@/utils/diasHabiles"
 import {GoogleCalendar} from "@/assets/google-calendar"
 
 export interface ResolucionInfo {
@@ -21,6 +21,10 @@ interface ExamenCardProps {
 	materiaNombre: string
 	mesaNumero: number
 	esProxima: boolean
+	/** "Hoy" normalizado a las 00:00 en hora argentina, calculado una vez en la página. */
+	hoy: Date
+	/** Fechas "YYYY-MM-DD" de feriados. Set porque este es un Server Component. */
+	feriados: ReadonlySet<string>
 	resolucion?: ResolucionInfo | null
 }
 
@@ -44,36 +48,32 @@ export function ExamenCard({
 	materiaNombre,
 	mesaNumero,
 	esProxima,
+	hoy,
+	feriados,
 	resolucion,
 }: ExamenCardProps) {
-	const hoy = new Date()
-	const hoyLocal = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate())
-	const fechaExamen = parseLocalExamen(fecha)
-
-	const esPasada = fechaExamen < hoyLocal
-	const diasHabiles = calcularDiasHabiles(fechaExamen, hoyLocal)
-	const diasCalendario = calcularDiasCalendario(fechaExamen, hoyLocal)
+	const fechaExamen = parseFechaLocal(fecha)
+	const { estado, fechaLimite, diasHabilesRestantes } = getEstadoInscripcion(fechaExamen, hoy, feriados)
 
 	let badgeText = ""
 	let badgeVariant: "secondary" | "destructive" | "warning" | "default" = "default"
 
-	if (esPasada) {
+	if (estado === "pasada") {
 		badgeText = "pasada"
 		badgeVariant = "secondary"
-	} else if (diasHabiles <= 3) {
+	} else if (estado === "cerrada") {
 		badgeText = "inscripciones cerradas"
 		badgeVariant = "destructive"
 	} else if (esProxima) {
 		badgeText = "próxima mesa"
-		if (diasCalendario < 7) {
-			badgeVariant = "warning"
-		} else {
-			badgeVariant = "default"
-		}
+		badgeVariant = estado === "por-cerrar" ? "warning" : "default"
 	}
 
-	const showWarningAlert = !esPasada && diasHabiles > 3 && diasCalendario <= 7
-	const showDestructiveAlert = !esPasada && diasHabiles <= 3
+	const fechaLimiteFormateada = fechaLimite.toLocaleDateString("es-AR", {
+		weekday: "long",
+		day: "numeric",
+		month: "long",
+	})
 
 	const fechaFormateada = fechaExamen.toLocaleDateString("es-AR", {
 		year: "numeric",
@@ -140,22 +140,24 @@ export function ExamenCard({
 					</ItemActions>
 				</Item>
 
-				{showWarningAlert && (
+				{estado === "por-cerrar" && (
 					<Alert variant="warning" className="py-2.5">
 						<IconAlertTriangle className="size-4" />
 						<AlertTitle className="text-xs font-semibold">Inscripción próxima a cerrar</AlertTitle>
 						<AlertDescription className="text-xs">
-							Quedan pocos días para que cierren las inscripciones (quedan {diasCalendario}{" "}
-							{diasCalendario === 1 ? "día" : "días"}).
+							Podés inscribirte hasta el {fechaLimiteFormateada} (
+							{diasHabilesRestantes === 1 ? "queda 1 día hábil" : `quedan ${diasHabilesRestantes} días hábiles`}).
 						</AlertDescription>
 					</Alert>
 				)}
 
-				{showDestructiveAlert && (
+				{estado === "cerrada" && (
 					<Alert variant="destructive" className="py-2.5">
 						<IconAlertCircle className="size-4" />
 						<AlertTitle className="text-xs font-semibold">Inscripciones cerradas</AlertTitle>
-						<AlertDescription className="text-xs">Ya cerró las inscripciones.</AlertDescription>
+						<AlertDescription className="text-xs">
+							La inscripción cerró el {fechaLimiteFormateada}.
+						</AlertDescription>
 					</Alert>
 				)}
 			</CardContent>

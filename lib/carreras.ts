@@ -836,6 +836,25 @@ export async function getCalendario(
 }
 
 /**
+ * Obtiene todas las fechas de feriados y días no laborables.
+ * Se usan para el cálculo de días hábiles (cierre de inscripción a mesas).
+ * @returns Array de fechas en formato "YYYY-MM-DD"
+ */
+export async function getFeriados(): Promise<string[]> {
+	"use cache"
+	cacheLife("days")
+
+	const { data, error } = await staticSupabase.from("feriados").select("fecha")
+
+	if (error) {
+		console.error("Error al obtener feriados:", error)
+		return []
+	}
+
+	return (data || []).map(({ fecha }) => fecha as string)
+}
+
+/**
  * Obtiene el detalle de una materia dentro de un plan específico, incluyendo sus correlativas estructuradas.
  *
  * @param carreraSlug - Slug de la carrera
