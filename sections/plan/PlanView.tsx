@@ -12,7 +12,7 @@ interface PlanViewProps {
 	carreraSlug: string
 	planIdOrYear: string | number
 	initialAvances?: Record<number, EstadoMateria>
-	userId?: string
+	isAuthenticated?: boolean
 }
 
 export function PlanView({
@@ -20,7 +20,7 @@ export function PlanView({
 	carreraSlug,
 	planIdOrYear,
 	initialAvances = {},
-	userId = "",
+	isAuthenticated = false,
 }: PlanViewProps) {
 	// Estado para la orientación seleccionada. "all" por defecto.
 	const [selectedOrientation, setSelectedOrientation] = React.useState<string>("all")
@@ -64,11 +64,13 @@ export function PlanView({
 			})
 
 			// Sincronizar en base de datos si el usuario está autenticado
-			setEstadoMateria(userId, idMateriaPlan, nuevoEstado).catch((err) => {
-				console.error("Error al guardar avance en la base de datos:", err)
-			})
+			if (isAuthenticated) {
+				setEstadoMateria(idMateriaPlan, nuevoEstado).catch((err) => {
+					console.error("Error al guardar avance en la base de datos:", err)
+				})
+			}
 		},
-		[storageKey, userId]
+		[storageKey, isAuthenticated]
 	)
 
 	// Verificar si un año específico contiene orientaciones

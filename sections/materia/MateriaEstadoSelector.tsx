@@ -9,17 +9,17 @@ import {MateriaEstadoSelect} from "@/components/MateriaEstadoSelect"
 interface MateriaEstadoSelectorProps {
 	materiaPlanId: number
 	initialEstado: EstadoMateria
-	userId?: string
+	isAuthenticated?: boolean
 }
 
 export function MateriaEstadoSelector({
 	materiaPlanId,
 	initialEstado,
-	userId,
+	isAuthenticated = false,
 }: MateriaEstadoSelectorProps) {
 	const [estado, setEstado] = React.useState<EstadoMateria>(() => {
 		if (initialEstado && initialEstado !== "Sin cursar") return initialEstado
-		if (typeof window !== "undefined" && !userId) {
+		if (typeof window !== "undefined" && !isAuthenticated) {
 			const localSaved = localStorage.getItem(`materia-estado-${materiaPlanId}`)
 			if (localSaved) return localSaved as EstadoMateria
 		}
@@ -32,13 +32,13 @@ export function MateriaEstadoSelector({
 		const nextEstado = newValue
 		setEstado(nextEstado)
 
-		if (!userId) {
+		if (!isAuthenticated) {
 			localStorage.setItem(`materia-estado-${materiaPlanId}`, nextEstado)
 			return
 		}
 
 		startTransition(async () => {
-			const success = await setEstadoMateria(userId, materiaPlanId, nextEstado)
+			const success = await setEstadoMateria(materiaPlanId, nextEstado)
 			if (!success) {
 				setEstado(estado)
 				alert("Error al actualizar el estado de la materia. Intenta de nuevo.")

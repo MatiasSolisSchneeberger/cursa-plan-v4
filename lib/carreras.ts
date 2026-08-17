@@ -1125,6 +1125,27 @@ export const getDashboardUsuario = cache(async (userId: string): Promise<DatosDa
 })
 
 /**
+ * Consulta si un plan específico está en los favoritos del usuario.
+ */
+export const isPlanFavorito = cache(async (
+	userId: string,
+	planId: number | string
+): Promise<boolean> => {
+	const cookieStore = await cookies()
+	const supabase = createClient(cookieStore)
+
+	const {data, error} = await supabase
+		.from("carreras_fav")
+		.select("id")
+		.eq("user_id", userId)
+		.eq("plan_id", planId)
+		.maybeSingle()
+
+	if (error || !data) return false
+	return true
+})
+
+/**
  * Obtiene la malla curricular de un plan inyectándole el avance del usuario actual.
  * Realiza las consultas en paralelo utilizando Promise.all.
  *
