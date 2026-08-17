@@ -1368,7 +1368,30 @@ export const getDatosPerfilCarrera = cache(async (userId: string, carreraSlug: s
 		return null
 	}
 
-	const planActivo = carreraData.planes[0]
+	const cookieStore = await cookies()
+	const supabase = createClient(cookieStore)
+
+	const { data: favData, error: favError } = await supabase
+		.from("carreras_fav")
+		.select("plan_id, plan:plan_estudio!inner(id, carrera_id)")
+		.eq("user_id", userId)
+		.eq("plan.carrera_id", carreraData.id)
+		.maybeSingle()
+
+	if (favError) {
+		console.error(`Error al obtener el plan favorito de la carrera ${carreraSlug}:`, favError)
+		throw favError
+	}
+
+	const planIdFavorito = favData?.plan_id
+	const planActivo = planIdFavorito
+		? carreraData.planes.find((p) => p.id === Number(planIdFavorito))
+		: undefined
+
+	if (!planActivo) {
+		return null
+	}
+
 	const planEstudioData = await getMiCarrera(userId, planActivo.id)
 
 	let totalMaterias = 0
