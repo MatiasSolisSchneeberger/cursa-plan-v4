@@ -22,6 +22,7 @@ export default function LoginForm({ next }: LoginFormProps) {
 	const [email, setEmail] = useState("")
 	const [password, setPassword] = useState("")
 	const [loading, setLoading] = useState(false)
+	const [isRedirecting, setIsRedirecting] = useState(false)
 	const [error, setError] = useState<string | null>(null)
 	const [success, setSuccess] = useState<string | null>(null)
 
@@ -41,6 +42,7 @@ export default function LoginForm({ next }: LoginFormProps) {
 				setError(res.error || "Ocurrió un error al iniciar sesión.")
 			} else {
 				setSuccess("¡Inicio de sesión exitoso! Redirigiendo...")
+				setIsRedirecting(true)
 				setTimeout(() => {
 					router.replace(next)
 					router.refresh()
@@ -49,6 +51,7 @@ export default function LoginForm({ next }: LoginFormProps) {
 		} catch (err) {
 			console.error(err)
 			setError("Ocurrió un error inesperado. Inténtalo de nuevo.")
+			setIsRedirecting(false)
 		} finally {
 			setLoading(false)
 		}
@@ -116,8 +119,8 @@ export default function LoginForm({ next }: LoginFormProps) {
 								</FieldLabel>
 							</Field>
 							<Field className="pt-2">
-								<Button type="submit" className="w-full" disabled={loading}>
-									{loading ? "Iniciando sesión..." : "Iniciar Sesión"}
+								<Button type="submit" className="w-full" disabled={loading || isRedirecting}>
+									{loading ? "Iniciando sesión..." : isRedirecting ? "Redirigiendo..." : "Iniciar Sesión"}
 								</Button>
 							</Field>
 						</FieldGroup>

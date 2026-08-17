@@ -40,8 +40,13 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Supabase
+supabase/migrations
+
+# Agents
 .agents/
 .docs/
+.mcp.json
 .claude/
 .vscode/
 estructura.md

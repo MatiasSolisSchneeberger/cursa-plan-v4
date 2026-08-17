@@ -12,7 +12,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## 2. Tech Stack
 - **Lenguaje:** TypeScript / Node.js 20+
-- **Framework Principal:** NestJS / Next.js
+- **Framework Principal:** Next.js (App Router)
 - **Base de Datos:** PostgreSQL / Supabase
 - **Testing:** -
 - **Estilos / UI:** Tailwind CSS / Shadcn
@@ -43,6 +43,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - ❌ NO ignorar tipos en TypeScript (`any` está estrictamente prohibido).
 - ❌ NO modificar esquemas de base de datos directamente; usar migraciones.
 - ❌ NO dejar comentarios de código muerto o `console.log` en commit.
+- ❌ NO subir nada a git, solamente dejar el texto del nombre y la descripcion del commit.
 
 ### Convenciones de JavaScript / TypeScript
 
