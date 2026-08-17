@@ -24,7 +24,7 @@ interface ConfiguracionPersonalSectionProps {
 
 export default function ConfiguracionPersonalSection({ user, email = "" }: ConfiguracionPersonalSectionProps) {
 	const router = useRouter()
-	const { id, fullName: initialFullName, username: initialUsername } = user
+	const { fullName: initialFullName, username: initialUsername } = user
 
 	const [fullName, setFullName] = useState(initialFullName || "")
 	const [username, setUsername] = useState(initialUsername || "")
@@ -37,7 +37,7 @@ export default function ConfiguracionPersonalSection({ user, email = "" }: Confi
 		setIsSavingProfile(true)
 
 		try {
-			const success = await setPerfilUsuario(id, {
+			const success = await setPerfilUsuario({
 				fullName: fullName.trim(),
 				username: username.trim(),
 			})

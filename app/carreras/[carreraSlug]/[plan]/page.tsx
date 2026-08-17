@@ -1,6 +1,5 @@
-import {getPlanEstudio, getMiCarrera} from "@/lib/carreras"
+import {getPlanEstudio, getMiCarrera, isPlanFavorito} from "@/lib/carreras"
 import {getCurrentUser} from "@/lib/auth"
-import {isPlanFavorito} from "@/lib/actions"
 import {PlanView} from "@/sections/plan/PlanView"
 import {FavoritePlanButton} from "@/sections/plan/FavoritePlanButton"
 import {Card, CardContent, CardHeader, CardAction} from "@/components/ui/card"
@@ -53,7 +52,7 @@ export default async function PlanPage({params}: PageProps) {
 				<CardHeader className="typeset">
 					<h1 className="text-3xl font-bold tracking-tight">{planData.carrera.nombre}</h1>
 					<CardAction>
-						<FavoritePlanButton planId={planData.id} initialIsFavorite={isFav} userId={userId} />
+						<FavoritePlanButton planId={planData.id} initialIsFavorite={isFav} isAuthenticated={Boolean(userId)} />
 					</CardAction>
 				</CardHeader>
 				<CardContent className="text-muted-foreground text-lg">
@@ -78,7 +77,7 @@ export default async function PlanPage({params}: PageProps) {
 				carreraSlug={carreraSlug}
 				planIdOrYear={plan}
 				initialAvances={initialAvances}
-				userId={userId}
+				isAuthenticated={Boolean(userId)}
 			/>
 		</section>
 	)

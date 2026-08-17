@@ -9,14 +9,14 @@ import {cn} from "@/lib/utils"
 interface FavoritePlanButtonProps {
 	planId: number | string
 	initialIsFavorite?: boolean
-	userId?: string
+	isAuthenticated?: boolean
 	className?: string
 }
 
 export function FavoritePlanButton({
 	planId,
 	initialIsFavorite = false,
-	userId = "",
+	isAuthenticated = false,
 	className,
 }: FavoritePlanButtonProps) {
 	const [isFavorite, setIsFavorite] = React.useState<boolean>(() => {
@@ -42,9 +42,11 @@ export function FavoritePlanButton({
 			console.error("Error al guardar favorito en localStorage:", e)
 		}
 
+		if (!isAuthenticated) return
+
 		startTransition(async () => {
-			const success = await setToggleFavoritoPlan(userId, planId)
-			if (!success && userId) {
+			const success = await setToggleFavoritoPlan(planId)
+			if (!success) {
 				setIsFavorite(!nextState)
 				try {
 					localStorage.setItem(storageKey, String(!nextState))

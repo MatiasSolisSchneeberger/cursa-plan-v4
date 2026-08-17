@@ -140,7 +140,7 @@ export default async function MateriaDetailPage({ params }: PageProps) {
 							<MateriaEstadoSelector
 								materiaPlanId={materia.idMateriaPlan}
 								initialEstado={estadoActual}
-								userId={user?.id}
+								isAuthenticated={Boolean(user?.id)}
 							/>
 						</div>
 					</CardHeader>
