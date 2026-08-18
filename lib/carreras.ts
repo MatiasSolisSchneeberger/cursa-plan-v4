@@ -14,7 +14,6 @@ import type {
 	DatosDashboardUsuario,
 	DatosSeguimientoPlan,
 	DatosMateriaDetalle,
-	ResultadosBusquedaGeneral,
 	PerfilUsuario,
 	TurnoExamenBD,
 	InscripcionBD,
@@ -23,8 +22,6 @@ import type {
 	AnioSeguimientoJSON,
 	PlanCarreraFavorito,
 	OrientacionBasica,
-	ResultadoBusquedaCarrera,
-	ResultadoBusquedaMateria,
 	AnioJSON,
 	PeriodoJSON,
 	GrupoOrientacion,
@@ -130,29 +127,6 @@ interface MateriaDetalleQueryRow {
 		} | null
 	} | null
 	correlativas: CorrelativaDBRow[]
-}
-
-interface CarreraSearchRow {
-	id: number
-	nombre: string
-	slug: string
-	icon: string
-}
-
-interface MateriaPlanSearchRow {
-	id: number
-	materia: {
-		id: number
-		nombre: string
-		slug: string
-	} | null
-	plan: {
-		anio_inicio: number
-		carreras: {
-			nombre: string
-			slug: string
-		} | null
-	} | null
 }
 
 // --- HELPER PARA PROCESAR CORRELATIVAS ---
@@ -987,77 +961,6 @@ export async function getMateriaDetalle(
 			},
 		},
 		correlativas: procesarCorrelativas(typedRow.correlativas || []),
-	}
-}
-
-/**
- * Realiza una búsqueda general de carreras y materias.
- * Para las materias, provee su correspondiente carrera y año de inicio del plan de estudio.
- * Ejecuta ambas búsquedas en paralelo con Promise.all para optimizar la respuesta.
- *
- * @param termino - Término de búsqueda
- * @returns Resultados coincidentes de carreras y materias
- */
-export async function getBusquedaGeneral(termino: string): Promise<ResultadosBusquedaGeneral> {
-	"use cache"
-	cacheLife("hours")
-
-	const [carrerasRes, materiasRes] = await Promise.all([
-		staticSupabase
-			.from("carreras")
-			.select("id, nombre, slug, icon")
-			.or(`nombre.ilike.%${termino}%,slug.ilike.%${termino}%`)
-			.limit(10),
-		staticSupabase
-			.from("materia_plan")
-			.select(
-				`
-				id,
-				materia:materias!inner (
-					id,
-					nombre,
-					slug
-				),
-				plan:plan_estudio!inner (
-					anio_inicio,
-					carreras:carrera_id!inner (
-						nombre,
-						slug
-					)
-				)
-			`,
-			)
-			.or(`materia.nombre.ilike.%${termino}%,materia.slug.ilike.%${termino}%`)
-			.limit(20),
-	])
-
-	if (carrerasRes.error) throw carrerasRes.error
-	if (materiasRes.error) throw materiasRes.error
-
-	const rawCarreras = (carrerasRes.data || []) as unknown as CarreraSearchRow[]
-	const rawMaterias = (materiasRes.data || []) as unknown as MateriaPlanSearchRow[]
-
-	const carreras: ResultadoBusquedaCarrera[] = rawCarreras.map((c) => ({
-		carreraId: Number(c.id),
-		carreraNombre: c.nombre,
-		carreraSlug: c.slug,
-		carreraIcon: c.icon,
-	}))
-
-	const materias: ResultadoBusquedaMateria[] = rawMaterias
-		.filter((m) => m.materia && m.plan && m.plan.carreras)
-		.map((m) => ({
-			materiaId: Number(m.materia!.id),
-			materiaNombre: m.materia!.nombre,
-			materiaSlug: m.materia!.slug,
-			carreraNombre: m.plan!.carreras!.nombre,
-			carreraSlug: m.plan!.carreras!.slug,
-			planAnioInicio: Number(m.plan!.anio_inicio),
-		}))
-
-	return {
-		carreras,
-		materias,
 	}
 }
 
