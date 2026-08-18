@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: CarreraPageProps) {
 	if (!carrera) return { title: "Carrera no encontrada" }
 
 	return {
-		title: `Editar ${carrera.nombre} | CursaPlan Admin`,
+		title: `Editar ${carrera.nombre}`,
 		description: `Administrar planes de estudio y datos de ${carrera.nombre}.`,
 	}
 }
