@@ -26,7 +26,7 @@ export function esContenidoSlug(slug: string): slug is ContenidoSlug {
 
 export function buildContentMetadata({ title, description }: ContentFrontmatter): Metadata {
 	return {
-		title: `${title} | CursaPlan`,
+		title,
 		description,
 		openGraph: {
 			title,
