@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import {Suspense} from "react"
 import {redirect} from "next/navigation"
 import Link from "next/link"
@@ -14,9 +15,10 @@ import {IconShieldOff, IconArrowLeft, IconLock} from "@tabler/icons-react"
 import {Alert, AlertTitle} from "@/components/ui/alert"
 import {buildLoginUrl} from "@/utils/redirect"
 
-export const metadata = {
-	title: "Panel de Administración | CursaPlan",
+export const metadata: Metadata = {
+	title: "Panel de Administración",
 	description: "Gestión de permisos, roles y políticas de seguridad del sistema.",
+	robots: { index: false, follow: false },
 }
 
 function AccessDeniedView({email, role}: {email?: string | null; role?: string}) {
