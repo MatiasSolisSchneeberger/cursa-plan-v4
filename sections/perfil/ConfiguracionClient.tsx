@@ -29,7 +29,7 @@ export default function ConfiguracionClient({ user, email = "" }: ConfiguracionC
 			{/* SECCIÓN 2: SEGURIDAD Y CONTRASEÑA */}
 			<ConfiguracionSeguridadSection />
 
-			{/* SECCIÓN 3: ZONA DE PELIGRO (UI ONLY) */}
+			{/* SECCIÓN 3: ZONA DE PELIGRO */}
 			<ConfiguracionPeligroSection />
 		</div>
 	)
