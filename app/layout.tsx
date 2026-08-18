@@ -5,10 +5,20 @@ import {TooltipProvider} from "@/components/ui/tooltip"
 
 import {/*Poppins, */ Montserrat, JetBrains_Mono} from "next/font/google"
 import {ThemeProvider} from "@/components/ThemeProvider"
+import { siteUrl } from "@/lib/site"
 
 export const metadata: Metadata = {
-	title: "CursaPlan",
+	metadataBase: new URL(siteUrl),
+	title: { default: "CursaPlan", template: "%s | CursaPlan" },
 	description: "Plan de estudios interactivo para carreras universitarias",
+	openGraph: {
+		type: "website",
+		locale: "es_AR",
+		siteName: "CursaPlan",
+		title: "CursaPlan",
+		description: "Plan de estudios interactivo para carreras universitarias",
+	},
+	twitter: { card: "summary_large_image" },
 }
 
 /*const poppins = Poppins({
