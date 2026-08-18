@@ -241,28 +241,6 @@ export interface DatosMateriaDetalle {
 	correlativas: GrupoCorrelativa[];
 }
 
-// 7. Resultados de Búsqueda General
-export interface ResultadoBusquedaMateria {
-	materiaId: number;
-	materiaNombre: string;
-	materiaSlug: string;
-	carreraNombre: string;
-	carreraSlug: string;
-	planAnioInicio: number;
-}
-
-export interface ResultadoBusquedaCarrera {
-	carreraId: number;
-	carreraNombre: string;
-	carreraSlug: string;
-	carreraIcon: string;
-}
-
-export interface ResultadosBusquedaGeneral {
-	carreras: ResultadoBusquedaCarrera[];
-	materias: ResultadoBusquedaMateria[];
-}
-
 // 8. Interfaces para Perfil y Dashboard Extendido
 export interface MateriaCursando extends MateriaSeguimientoJSON {
 	idMateriaPlan: number;
