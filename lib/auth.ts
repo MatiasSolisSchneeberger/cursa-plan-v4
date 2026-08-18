@@ -321,3 +321,29 @@ export async function updatePassword(newPassword: string): Promise<AuthResponse>
 		message: "Contraseña actualizada exitosamente.",
 	}
 }
+
+/**
+ * Elimina la cuenta del usuario autenticado y todos sus datos asociados.
+ * Llamada por el diálogo de confirmación en la Zona de Peligro.
+ */
+export async function deleteAccount(): Promise<AuthResponse> {
+	const cookieStore = await cookies()
+	const supabase = createClient(cookieStore)
+
+	const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+	if (authError || !user) {
+		return { success: false, error: "No hay una sesión activa." }
+	}
+
+	const { error } = await supabase.rpc("delete_user")
+
+	if (error) {
+		console.error("Error al eliminar la cuenta:", error)
+		return { success: false, error: "No se pudo eliminar la cuenta. Intentá nuevamente más tarde." }
+	}
+
+	await supabase.auth.signOut({ scope: "local" })
+
+	return { success: true, message: "Tu cuenta fue eliminada correctamente." }
+}
