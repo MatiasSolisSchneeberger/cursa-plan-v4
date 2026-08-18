@@ -1,10 +1,11 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import {
 	Field,
 	FieldLabel,
@@ -19,14 +20,36 @@ import {
 	DialogFooter,
 	DialogClose,
 } from "@/components/ui/dialog"
-import { IconTrash, IconAlertTriangle, IconInfoCircle } from "@tabler/icons-react"
+import { IconTrash, IconAlertTriangle, IconLoader } from "@tabler/icons-react"
+import { deleteAccount } from "@/lib/auth"
 
 export default function ConfiguracionPeligroSection() {
+	const router = useRouter()
 	const [confirmText, setConfirmText] = useState("")
-	const [dangerNotice, setDangerNotice] = useState<string | null>(null)
+	const [isDeleting, setIsDeleting] = useState(false)
+	const [feedback, setFeedback] = useState<{ type: "success" | "error"; text: string } | null>(null)
+	const [dialogOpen, setDialogOpen] = useState(false)
 
-	const handleMockDeleteAccount = () => {
-		setDangerNotice("Esta es una vista previa de la UI. La eliminación definitiva de la cuenta estará disponible próximamente.")
+	const handleDeleteAccount = async () => {
+		setFeedback(null)
+		setIsDeleting(true)
+
+		try {
+			const res = await deleteAccount()
+			if (res.success) {
+				setFeedback({ type: "success", text: res.message || "Tu cuenta fue eliminada correctamente." })
+				router.replace("/")
+				router.refresh()
+			} else {
+				setFeedback({ type: "error", text: res.error || "Error al eliminar la cuenta." })
+				setConfirmText("")
+			}
+		} catch {
+			setFeedback({ type: "error", text: "Ocurrió un error inesperado al eliminar la cuenta." })
+			setConfirmText("")
+		} finally {
+			setIsDeleting(false)
+		}
 	}
 
 	return (
@@ -51,7 +74,7 @@ export default function ConfiguracionPeligroSection() {
 							</p>
 						</div>
 
-						<Dialog>
+						<Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
 							<DialogTrigger render={
 								<Button variant="destructive" size="sm" className="shrink-0 gap-2">
 									<IconTrash data-icon="inline-start" />
@@ -81,14 +104,17 @@ export default function ConfiguracionPeligroSection() {
 											onChange={(e) => setConfirmText(e.target.value)}
 											placeholder="ELIMINAR"
 											className="font-mono text-sm"
+											disabled={isDeleting}
 										/>
 									</Field>
 
-									{dangerNotice && (
-										<Alert className="bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400">
-											<IconInfoCircle className="size-4" />
-											<AlertDescription className="text-xs">
-												{dangerNotice}
+									{feedback && (
+										<Alert variant={feedback.type === "error" ? "destructive" : "default"} className={feedback.type === "success" ? "bg-emerald-500/10 border-emerald-500/30" : ""}>
+											<AlertTitle className={feedback.type === "success" ? "text-emerald-600 dark:text-emerald-400" : ""}>
+												{feedback.type === "success" ? "Cuenta eliminada" : "Error"}
+											</AlertTitle>
+											<AlertDescription className={`text-xs ${feedback.type === "success" ? "text-emerald-600 dark:text-emerald-400" : ""}`}>
+												{feedback.text}
 											</AlertDescription>
 										</Alert>
 									)}
@@ -96,15 +122,16 @@ export default function ConfiguracionPeligroSection() {
 
 								<DialogFooter className="gap-2 sm:gap-0">
 									<DialogClose render={
-										<Button variant="outline" size="sm">Cancelar</Button>
+										<Button variant="outline" size="sm" disabled={isDeleting}>Cancelar</Button>
 									} />
 									<Button
 										variant="destructive"
 										size="sm"
-										disabled={confirmText !== "ELIMINAR"}
-										onClick={handleMockDeleteAccount}
+										disabled={confirmText !== "ELIMINAR" || isDeleting}
+										onClick={handleDeleteAccount}
 									>
-										Confirmar Eliminación
+										{isDeleting && <IconLoader className="size-4 animate-spin" data-icon="inline-start" />}
+										<span>Confirmar Eliminación</span>
 									</Button>
 								</DialogFooter>
 							</DialogContent>
