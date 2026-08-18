@@ -7,6 +7,13 @@ import {cache} from "react"
 import {z} from "zod"
 import type {EstadoMateria} from "@/types/materiaTypes"
 
+interface DatosContacto {
+	nombre: string;
+	email: string;
+	mensaje: string;
+	etiqueta: "general" | "error-datos" | "bug" | "sugerencia";
+}
+
 interface DatosActualizacionPerfil {
 	username?: string;
 	fullName?: string;
@@ -29,6 +36,7 @@ const contactoSchema = z.object({
 	nombre: z.string().trim().min(2).max(100),
 	email: z.string().trim().email().max(254),
 	mensaje: z.string().trim().min(10).max(2000),
+	etiqueta: z.enum(["general", "error-datos", "bug", "sugerencia"]),
 })
 
 const estadoMateriaSchema = z.enum(["Sin cursar", "Cursando", "Regular", "Aprobado", "Libre"])
@@ -51,18 +59,14 @@ interface CarreraFavQueryResponse {
 /**
  * Registra un mensaje de contacto con validación y rate limit por IP.
  *
- * @param nombre - Nombre del contacto (2-100 caracteres)
- * @param email - Correo válido (≤254 caracteres)
- * @param mensaje - Contenido (10-2000 caracteres)
+ * @param datos - Objeto con nombre, email, mensaje y etiqueta
  * @returns {success, error?} - Distingue límite alcanzado de error
  */
 export async function setContacto(
-	nombre: string,
-	email: string,
-	mensaje: string
+	datos: DatosContacto
 ): Promise<{success: boolean; error?: string}> {
 	// Validar entrada
-	const validation = contactoSchema.safeParse({nombre, email, mensaje})
+	const validation = contactoSchema.safeParse(datos)
 	if (!validation.success) {
 		return {success: false, error: "Datos inválidos"}
 	}
@@ -94,7 +98,7 @@ export async function setContacto(
 			email: validation.data.email,
 			mensaje: validation.data.mensaje,
 			leido: false,
-			etiqueta: "general",
+			etiqueta: validation.data.etiqueta,
 		})
 
 	if (error) {
