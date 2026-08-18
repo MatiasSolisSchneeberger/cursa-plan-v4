@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { Suspense } from "react"
 import { redirect } from "next/navigation"
 import { SidebarProvider } from "@/components/ui/sidebar"
@@ -8,9 +9,10 @@ import { getDatosPerfilInicio } from "@/lib/carreras"
 import { Skeleton } from "@/components/ui/skeleton"
 import { buildLoginUrl } from "@/utils/redirect"
 
-export const metadata = {
-	title: "Mi Perfil | CursaPlan",
+export const metadata: Metadata = {
+	title: "Mi Perfil",
 	description: "Dashboard personal del estudiante con materias en cursada, carreras favoritas y métricas de avance.",
+	robots: { index: false, follow: false },
 }
 
 async function PerfilLayoutContent({ children }: { children: React.ReactNode }) {

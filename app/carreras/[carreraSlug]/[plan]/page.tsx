@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import {getPlanEstudio, getMiCarrera, isPlanFavorito} from "@/lib/carreras"
 import {getCurrentUser} from "@/lib/auth"
 import {PlanView} from "@/sections/plan/PlanView"
@@ -6,12 +7,33 @@ import {Card, CardContent, CardHeader, CardAction} from "@/components/ui/card"
 import {Item, ItemContent, ItemMedia, ItemTitle} from "@/components/ui/item"
 import {IconInfoCircle} from "@tabler/icons-react"
 import type {EstadoMateria} from "@/types/materiaTypes"
+import { rutaPlan } from "@/lib/rutas"
+import { urlAbsoluta } from "@/lib/site"
 
 interface PageProps {
 	params: Promise<{
 		carreraSlug: string
 		plan: string
 	}>
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+	const resolvedParams = await params
+	const { carreraSlug, plan } = resolvedParams
+
+	try {
+		const planData = await getPlanEstudio(plan, carreraSlug)
+		return {
+			title: `${planData.carrera.nombre} — Plan ${planData.anioInicio}`,
+			description: `Malla curricular, correlativas y fechas de examen del plan ${planData.anioInicio} de ${planData.carrera.nombre}.`,
+			alternates: { canonical: urlAbsoluta(rutaPlan(carreraSlug, planData.anioInicio)) },
+		}
+	} catch {
+		return {
+			title: "Plan no encontrado",
+			description: "No pudimos encontrar el plan de estudio solicitado.",
+		}
+	}
 }
 
 export default async function PlanPage({params}: PageProps) {

@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import * as React from "react"
 import Link from "next/link"
 import { cookies } from "next/headers"
@@ -6,6 +7,7 @@ import { getMateriaDetalle, getFeriados } from "@/lib/carreras"
 import { getCurrentUser } from "@/lib/auth"
 import { getHoyLocal, parseFechaLocal } from "@/utils/diasHabiles"
 import { rutaPlan, rutaMateria } from "@/lib/rutas"
+import { urlAbsoluta } from "@/lib/site"
 import { MateriaEstadoSelector } from "@/sections/materia/MateriaEstadoSelector"
 import { ExamenCard } from "@/sections/materia/ExamenCard"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -31,6 +33,29 @@ interface PageProps {
 		plan: string
 		materia: string
 	}>
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+	const resolvedParams = await params
+	const { carreraSlug, plan, materia } = resolvedParams
+
+	try {
+		const materiaData = await getMateriaDetalle(carreraSlug, plan, materia)
+		return {
+			title: `${materiaData.nombre} — ${materiaData.plan.carrera.nombre}`,
+			description: `Correlativas para cursar y rendir, y próximas mesas de examen de ${materiaData.nombre} (${materiaData.anio}º año) en ${materiaData.plan.carrera.nombre}.`,
+			alternates: {
+				canonical: urlAbsoluta(
+					rutaMateria(materiaData.plan.carrera.slug, materiaData.plan.anioInicio, materiaData.slug)
+				),
+			},
+		}
+	} catch {
+		return {
+			title: "Materia no encontrada",
+			description: "No pudimos encontrar la materia solicitada.",
+		}
+	}
 }
 
 function groupRequisitos(condiciones: Condicion[]) {

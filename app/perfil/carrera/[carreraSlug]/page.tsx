@@ -16,7 +16,7 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps) {
 	const { carreraSlug } = await params
 	return {
-		title: `Dashboard de Carrera | CursaPlan`,
+		title: `Dashboard de Carrera`,
 		description: `Progreso y materias en cursada para la carrera ${carreraSlug}.`,
 	}
 }
