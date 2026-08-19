@@ -1,6 +1,8 @@
 "use client"
 
 import { useState } from "react"
+import { useSearchParams } from "next/navigation"
+import { Suspense } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field"
@@ -8,11 +10,18 @@ import { Input } from "@/components/ui/input"
 import { resetPassword } from "@/lib/auth"
 import Link from "next/link"
 
-export default function ForgotPasswordPage() {
+function ForgotPasswordForm() {
+	const searchParams = useSearchParams()
 	const [email, setEmail] = useState("")
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<string | null>(null)
 	const [success, setSuccess] = useState<string | null>(null)
+
+	const errorFromParams = searchParams.get("error") === "link_invalido"
+		? "El enlace de recuperación no es válido o ya fue usado. Pedí uno nuevo."
+		: null
+
+	const displayError = error || errorFromParams
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
@@ -44,9 +53,9 @@ export default function ForgotPasswordPage() {
 					<CardDescription>Ingresa tu correo para recibir un enlace de recuperación</CardDescription>
 				</CardHeader>
 				<CardContent>
-					{error && (
+					{displayError && (
 						<div className="mb-4 p-3 rounded bg-destructive/15 text-destructive text-sm font-medium">
-							{error}
+							{displayError}
 						</div>
 					)}
 					{success && (
@@ -83,5 +92,13 @@ export default function ForgotPasswordPage() {
 				</CardContent>
 			</Card>
 		</section>
+	)
+}
+
+export default function ForgotPasswordPage() {
+	return (
+		<Suspense fallback={<div className="flex items-center justify-center p-8">Cargando...</div>}>
+			<ForgotPasswordForm />
+		</Suspense>
 	)
 }
