@@ -99,7 +99,7 @@ Guardar en: /public/assets/plan-curricular.png
 | **Utilidades** | `motion`, `@tanstack/react-table`, `react-day-picker`, `date-fns`, `zod` | Animaciones, tablas, calendarios, validación |
 | **Base de datos** | PostgreSQL/Supabase | `@supabase/supabase-js`, `@supabase/ssr` |
 | **Markdown** | MDX | `@next/mdx` para páginas de contenido |
-| **Deploy** | Vercel | Serverless, Edge Functions, environment variables |
+| **Deploy & Observabilidad** | Vercel | Serverless, environment variables, Web Analytics, Speed Insights |
 
 ### Requisitos previos
 
@@ -379,8 +379,19 @@ El schema se versiona en `supabase/migrations/`. **No edites el schema a mano.**
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
    - `NEXT_PUBLIC_SITE_URL` (tu dominio de producción, ej. `https://cursa-plan.vercel.app`)
    - `SUPABASE_SERVICE_ROLE_KEY` (opcional, solo si usarás el importador CSV)
-3. Vercel build automático: `npm run build`
-4. Deploy automático en cada push a `master` (o la rama que configures)
+3. Habilitar Web Analytics y Speed Insights:
+   - Entrá a tu proyecto en el dashboard de Vercel
+   - Navegá a Analytics → Enable Web Analytics
+   - Navegá a Speed Insights → Enable Speed Insights
+   - **Nota:** No requieren variables de entorno — se activan desde el dashboard
+4. Vercel build automático: `npm run build`
+5. Deploy automático en cada push a `master` (o la rama que configures)
+
+### Privacidad y Analítica
+
+La plataforma utiliza **Vercel Web Analytics** y **Vercel Speed Insights** para medir uso y rendimiento. Ambos servicios son **cookieless** (no escriben cookies ni identificadores persistentes) y recopilan datos anónimos y agregados. Consultá la [Política de Privacidad](/politica-de-privacidad) para el detalle completo sobre qué datos se recolectan y cómo se tratan.
+
+> **Importante para desarrolladores:** Cualquier cambio en la estrategia de recolección de datos (cambio de proveedor, nuevas métricas, etc.) debe reflejarse en los documentos legales (`content/politica-de-privacidad.mdx`, `content/terminos-y-condiciones.mdx`, `content/acerca-de.mdx`) **antes de deployar a producción**.
 
 ---
 
