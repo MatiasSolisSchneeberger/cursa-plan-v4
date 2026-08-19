@@ -1,15 +1,16 @@
-import type { Metadata } from "next"
+import type {Metadata} from "next"
 import "./globals.css"
 import {cn} from "@/lib/utils"
 import {TooltipProvider} from "@/components/ui/tooltip"
+import {Analytics} from "@vercel/analytics/next"
 
 import {/*Poppins, */ Montserrat, JetBrains_Mono} from "next/font/google"
 import {ThemeProvider} from "@/components/ThemeProvider"
-import { siteUrl } from "@/lib/site"
+import {siteUrl} from "@/lib/site"
 
 export const metadata: Metadata = {
 	metadataBase: new URL(siteUrl),
-	title: { default: "CursaPlan", template: "%s | CursaPlan" },
+	title: {default: "CursaPlan", template: "%s | CursaPlan"},
 	description: "Plan de estudios interactivo para carreras universitarias",
 	openGraph: {
 		type: "website",
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
 		title: "CursaPlan",
 		description: "Plan de estudios interactivo para carreras universitarias",
 	},
-	twitter: { card: "summary_large_image" },
+	twitter: {card: "summary_large_image"},
 }
 
 /*const poppins = Poppins({
@@ -57,10 +58,10 @@ export default function RootLayout({
 				<TooltipProvider>
 					<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
 						{children}
+						<Analytics />
 					</ThemeProvider>
 				</TooltipProvider>
 			</body>
 		</html>
 	)
 }
-
