@@ -1,7 +1,7 @@
 export const frontmatter = {
 	title: "Política de Privacidad",
 	description: "Información transparente sobre cómo tratamos y protegemos tus datos personales en Cursa-Plan.",
-	lastUpdated: "2026-08-03",
+	lastUpdated: "2026-08-19",
 	category: "Privacidad",
 }
 
@@ -10,8 +10,9 @@ export const frontmatter = {
 En **Cursa-Plan** nos tomamos en serio la privacidad de los estudiantes. Únicamente recopilamos los datos mínimos necesarios para brindarte una experiencia personalizada:
 
 - **Datos de Cuenta:** Dirección de correo electrónico, nombre de usuario y nombre completo al registrarte.
-- **Datos de Uso Academicó:** Lista de materias guardadas, estados de cursado (Regular, Aprobado, Cursando, Libre) y planes favoritos.
-- **Datos Técnicos:** Dirección IP orientativa y cookies técnias de sesión para mantenerte autenticado.
+- **Datos de Uso Académico:** Lista de materias guardadas, estados de cursado (Regular, Aprobado, Cursando, Libre) y planes favoritos.
+- **Datos Técnicos:** Cookies esenciales de sesión (Supabase Auth) para mantenerte autenticado. Almacenamiento local (`localStorage`) para tu preferencia de tema y seguimiento local de carreras/materias.
+- **Datos de Navegación y Rendimiento:** Páginas visitadas, referrer, país aproximado, tipo de dispositivo y navegador, tiempos de carga y métricas de rendimiento (Core Web Vitals). Estos datos son **anónimos, no se vinculan a tu cuenta** y se recolectan de todos los visitantes, estén registrados o no. Se procesan mediante Vercel Web Analytics y Vercel Speed Insights, servicios que no utilizan cookies ni identificadores persistentes.
 
 ---
 
@@ -20,27 +21,76 @@ En **Cursa-Plan** nos tomamos en serio la privacidad de los estudiantes. Únicam
 La información recolectada se utiliza exclusivamente para:
 - Autenticar tu acceso a la cuenta mediante Supabase Auth.
 - Guardar y sincronizar tu avance académico entre diferentes dispositivos.
-- Mejorar el diseño y la usabilidad de la plataforma basándonos en estadísticas agregadas e anónimas.
+- Mejorar el diseño y la usabilidad de la plataforma mediante:
+  - Análisis de qué páginas son más consultadas y cuáles tienen problemas de rendimiento.
+  - Identificación de mejoras necesarias en la velocidad de carga y experiencia de usuario.
+  - Estadísticas agregadas e anónimas sobre patrones de uso.
 
-> **Promesa de Privacidad:** No vendemos, alquilamos ni compartimos tus datos personales con terceros bajo ningún concepto publicitario o comercial.
+> **Promesa de Privacidad:** No vendemos, alquilamos ni compartimos tus datos personales con terceros bajo ningún concepto publicitario o comercial. Los proveedores de infraestructura (Supabase, Vercel) actúan únicamente como encargados del tratamiento de datos, sin derecho a utilizar la información para fines propios.
 
 ---
 
 ### 3. Almacenamiento y Seguridad
 
-Tus datos son almacenados en infraestructura segura en la nube provista por **Supabase** (PostgreSQL con cifrado en tránsito y en reposo). Aplicamos políticas de seguridad RLS (Row Level Security) para garantizar que únicamente vos puedas leer y modificar tus avances académicos.
+Tus datos se almacenan en infraestructura segura en la nube:
+- **Datos de cuenta y académicos:** Provista por **Supabase** (PostgreSQL con cifrado en tránsito y en reposo). Aplicamos políticas de seguridad RLS (Row Level Security) para garantizar que únicamente vos puedas leer y modificar tus avances académicos.
+- **Datos de navegación y rendimiento:** Procesados y almacenados por **Vercel** a través de Web Analytics y Speed Insights. Estos datos son anónimos y no permiten identificarte como individuo.
 
 ---
 
 ### 4. Cookies y Almacenamiento Local
 
-Utilizamos cookies esenciales y almacenamiento local (`localStorage`) para gestionar la sesión de usuario y la preferencia de tema (Modo Claro / Modo Oscuro). Podés borrar las cookies desde las opciones de tu navegador en cualquier momento.
+**Cookies esenciales:**
+- Sesión de Supabase Auth: necesaria para que tu cuenta permanezca autenticada mientras navegás.
+
+**Almacenamiento local (`localStorage`):**
+- Preferencia de tema (Modo Claro / Modo Oscuro).
+- Seguimiento local de carreras y materias consultadas (no requiere estar registrado).
+
+**Cookies de terceros / Analítica:**
+Vercel Web Analytics y Vercel Speed Insights **no utilizan cookies ni identificadores persistentes**. Por lo tanto, **no se muestra banner de consentimiento de cookies** en esta plataforma — no hay cookies publicitarias ni de terceros que rastrear. Los únicos datos compartidos con Vercel son anónimos y agregados.
+
+Podés borrar las cookies de sesión desde las opciones de tu navegador en cualquier momento. También podés bloquear el envío de datos de navegación con cualquier bloqueador de rastreadores estándar.
 
 ---
 
-### 5. Derechos del Usuario
+### 5. Servicios de Terceros
+
+Utilizamos dos proveedores externos como encargados del tratamiento de datos:
+
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+
+<Table>
+  <TableHeader>
+    <TableRow>
+      <TableHead>Proveedor</TableHead>
+      <TableHead>Finalidad</TableHead>
+      <TableHead>Datos Tratados</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    <TableRow>
+      <TableCell className="font-semibold">Supabase</TableCell>
+      <TableCell>Autenticación y Base de Datos</TableCell>
+      <TableCell>Datos de cuenta (correo, nombre) y avance académico (materias, estados)</TableCell>
+    </TableRow>
+    <TableRow>
+      <TableCell className="font-semibold">Vercel</TableCell>
+      <TableCell>Hosting, Web Analytics, Speed Insights</TableCell>
+      <TableCell>Datos de navegación anónimos (páginas vistas, país, dispositivo, rendimiento)</TableCell>
+    </TableRow>
+  </TableBody>
+</Table>
+
+Ambos actúan bajo cláusulas de confidencialidad y no tienen derecho a usar los datos para fines comerciales propios.
+
+---
+
+### 6. Derechos del Usuario
 
 Tenés derecho a:
 - Acceder a los datos almacenados en tu cuenta.
 - Modificar o corregir tu información personal en la sección de Configuración de Perfil.
 - Solicitar la eliminación completa de tu cuenta y todos tus datos asociados escribiéndonos a través del formulario de Contacto.
+
+**Nota:** Los datos de navegación y rendimiento recolectados por Vercel Analytics y Speed Insights son **anónimos y no vinculables a una persona individual**. Por su naturaleza agregada, no son eliminables a pedido. Si preferís no contribuir a estas métricas, podés usar un bloqueador de rastreadores estándar en tu navegador.
