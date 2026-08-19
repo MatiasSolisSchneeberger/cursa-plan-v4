@@ -5,6 +5,7 @@ import { createClient } from "@/utils/supabase/server"
 import { cookies } from "next/headers"
 import type { Provider } from "@supabase/supabase-js"
 import type { AuthResponse, SignInData, SignUpData, Usuario } from "@/types/auth"
+import { urlAbsoluta } from "@/lib/site"
 
 /**
  * Registra a un nuevo usuario en Supabase Auth y sincroniza su perfil en la tabla public.usuarios.
@@ -268,12 +269,8 @@ export async function resetPassword(email: string): Promise<AuthResponse> {
 	const cookieStore = await cookies()
 	const supabase = createClient(cookieStore)
 
-	const origin = process.env.VERCEL_URL
-		? `https://${process.env.VERCEL_URL}`
-		: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
-
 	const { error } = await supabase.auth.resetPasswordForEmail(email, {
-		redirectTo: `${origin}/auth/callback?next=/update-password`,
+		redirectTo: urlAbsoluta("/auth/callback?next=/update-password"),
 	})
 
 	if (error) {
