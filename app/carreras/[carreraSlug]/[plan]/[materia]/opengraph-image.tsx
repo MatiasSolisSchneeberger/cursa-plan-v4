@@ -17,6 +17,12 @@ export default async function Image({ params }: Props) {
 
 	try {
 		const materiaData = await getMateriaDetalle(carreraSlug, plan, materia)
+		if (!materiaData) {
+			return new ImageResponse(<OgImage tipo="default" />, {
+				...size,
+				fonts,
+			})
+		}
 
 		return new ImageResponse(
 			<OgImage

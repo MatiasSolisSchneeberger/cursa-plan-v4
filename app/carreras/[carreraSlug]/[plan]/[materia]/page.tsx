@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import * as React from "react"
 import Link from "next/link"
 import { cookies } from "next/headers"
+import { notFound } from "next/navigation"
 import { createClient } from "@/utils/supabase/server"
 import { getMateriaDetalle, getFeriados } from "@/lib/carreras"
 import { getCurrentUser } from "@/lib/auth"
@@ -35,12 +36,20 @@ interface PageProps {
 	}>
 }
 
+const notFoundMetadata: Metadata = {
+	title: "Materia no encontrada",
+	description: "No pudimos encontrar la materia solicitada.",
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
 	const resolvedParams = await params
 	const { carreraSlug, plan, materia } = resolvedParams
 
 	try {
 		const materiaData = await getMateriaDetalle(carreraSlug, plan, materia)
+		if (!materiaData) {
+			return notFoundMetadata
+		}
 		return {
 			title: `${materiaData.nombre} — ${materiaData.plan.carrera.nombre}`,
 			description: `Correlativas para cursar y rendir, y próximas mesas de examen de ${materiaData.nombre} (${materiaData.anio}º año) en ${materiaData.plan.carrera.nombre}.`,
@@ -51,10 +60,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 			},
 		}
 	} catch {
-		return {
-			title: "Materia no encontrada",
-			description: "No pudimos encontrar la materia solicitada.",
-		}
+		return notFoundMetadata
 	}
 }
 
@@ -91,6 +97,9 @@ export default async function MateriaDetailPage({ params }: PageProps) {
 		getMateriaDetalle(carreraSlug, plan, materiaSlug),
 		getFeriados(),
 	])
+	if (!materia) {
+		notFound()
+	}
 	const setFeriados = new Set(feriados)
 
 	// Obtener usuario autenticado y su estado actual para la materia

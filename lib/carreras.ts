@@ -840,7 +840,7 @@ export async function getMateriaDetalle(
 	carreraSlug: string,
 	planIdOrYear: number | string,
 	materiaSlug: string,
-): Promise<DatosMateriaDetalle> {
+): Promise<DatosMateriaDetalle | null> {
 	"use cache"
 	cacheLife("hours")
 
@@ -897,7 +897,7 @@ export async function getMateriaDetalle(
 	}
 
 	if (!data) {
-		throw new Error(`Materia no encontrada en el plan especificado: ${materiaSlug}`)
+		return null
 	}
 
 	const typedRow = data as unknown as MateriaDetalleQueryRow
