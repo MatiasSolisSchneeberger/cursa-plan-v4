@@ -63,8 +63,9 @@ export default function MateriaSidebar({
 	const router = useRouter()
 
 	// Obtener el slug de la materia actual desde la URL
+	// /carreras/[carreraSlug]/[plan]/[materia] -> ["carreras", carreraSlug, plan, materia]
 	const segments = pathname.split("/").filter(Boolean)
-	const currentMateriaSlug = segments[2] || ""
+	const currentMateriaSlug = segments[3] || ""
 
 	// Aplanar la lista de materias de todos los años para el selector
 	const allMateriasByAnio = React.useMemo(() => {
